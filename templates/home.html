@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>Parte I: Identificación</h1>
+
+    <form class="form-horizontal" method="post">{% csrf_token %}
+        <fieldset>
+            <legend>Datos Generales</legend>
+        </fieldset>
+
+        {% with form.nombres as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.apellidos as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.rut as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.fecha_nacimiento as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.sexo as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.direccion as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.telefono as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.fecha_ingreso as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.familiar_participa as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        <br>
+
+        <fieldset>
+            <legend>Situación Socioeconómica</legend>
+        </fieldset>
+
+        {% with form.estado_civil as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.nivel_escolaridad as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.ocupacion as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.prevision_salud as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        <br>
+
+        <fieldset>
+            <legend>Composición Familiar</legend>
+        </fieldset>
+
+        {% with familia_form.numero_integrantes as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.ingreso_total_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.tipo_de_familia as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        {# composicion #}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Rut</th>
+                    <th>Parentesco</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Estado civil</th>
+                    <th>Nivel de escolaridad</th>
+                    <th>Calificaión laboral</th>
+                    <th>Ocupación</th>
+                    <th>Aporta ingresos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                    <td><input class="input-small" type="text"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <fieldset>
+            <legend>Principales Condiciones de Vulnerabilidad Social en el Grupo Familiar</legend>
+        </fieldset>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Presente</th>
+                    <th>No presente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Hogar unipersonal en situación de riesgo.</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Familia monoparental en situación de riesgo.</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Consumo problemático de alcohol y/o drogas.</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Presencia de discapacidad física y/o mental.</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Experiencias de malos tratos (actual o histórica).</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+                <tr>
+                    <td>Historial de socialización delictual (detenciones, problemas judiciales).</td>
+                    <td><input type="radio" name="prec" value="si"></td>
+                    <td><input type="radio" name="prec" value="no"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <button type="submit" class="btn">Guardar</button>
+
+    </form>
+
+{% endblock %}
+
+{% block extra_footer %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#test").datepicker();
+        });
+    </script>
+{% endblock %}
