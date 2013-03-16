@@ -63,7 +63,9 @@
         </table>
 
         <div>
-            <a href="#" id="btn_add_person" class="btn">Agregar Persona</a>
+            {% if familia %}
+                <a href="#" id="btn_add_person" class="btn">Agregar Persona</a>
+            {% endif %}
         </div>
 
         <br>
