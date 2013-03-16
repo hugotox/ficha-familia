@@ -1,5 +1,5 @@
 .DS_Store
 *.pyc
 .idea/
-settings_local.*
+FichaFamilia/settings_local.*
 pruebas.py
