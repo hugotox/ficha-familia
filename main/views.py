@@ -1,10 +1,9 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.shortcuts import render_to_response
-from tastypie.http import HttpNotFound
 from main.models import PersonaForm, FamiliaForm, Familia, Persona
 from django.utils import simplejson
 
@@ -76,7 +75,7 @@ def ficha(request, id):
     try:
         persona = Persona.objects.get(id=id)
     except:
-        return HttpNotFound()
+        return Http404()
     form = PersonaForm(instance=persona)
     return render(request, 'ficha_persona.html', locals())
 
@@ -90,7 +89,7 @@ def eliminar_familia(request, id):
     try:
         familia = Familia.objects.get(id=id)
     except:
-        return HttpNotFound()
+        return Http404()
 
     if request.method == 'POST':
         familia.delete()
@@ -107,7 +106,7 @@ def eliminar_persona(request, id):
     try:
         persona = Persona.objects.get(id=id)
     except:
-        return HttpNotFound()
+        return Http404()
 
     if request.method == 'POST':
         persona.delete()
