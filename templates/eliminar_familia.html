@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="alert alert-danger">
+        Está a punto de eliminar la familia "{{ familia }}" y todos sus integrates:
+        <br><br>
+        <ul>
+            {% for persona in familia.persona_set.all %}
+                <li>{{ persona }}</li>
+            {% endfor %}
+        </ul>
+        Esta operación no se puede deshacer. Desea continuar?
+        <br><br>
+
+        <form action="" method="post">{% csrf_token %}
+            <input type="hidden" name="id" value="{{ familia.id }}">
+            <button type="submit" class="btn btn-danger">
+                Sí
+            </button>
+            <a href=".." class="btn">No</a>
+        </form>
+    </div>
+{% endblock %}

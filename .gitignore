@@ -1,0 +1,5 @@
+.DS_Store
+*.pyc
+.idea/
+settings_local.*
+pruebas.py

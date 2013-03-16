@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if familia %}Familia {{ familia }}{% else %}Nueva familia{% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+    <h1>Parte I: Identificación</h1>
+
+    <form class="form-horizontal" method="post">{% csrf_token %}
+
+        {{ familia_form.created_by }}
+
+        <fieldset>
+            <legend>Composición Familiar</legend>
+        </fieldset>
+
+        {% with familia_form.apellidos as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.numero_integrantes as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.ingreso_total_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.tipo_de_familia as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        {# composicion #}
+        <table id="lista_personas" class="table table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Parentesco</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Estado civil</th>
+                    <th>Nivel de escolaridad</th>
+                    <th>Calificación laboral</th>
+                    <th>Ocupación</th>
+                    <th>Aporta ingresos</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for persona in familia.persona_set.all %}
+                    <tr class="persona-{{ persona.id }}">
+                        <td>
+                            <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona.nombres }} {{ persona.apellido_paterno }}</a>
+                        </td>
+                        <td></td>
+                        <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento }} {% endif %}</td>
+                        <td class="estado_civil">{{ persona.estado_civil }}</td>
+                        <td class="nivel_escolaridad">{{ persona.nivel_escolaridad }}</td>
+                        <td class="calificacion_laboral">{{ persona.calificacion_laboral }}</td>
+                        <td class="ocupacion">{{ persona.ocupacion }}</td>
+                        <td class="aporta_ingreso">{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}</td>
+                        <td>
+                            <a href="/persona/del/{{ persona.id }}/?next=/familia/{{ familia.id }}" class="btn">Eliminar</a>
+                        </td>
+                        <td>
+                            <a href="/ficha/{{ persona.id }}/" class="btn">Ficha</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="#" id="btn_add_person" class="btn">Agregar Persona</a>
+        </div>
+
+        <br>
+
+        <fieldset>
+            <legend>Principales Condiciones de Vulnerabilidad Social en el Grupo Familiar</legend>
+        </fieldset>
+
+        <table class="table table-hover table-condensed ficha-form">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>
+                        Presente
+                        <span style="margin-left: 20px">No presente</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
+                    <td>{{ familia_form.cond_precariedad }}</td>
+                </tr>
+                <tr>
+                    <td>Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).</td>
+                    <td>{{ familia_form.cond_vulnerabilidad }}</td>
+                </tr>
+                <tr>
+                    <td>Hogar unipersonal en situación de riesgo.</td>
+                    <td>{{ familia_form.cond_hogar_uni_riesgo }}</td>
+                </tr>
+                <tr>
+                    <td>Familia monoparental en situación de riesgo.</td>
+                    <td>{{ familia_form.cond_familia_mono_riesgo }}</td>
+                </tr>
+                <tr>
+                    <td>Consumo problemático de alcohol y/o drogas.</td>
+                    <td>{{ familia_form.cond_alcohol_drogas }}</td>
+                </tr>
+                <tr>
+                    <td>Presencia de discapacidad física y/o mental.</td>
+                    <td>{{ familia_form.cond_discapacidad }}</td>
+                </tr>
+                <tr>
+                    <td>Experiencias de malos tratos (actual o histórica).</td>
+                    <td>{{ familia_form.cond_malos_tratos }}</td>
+                </tr>
+                <tr>
+                    <td>Historial de socialización delictual (detenciones, problemas judiciales).</td>
+                    <td>{{ familia_form.cond_socializ_delictual }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <button type="submit" class="btn">Guardar</button>
+
+    </form>
+
+    <div id="persona_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Editar información personal</h3>
+        </div>
+        <div class="modal-body">
+            <form id="form_persona">
+                {% csrf_token %}
+                <table class="form_fields"></table>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+            <button id="btn_guardar_persona" class="btn btn-primary">Guardar</button>
+        </div>
+    </div>
+
+    <div style="display: none">
+        <table>
+            <tr id="fila_template">
+                <td><a class="link_persona nombre" href="#" id=""></a></td>
+                <td></td>
+                <td class="fecha_nacimiento"></td>
+                <td class="estado_civil"></td>
+                <td class="nivel_escolaridad"></td>
+                <td class="calificacion_laboral"></td>
+                <td class="ocupacion"></td>
+                <td class="aporta_ingreso"></td>
+                <td><a href="" class="btn btn_eliminar">Eliminar</a></td>
+                <td><a href="" class="btn btn_ficha">Ficha</a></td>
+            </tr>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block extra_footer %}
+<script type="text/javascript">
+
+    var $persona_modal;
+    var $form_persona;
+
+    function get_persona_form(id){
+        var url = '/get_persona_form/{{ familia.id }}/' + id;
+        $form_persona.attr("action", url);
+        $.getJSON(url, function(data){
+            $persona_modal.find('.form_fields').html(data.form);
+            $persona_modal.modal();
+        });
+    }
+
+    function set_link_persona(){
+        $('.link_persona').click(function(){
+            get_persona_form($(this).attr('id'));
+            return false;
+        });
+    }
+
+    $(document).ready(function () {
+
+        $persona_modal = $('#persona_modal');
+        var $btn_add_person = $('#btn_add_person');
+        var $btn_guardar_persona = $("#btn_guardar_persona");
+        $form_persona = $('#form_persona');
+        var $fila_template = $('#fila_template');
+        var $lista_personas = $('#lista_personas');
+
+        $persona_modal.on('hidden', function () {
+            $persona_modal.find('.form_fields').html("");
+        });
+
+        $btn_add_person.click(function(){
+            get_persona_form(0);
+            return false;
+        });
+
+        set_link_persona();
+
+        $btn_guardar_persona.click(function(){
+            $.post(
+                $form_persona.attr('action'),
+                $form_persona.serialize(),
+                function(data){
+                    $persona_modal.find('.form_fields').html(data.form);
+                    $form_persona.attr('action', '/get_persona_form/{{ familia.id }}/' + data.id);
+                    if(data.saved){
+
+                        var $fila = $('.persona-' + data.id);
+                        if($fila.length > 0){
+
+                        } else {
+                            //nueva
+                            $lista_personas.find('tr:last').after("<tr class='persona-"+data.id+"'>" + $fila_template.html() + "</tr>");
+                            $fila = $('.persona-' + data.id);
+                            $fila.find('.nombre').attr('id', data.id);
+                            $fila.find('.btn_ficha').attr('href', "/ficha/"+data.id+"/");
+                            $fila.find('.btn_eliminar').attr('href', "/persona/del/"+data.id+"/?next=/familia/{{ familia.id }}");
+                            set_link_persona();
+                        }
+
+                        $fila.find('.nombre').html($form_persona.find("input[name='nombres']").val() + ' ' + $form_persona.find("input[name='apellido_paterno']").val());
+                        $fila.find('.fecha_nacimiento').html($form_persona.find("input[name='fecha_nacimiento']").val());
+                        $fila.find('.estado_civil').html($form_persona.find("input[name='estado_civil']").val());
+                        $fila.find('.nivel_escolaridad').html($form_persona.find("input[name='nivel_escolaridad']").val());
+                        $fila.find('.calificacion_laboral').html($form_persona.find("input[name='calificacion_laboral']").val());
+                        $fila.find('.ocupacion').html($form_persona.find("input[name='ocupacion']").val());
+                        var aporta = "No";
+                        if($form_persona.find("input[name='aporta_ingreso']").is(":checked")){
+                            aporta = "Sí";
+                        }
+                        $fila.find('.aporta_ingreso').html(aporta);
+
+                        $persona_modal.modal('hide');
+                    }
+                }
+            );
+        });
+    });
+</script>
+{% endblock %}
