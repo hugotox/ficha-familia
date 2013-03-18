@@ -123,7 +123,8 @@ EVALUACION_CHOICES = (
 
 class EvaluacionFactoresProtectores(models.Model):
     persona = models.ForeignKey(Persona)
-    etapa = models.CharField(max_length=20, choices=(('fnicio', 'Inicio'), ('cumplimiento', 'Cumplimiento')))
+    anio_aplicacion = models.IntegerField(verbose_name=u'Año de aplicación')
+    etapa = models.CharField(max_length=20, choices=(('inicio', 'Inicio'), ('cumplimiento', 'Cumplimiento')))
     presencia_red_de_apoyo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
     relaciones_con_vecindario = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
     participacion_social = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
@@ -145,6 +146,9 @@ class EvaluacionForm(forms.ModelForm):
     class Meta:
         model = EvaluacionFactoresProtectores
 
+        widgets = {
+            'persona': forms.HiddenInput()
+        }
 
 # class PlanDeDesarrollo(models.Model):
 #     familia = models.ForeignKey(Familia)

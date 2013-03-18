@@ -24,3 +24,16 @@ ul.errorlist li{
 .ficha-form tr > td > ul > li > label {
     display: inline;
 }
+
+span.prom-ini,
+span.prom-cum{
+    width: 40px;
+    border: 1px solid #999999;
+    padding: 3px;
+    display: inline-block;
+    min-height: 20px;
+}
+
+.form-actions, .form-horizontal .form-actions{
+    padding: 22px;
+}

@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.shortcuts import render_to_response
-from main.models import PersonaForm, FamiliaForm, Familia, Persona
+from main.models import PersonaForm, FamiliaForm, Familia, Persona, EvaluacionForm
 from django.utils import simplejson
 
 
@@ -27,7 +27,7 @@ def home(request):
 
     page = request.GET.get('page', 1)
 
-    paginator = Paginator(familias, 20) # 20 familias por pagina
+    paginator = Paginator(familias, 20)  # 20 familias por pagina
 
     try:
         familias = paginator.page(page)
@@ -71,16 +71,6 @@ def familia(request, id):
 
 
 @login_required
-def ficha(request, id):
-    try:
-        persona = Persona.objects.get(id=id)
-    except:
-        return Http404()
-    form = PersonaForm(instance=persona)
-    return render(request, 'ficha_persona.html', locals())
-
-
-@login_required
 def eliminar_familia(request, id):
 
     if request.method == 'POST':
@@ -96,6 +86,7 @@ def eliminar_familia(request, id):
         return HttpResponseRedirect('/')
 
     return render(request, 'eliminar_familia.html', locals())
+
 
 @login_required
 def eliminar_persona(request, id):
@@ -116,7 +107,7 @@ def eliminar_persona(request, id):
 
 
 @login_required
-def get_persona_form(request, familia_id,  id):
+def get_persona_form(request, familia_id, id):
 
     saved = False
     familia = Familia.objects.get(id=familia_id)
@@ -147,3 +138,13 @@ def get_persona_form(request, familia_id,  id):
             form = PersonaForm(initial={'familia': familia})
 
     return HttpResponse(simplejson.dumps({'form': form.as_table(), 'saved': saved, 'id': id}), content_type='application/json')
+
+
+@login_required
+def ficha(request, id):
+    try:
+        persona = Persona.objects.get(id=id)
+    except:
+        return Http404()
+    form = EvaluacionForm(initial={'persona': persona})
+    return render(request, 'ficha_persona.html', locals())

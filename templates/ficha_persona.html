@@ -1,18 +1,146 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    Ficha: {{ persona }}
+{% endblock %}
+
 {% block content %}
 
-    <h1>Parte II: </h1>
+    <h1>Parte II: Evaluación de Factores Protectores</h1>
+    <br>
 
-    <div class="alert alert-info">
-    Pagina en construccion
-    </div>
+    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+        {{ form.persona }}
+
+        {% with form.anio_aplicacion as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with form.etapa as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        <fieldset>
+            <legend>A. Relaciones Comunitarias</legend>
+        </fieldset>
+
+        <table class="table table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Factor Protector</th>
+                    <th>Tendencia a FP</th>
+                    <th>Línea Base</th>
+                    <th>Tendencia a FR</th>
+                    <th>Factor de Riesgo</th>
+                    <th>No Aplica</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% with form.presencia_red_de_apoyo as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                {% with form.relaciones_con_vecindario as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                {% with form.participacion_social as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                <tr>
+                    <td colspan="7"></td>
+                    <td>
+                        <label>
+                            <span style="width: 62px;display: inline-block">Prom (I):</span>
+                            <span class="prom-ini"></span>&nbsp;</label>
+                        <label>
+                            <span style="width: 62px;display: inline-block">Prom (C):</span>
+                            <span class="prom-cum"> &nbsp; </span></label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <fieldset>
+            <legend>B. Acceso</legend>
+        </fieldset>
+
+        <table class="table table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Factor Protector</th>
+                    <th>Tendencia a FP</th>
+                    <th>Línea Base</th>
+                    <th>Tendencia a FR</th>
+                    <th>Factor de Riesgo</th>
+                    <th>No Aplica</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% with form.red_de_servicios_y_beneficios_sociales as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                {% with form.ocio_y_encuentro_con_pares as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                {% with form.espacios_formativos_y_de_desarrollo as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
+                <tr>
+                    <td colspan="7"></td>
+                    <td>
+                        <label>
+                            <span style="width: 62px;display: inline-block">Prom (I):</span>
+                            <span class="prom-ini"></span>&nbsp;</label>
+                        <label>
+                            <span style="width: 62px;display: inline-block">Prom (C):</span>
+                            <span class="prom-cum"> &nbsp; </span></label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+    </form>
 
 {% endblock %}
 
 {% block extra_footer %}
-    <script type="text/javascript">
-        $(document).ready(function () {
+<script type="text/javascript">
+
+    function promediar($fila, etapa){
+        var $table = $fila.closest('table');
+        var suma = 0;
+        var num_elementos = 0;
+        var $radios = $table.find("input[type='radio']." + etapa);
+        for(var i=0; i<$radios.length; i++){
+            var $r = $($radios[i]);
+            if($r.is(':checked')){
+                var valor = parseInt($r.val());
+                if(valor != -100){
+                    suma += valor;
+                    num_elementos++;
+                }
+            }
+        }
+        if(num_elementos > 0){
+            var promedio = round_number(suma / num_elementos, 2);
+            $table.find(".prom-" + etapa).html(promedio);
+        }
+    }
+
+    $(document).ready(function () {
+
+        $('.fila-evaluacion').each(function(){
+            var $fila = $(this);
+            var $sum_ini = $fila.find(".suma-ini");
+            var $sum_cum = $fila.find(".suma-cum");
+            $fila.find("input[type='radio'].ini").change(function(){
+                var valor = $(this).val();
+                if(valor == -100){
+                    $sum_ini.html("");
+                } else {
+                    $sum_ini.html(valor);
+                }
+                promediar($fila, 'ini');
+            });
+            $fila.find("input[type='radio'].cum").change(function(){
+                var valor = $(this).val();
+                if(valor == -100){
+                    $sum_cum.html("");
+                } else {
+                    $sum_cum.html(valor);
+                }
+                promediar($fila, 'cum');
+            });
         });
-    </script>
+
+    });
+</script>
 {% endblock %}

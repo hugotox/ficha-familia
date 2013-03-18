@@ -8,6 +8,7 @@
 {% block content %}
 
     <h1>Parte I: Identificación</h1>
+    <br>
 
     <form class="form-horizontal" method="post">{% csrf_token %}
 
@@ -122,7 +123,24 @@
 
         <br>
 
-        <button type="submit" class="btn">Guardar</button>
+        <div class="form-actions">
+            <button type="submit" value="Guardar" class="btn">
+                <i class="icon-ok"></i>
+                <span class="hidden-phone">Guardar</span>
+            </button>
+
+            <a href="/familia/{{ familia.id }}/del/" class="btn">
+                <i class="icon-remove"></i>
+                <span class="hidden-phone">Eliminar</span>
+            </a>
+
+            <a href="/" class="pull-right">
+                Volver
+            </a>
+
+        </div>
+
+
 
     </form>
 
@@ -174,6 +192,7 @@
         $.getJSON(url, function(data){
             $persona_modal.find('.form_fields').html(data.form);
             $persona_modal.modal();
+            bind_datepickers();
         });
     }
 
