@@ -1,10 +1,10 @@
 function bind_datepickers(){
-//    $('.datepicker').datepicker({
-//        changeMonth: true,
-//        changeYear: true,
-//        dateFormat: "dd/mm/yy",
-//        firstDay: 1
-//    });
+    $('.datepicker').datepicker({
+        format: 'dd/mm/yyyy',
+        weekStart: 1,
+        autoclose: true,
+        language: 'es'
+    });
 }
 
 var round_number = function (number, decimals) {

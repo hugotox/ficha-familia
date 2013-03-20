@@ -1,3 +1,14 @@
+#footer{
+    margin: 20px 0 0 0;
+    padding: 20px;
+    background-color: #eee;
+    text-align: center;
+}
+
+#footer .muted{
+    margin: 0;
+}
+
 ul.errorlist{
     margin: 0 0 10px 180px;
 }
@@ -36,4 +47,63 @@ span.prom-cum{
 
 .form-actions, .form-horizontal .form-actions{
     padding: 22px;
+}
+
+.form-search{
+    position: relative;
+}
+
+.form-search .search-icon{
+    z-index: 3;
+    cursor: pointer;
+    display: block;
+    height: 26px;
+    position: absolute;
+    right: 2px;
+    top: 0;
+    width: 26px;
+}
+
+.form-search .search-icon .nav-search{
+    margin-left: 7px;
+    margin-top: 5px;
+    height: 14px;
+    width: 12px;
+    background: transparent url("../img/twitter_web_sprite_icons.png") no-repeat -20px -710px;
+    display: inline-block;
+    vertical-align: text-top;
+    border: 0 none;
+}
+
+.visuallyhidden {
+    border: 0 none;
+    clip: rect(0px, 0px, 0px, 0px);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.main-title-table{
+    width: 100%;
+}
+
+.main-title-table .right{
+    text-align: right;
+}
+
+.main-title-table hr{
+    margin-top: 0;
+    border-width: 3px;
+}
+.tabla-filtrable input,
+.tabla-filtrable select{
+    width: auto;
+    margin: 0;
+}
+
+.botones-busqueda{
+    margin-bottom: 8px;
 }

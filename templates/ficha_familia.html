@@ -8,11 +8,17 @@
 {% block content %}
 
     <h1>Parte I: Identificación</h1>
+
+    {% if message %}
+        <div class="alert alert-{{ message_class }}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ message }}
+        </div>
+    {% endif %}
+
     <br>
 
     <form class="form-horizontal" method="post">{% csrf_token %}
-
-        {{ familia_form.created_by }}
 
         <fieldset>
             <legend>Composición Familiar</legend>
@@ -20,10 +26,46 @@
 
         {% with familia_form.apellidos as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.numero_integrantes as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+
+        {% if es_admin %}
+            {% with familia_form.centro_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% else %}
+            <input type="hidden" id="{{ familia_form.centro_familiar.auto_id }}" name="{{ familia_form.centro_familiar.name }}" value="{{ familia_form.centro_familiar.value }}">
+        {% endif %}
+
         {% with familia_form.ingreso_total_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.tipo_de_familia as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.tipo_mono as field %}
+            <div class="control-group" {% ifnotequal familia_form.tipo_de_familia.value "Monoparental" %}style="display: none" {% endifnotequal %}>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+                <label class="control-label" for="{{ field.auto_id }}">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                        <span class="red"></span>
+                    {% endif %}
+                    :
+                </label>
+                <div class="controls">
+                    {{ field }}
+                    <span class="helptext">{{ field.help_text }}</span>
+                </div>
+            </div>
+        {% endwith %}
+
+        <fieldset>
+            <legend>Integrantes de la Familia</legend>
+        </fieldset>
 
         {# composicion #}
+        <div>
+            {% if familia %}
+                <div class="pull-right">
+                    <a href="#" id="btn_add_person" class="btn"><i class="icon-plus-sign"></i> Agregar Persona</a>
+                </div>
+            {% endif %}
+        </div>
         <table id="lista_personas" class="table table-hover table-condensed">
             <thead>
                 <tr>
@@ -46,28 +88,28 @@
                             <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona.nombres }} {{ persona.apellido_paterno }}</a>
                         </td>
                         <td></td>
-                        <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento }} {% endif %}</td>
+                        <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
                         <td class="estado_civil">{{ persona.estado_civil }}</td>
                         <td class="nivel_escolaridad">{{ persona.nivel_escolaridad }}</td>
                         <td class="calificacion_laboral">{{ persona.calificacion_laboral }}</td>
                         <td class="ocupacion">{{ persona.ocupacion }}</td>
                         <td class="aporta_ingreso">{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}</td>
                         <td>
-                            <a href="/persona/del/{{ persona.id }}/?next=/familia/{{ familia.id }}" class="btn">Eliminar</a>
+                            <a href="/persona/del/{{ persona.id }}/?next=/familia/{{ familia.id }}" class="btn">
+                                <i class="icon-remove"></i>
+                                Eliminar
+                            </a>
                         </td>
                         <td>
-                            <a href="/ficha/{{ persona.id }}/" class="btn">Ficha</a>
+                            <a href="/ficha/{{ persona.id }}/" class="btn">
+                                <i class="icon-pencil"></i>
+                                Ficha
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <div>
-            {% if familia %}
-                <a href="#" id="btn_add_person" class="btn">Agregar Persona</a>
-            {% endif %}
-        </div>
 
         <br>
 
@@ -124,23 +166,21 @@
         <br>
 
         <div class="form-actions">
-            <button type="submit" value="Guardar" class="btn">
-                <i class="icon-ok"></i>
-                <span class="hidden-phone">Guardar</span>
+            <button type="submit" value="Guardar" class="btn btn-primary">
+                Guardar
             </button>
 
+            {% if familia %}
             <a href="/familia/{{ familia.id }}/del/" class="btn">
-                <i class="icon-remove"></i>
-                <span class="hidden-phone">Eliminar</span>
+                Eliminar
             </a>
+            {% endif %}
 
             <a href="/" class="pull-right">
                 Volver
             </a>
 
         </div>
-
-
 
     </form>
 
@@ -156,8 +196,10 @@
             </form>
         </div>
         <div class="modal-footer">
+            <button id="btn_guardar_persona" class="btn btn-primary">
+                Guardar
+            </button>
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cerrar</button>
-            <button id="btn_guardar_persona" class="btn btn-primary">Guardar</button>
         </div>
     </div>
 
@@ -172,8 +214,12 @@
                 <td class="calificacion_laboral"></td>
                 <td class="ocupacion"></td>
                 <td class="aporta_ingreso"></td>
-                <td><a href="" class="btn btn_eliminar">Eliminar</a></td>
-                <td><a href="" class="btn btn_ficha">Ficha</a></td>
+                <td><a href="" class="btn btn_eliminar">
+                    <i class="icon-remove"></i>
+                    Eliminar</a></td>
+                <td><a href="" class="btn btn_ficha">
+                    <i class="icon-pencil"></i>
+                    Ficha</a></td>
             </tr>
         </table>
     </div>
@@ -186,6 +232,7 @@
     var $persona_modal;
     var $form_persona;
 
+    //obtiene el form de persona desde el servidor y lo muestra en el modal
     function get_persona_form(id){
         var url = '/get_persona_form/{{ familia.id }}/' + id;
         $form_persona.attr("action", url);
@@ -196,6 +243,7 @@
         });
     }
 
+    //se debe llamar a este metodo luego de insertar una nueva fila en la tabla persona para q tenga el link al modal
     function set_link_persona(){
         $('.link_persona').click(function(){
             get_persona_form($(this).attr('id'));
@@ -262,6 +310,16 @@
                 }
             );
         });
+
+        $("#{{ familia_form.tipo_de_familia.auto_id }}").change(function(){
+            if($(this).val() == 'Monoparental') {
+                $("#{{ familia_form.tipo_mono.auto_id }}").closest('.control-group').fadeIn();
+            } else {
+                $("#{{ familia_form.tipo_mono.auto_id }}").val("");
+                $("#{{ familia_form.tipo_mono.auto_id }}").closest('.control-group').fadeOut();
+            }
+        });
+
     });
 </script>
 {% endblock %}

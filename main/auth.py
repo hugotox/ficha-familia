@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django import forms
+from FichaFamilia.mensajes import CUENTA_EXPIRADA, LOGIN_ERR
 
 
 class LoginForm(forms.Form):
@@ -13,6 +14,8 @@ class LoginForm(forms.Form):
 
 
 def login_view(request):
+
+    msg_error = None
 
     if request.method == "POST":
 
@@ -34,18 +37,17 @@ def login_view(request):
                     return HttpResponseRedirect(next_page)
                 else:
                     # Return a 'disabled account' error message
-                    pass  # TODO
+                    msg_error = CUENTA_EXPIRADA
             else:
                 # Return an 'invalid login' error message.
-                pass  # TODO
+                msg_error = LOGIN_ERR
 
     else:
 
         form = LoginForm()
 
-        pass  # TODO
 
-    return render_to_response('login.html', {'form': form}, context_instance=RequestContext(request))
+    return render_to_response('login.html', {'form': form, 'msg_error': msg_error}, context_instance=RequestContext(request))
 
 
 def logout_view(request):

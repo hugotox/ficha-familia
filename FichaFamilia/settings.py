@@ -1,4 +1,4 @@
-# Django settings for FichaFamilia project.
+from datetime import datetime
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -156,7 +156,20 @@ LOGGING = {
 }
 
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+#TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+DATE_INPUT_FORMATS = (
+    '%d/%m/%Y',
+    '%Y-%m-%d', '%m/%d/%Y', '%m/%d/%y', # '2006-10-25', '10/25/2006', '10/25/06'
+    '%b %d %Y', '%b %d, %Y',            # 'Oct 25 2006', 'Oct 25, 2006'
+    '%d %b %Y', '%d %b, %Y',            # '25 Oct 2006', '25 Oct, 2006'
+    '%B %d %Y', '%B %d, %Y',            # 'October 25 2006', 'October 25, 2006'
+    '%d %B %Y', '%d %B, %Y',            # '25 October 2006', '25 October, 2006'
+)
+
+AUTH_PROFILE_MODULE = 'main.UserProfile'
+
+STATIC_FILES_VERSION = datetime.now().strftime("%Y%m%d%H%M%S")
 
 try:
     from settings_local import *

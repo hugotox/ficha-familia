@@ -1,63 +1,156 @@
 {% extends "base.html" %}
+{% load common_tags %}
+
+{% block top_right_content %}
+{#    <form class="form-search" action="." style="margin: 0 10px 0 0;display: inline-block">#}
+{#        <input type="text" class="input-medium search-query" name="q" value="{{ search_query }}" placeholder="Buscar">#}
+{#        <span class="search-icon js-search-action">#}
+{#          <button class="icon nav-search" type="submit" tabindex="-1">#}
+{#            <span class="visuallyhidden">#}
+{#              Buscar#}
+{#            </span>#}
+{#          </button>#}
+{#        </span>#}
+{#    </form>#}
+{% endblock %}
 
 {% block content %}
 
-    <h1>Listado de familias</h1>
+    <h1>Listado de Familias</h1>
 
-    <br>
+    <hr>
 
-    <div>
-        <div class="pull-left">
-            <form class="form-search" action=".">
-                <input type="text" class="input-medium search-query" name="q" value="{{ search_query }}">
-                <button type="submit" class="btn">Buscar por apellido</button>
-            </form>
+    <form id="form_search" class="form-search" method="post" action=".">{% csrf_token %}
+
+        <div class="botones-busqueda">
+            <button class="btn" type="submit">
+                Buscar
+            </button>
+            <a id="btn_limpiar" href="#" class="btn">
+                Limpiar
+            </a>
+            <a href="/familia/0/" class="btn pull-right">
+                <i class="icon-plus-sign"></i>
+                Agregar Familia
+            </a>
         </div>
-        <div class="pull-right">
-            <a href="/familia/0/" class="btn"><i class="icon-plus-sign"></i> Agregar Familia</a>
-        </div>
-    </div>
 
-
-    {% ifnotequal search_query "" %}
-        <p>Resultados para: "{{ search_query }}"</p>
-    {% endifnotequal %}
-
-    <table class="table table-hover table-condensed">
-        <thead>
-        <tr>
-            <th>Apellidos</th>
-            <th>Número de integrantes</th>
-            <th>Tipo</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for familia in familias %}
+        <table class="table table-hover table-condensed table-bordered tabla-filtrable">
+            <thead>
             <tr>
+                <th>
+                    <a href="{{ link_col_ficha }}">Ficha Nro.</a>
+                </th>
+                <th>
+                    <a href="{{ link_col_centro }}">Centro</a>
+                </th>
+                <th>
+                    <a href="{{ link_col_apellidos }}">Apellidos</a>
+                </th>
+                <th>
+                    <a href="{{ link_col_tipo }}">Tipo</a>
+                </th>
+                <th>
+                    <a href="{{ link_col_estado }}">Estado</a>
+                </th>
+                <th style="text-align: center">Acción</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input id="num_ficha" type="text" name="num_ficha" value="{{ num_ficha }}"></td>
                 <td>
-                    <a href="/familia/{{ familia.id }}">{{ familia.apellidos }}</a>
-                </td>
-                <td>{{ familia.numero_integrantes }}</td>
-                <td>
-                    {% if familia.tipo_de_familia %}
-                        {{ familia.tipo_de_familia }}
+                    {% if es_admin %}
+                        <select name="centro" id="centro">
+                            <option value="">--Todos--</option>
+                            {% for c in centros %}
+                                <option value="{{ c.id }}" {% ifequal centro c.id %}selected="selected"{% endifequal %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
                     {% endif %}
                 </td>
-                <th>
-                    <a class="btn" href="/familia/{{ familia.id }}/del">
-                        <i class="icon-remove"></i>
-                        Eliminar
-                    </a>
-                </th>
+                <td><input id="apellidos" type="text" name="apellidos" value="{{ apellidos }}"></td>
+                <td>
+                    <select name="tipo" id="tipo">
+                        <option value="">--Todos--</option>
+                        {% for t in tipos %}
+                            <option value="{{ t.0 }}" {% ifequal tipo t.0 %}selected="selected"{% endifequal %}>{{ t.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="estado" id="estado">
+                        <option value="">--Todos--</option>
+                        {% for e in estados %}
+                            <option value="{{ e.0 }}" {% ifequal estado e.0 %}selected="selected"{% endifequal %}>{{ e.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td></td>
             </tr>
-        {% endfor %}
+            {% for familia in familias %}
+                <tr>
+                    <td>
+                        <a href="/familia/{{ familia.id }}">{{ familia.id|zfill:10 }}</a>
+                    </td>
+                    <td>
+                        {{ familia.centro_familiar }}
+                    </td>
+                    <td>
+                        {{ familia.apellidos }}
+                    </td>
+                    <td>
+                        {% if familia.tipo_de_familia %}
+                            {{ familia.tipo_de_familia }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ familia.estado }}
+                    </td>
+                    <td style="text-align: center">
+                        <a class="btn btn-small" href="/familia/{{ familia.id }}/del">
+                            <i class="icon-remove"></i>
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </form>
 
     {% with familias as obj_list %}
         {% include 'paginator.html' %}
     {% endwith %}
 
+{% endblock %}
+
+{% block extra_footer %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var $form_search = $("#form_search");
+            var $num_ficha = $("#num_ficha");
+            var $centro = $("#centro");
+            var $apellidos = $("#apellidos");
+            var $tipo = $("#tipo");
+            var $estado = $("#estado");
+            var $psize_select = $("#psize_select");
+
+            $("#btn_limpiar").click(function(){
+                $num_ficha.val("");
+                $centro.val("");
+                $apellidos.val("");
+                $tipo.val("");
+                $estado.val("");
+                $form_search.submit();
+                return false;
+            });
+
+            $psize_select.change(function(){
+                var url = "{{ psize_select_pref|safe }}&psize=" + $psize_select.val();
+                window.location.href = url;
+            });
+        });
+    </script>
 {% endblock %}
