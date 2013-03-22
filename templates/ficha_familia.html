@@ -24,7 +24,8 @@
             <legend>Composición Familiar</legend>
         </fieldset>
 
-        {% with familia_form.apellidos as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.apellido_paterno as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.apellido_materno as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.numero_integrantes as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
 
         {% if es_admin %}
@@ -35,24 +36,6 @@
 
         {% with familia_form.ingreso_total_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.tipo_de_familia as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
-        {% with familia_form.tipo_mono as field %}
-            <div class="control-group" {% ifnotequal familia_form.tipo_de_familia.value "Monoparental" %}style="display: none" {% endifnotequal %}>
-                {% if field.errors %}
-                    {{ field.errors }}
-                {% endif %}
-                <label class="control-label" for="{{ field.auto_id }}">
-                    {{ field.label }}
-                    {% if field.field.required %}
-                        <span class="red"></span>
-                    {% endif %}
-                    :
-                </label>
-                <div class="controls">
-                    {{ field }}
-                    <span class="helptext">{{ field.help_text }}</span>
-                </div>
-            </div>
-        {% endwith %}
 
         <fieldset>
             <legend>Integrantes de la Familia</legend>
@@ -176,7 +159,7 @@
             </a>
             {% endif %}
 
-            <a href="/" class="pull-right">
+            <a href="#" class="pull-right" onclick="window.history.back()">
                 Volver
             </a>
 
@@ -309,15 +292,6 @@
                     }
                 }
             );
-        });
-
-        $("#{{ familia_form.tipo_de_familia.auto_id }}").change(function(){
-            if($(this).val() == 'Monoparental') {
-                $("#{{ familia_form.tipo_mono.auto_id }}").closest('.control-group').fadeIn();
-            } else {
-                $("#{{ familia_form.tipo_mono.auto_id }}").val("");
-                $("#{{ familia_form.tipo_mono.auto_id }}").closest('.control-group').fadeOut();
-            }
         });
 
     });

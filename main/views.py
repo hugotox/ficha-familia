@@ -1,6 +1,7 @@
 # -*- encoding: UTF-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from FichaFamilia.mensajes import DATOS_GUARDADOS
@@ -46,7 +47,10 @@ def home(request):
             familias = familias.filter(centro_familiar=centro)
 
         if apellidos != '':
-            familias = familias.filter(apellidos__icontains=apellidos)
+            familias = familias.filter(
+                Q(apellido_materno__icontains=apellidos) |
+                Q(apellido_paterno__icontains=apellidos)
+            )
 
         if tipo != '':
             familias = familias.filter(tipo_de_familia=tipo)
@@ -101,9 +105,13 @@ def home(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         familias = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
 
     paginator_links_pref = "/?order_by=%s&order_dir=%s&psize=%s" % (order_by, order_dir, page_size)
     psize_select_pref = "/?order_by=%s&order_dir=%s&page=%s" % (order_by, order_dir, page)
+
+    page_link_lower = page - 5
+    page_link_upper = page + 5
 
     # --- Links del header ---
 

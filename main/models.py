@@ -11,15 +11,16 @@ BOOLEAN_CHOICES = (
 )
 
 NIVEL_ESC_CHOICES = (
-    (u'Enseñanza Preescolar', u'Enseñanza Preescolar'),
-    (u'Enseñanza Básica Incompleta', u'Enseñanza Básica Incompleta'),
-    (u'Enseñanza Básica Completa', u'Enseñanza Básica Completa'),
-    (u'Enseñanza Media Incompleta', u'Enseñanza Media Incompleta'),
-    (u'Enseñanza Media Completa', u'Enseñanza Media Completa'),
-    (u'Técnica Incompleta', u'Técnica Incompleta'),
-    (u'Técnico Completa', u'Técnico Completa'),
-    (u'Universitaria Incompleta', u'Universitaria Incompleta'),
-    (u'Universitaria Completa', u'Universitaria Completa'),
+    (0, 'Sin Información'),
+    (1, 'Básica'),
+    (2, 'Media'),
+    (3, 'Universitaria'),
+    (4, 'Técnica'),
+    (5, 'Básica Incompleta'),
+    (6, 'Media Incompleta'),
+    (7, 'Técnica Incompleta'),
+    (8, 'Universitaria Incompleta'),
+    (10, 'Pre-Escolar'),
 )
 
 CALIFICACION_LABORAL_CHOICES = (
@@ -32,35 +33,34 @@ CALIFICACION_LABORAL_CHOICES = (
 )
 
 INGRESO_TOTAL_CHOICES = (
-    ('0-100.000', '0-100.000'),
-    ('100.000-200.000', '100.000-200.000'),
-    ('100.000-200.000', '200.000-300.000'),
-    (u'300.000-más', u'300.000-más')
+    (1, 'Entre 0 y 100.000'),
+    (2, 'Entre 100.001 y 200.000'),
+    (3, 'Entre 200.001 y 300.000'),
+    (4, 'Entre 300.001 y 400.000'),
+    (5, 'Entre 400.001 y 500.000'),
+    (6, 'Más de 500.000'),
 )
 
 TIPOS_FAMILIA_CHOICES = (
-    ('Nuclear', 'Nuclear'),
-    ('Monoparental', 'Monoparental'),
-    ('Extendida', 'Extendida'),
-    ('Unipersonal', 'Unipersonal'),
-    ('Otra', 'Otra')
-)
-
-TIPOS_FAMILIA_MONO_CHOICES = (
-    ('Padre', 'Padre'),
-    ('Madre', 'Madre'),
-    ('Abuelo(a)', 'Abuelo(a)'),
-    ('Otro Adulto Responsable', 'Otro Adulto Responsable')
+    (1, 'Monoparental Madre'),
+    (2, 'Monoparental Padre'),
+    (3, 'Monoparental Abuelo/a'),
+    (4, 'Monoparental Otro Adulto Responsable'),
+    (5, 'Nuclear Simple (sin hijos)'),
+    (6, 'Nuclear Biparental (con hijos)'),
+    (7, 'Extendida'),
+    (8, 'Otras'),
 )
 
 SEXO_CHOICES = (('Masculino', 'Masculino'), ('Femenino', 'Femenino'))
 
 ESTADO_CIVIL_CHOICES = (
-    ('Soltero', 'Soltero'),
-    ('Casado', 'Casado'),
-    ('Viudo', 'Viudo'),
-    ('Separado Judicialmente', 'Separado Judicialmente'),
-    ('Divorciado', 'Divorciado')
+    (0, 'Sin Información'),
+    (1, 'Soltero (a)'),
+    (2, 'Casado (a)'),
+    (3, 'Viudo (a)'),
+    (4, 'Separado (a)'),
+    (5, 'Convive'),
 )
 
 ETAPA_EVAL_CHOICES = (('inicio', 'Inicio'), ('cumplimiento', 'Cumplimiento'))
@@ -78,6 +78,29 @@ ESTADO_FAMILIA_CHOICES = (
     ('Vigente', 'Vigente'),
     ('Cerrada', 'Cerrada')
 )
+
+PREVISION_SALUD_CHOICES = (
+    (0, 'Sin Información'),
+    (1, 'Isapre'),
+    (2, 'INP'),
+    (3, 'Fonasa'),
+    (4, 'Capredena'),
+    (6, 'Sin Previsión'),
+)
+
+PARENTESCO_CHOICES = (
+    (10, 'Esposo (a)'),
+    (1, 'Padre'),
+    (2, 'Madre'),
+    (3, 'Hijo (a)'),
+    (4, 'Hermano (a)'),
+    (5, 'Abuelo (a)'),
+    (6, 'Nieto (a)'),
+    (7, 'Tio (a)'),
+    (8, 'Primo (a)'),
+    (9, 'Otro'),
+)
+
 
 class CentroFamiliar(models.Model):
     comuna = models.CharField(max_length=250)
@@ -102,11 +125,11 @@ post_save.connect(create_user_profile, sender=User)
 
 
 class Familia(models.Model):
-    apellidos = models.CharField(max_length=250)  # apellidos de la familia
+    apellido_materno = models.CharField(max_length=250)  # apellidos de la familia
+    apellido_paterno = models.CharField(max_length=250)  # apellidos de la familia
     numero_integrantes = models.IntegerField(verbose_name=u'Número de integrantes', help_text='(que viven en el hogar)')
-    ingreso_total_familiar = models.CharField(max_length=250, choices=INGRESO_TOTAL_CHOICES, null=True, blank=True)
-    tipo_de_familia = models.CharField(max_length=250, choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
-    tipo_mono = models.CharField(max_length=250, choices=TIPOS_FAMILIA_MONO_CHOICES, null=True, blank=True, verbose_name='Tipo Monoparental')
+    ingreso_total_familiar = models.IntegerField(choices=INGRESO_TOTAL_CHOICES, null=True, blank=True)
+    tipo_de_familia = models.IntegerField(choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
 
     cond_precariedad = models.BooleanField(default=False, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.')
     cond_vulnerabilidad = models.BooleanField(default=False, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).')
@@ -124,7 +147,7 @@ class Familia(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s' % self.apellidos
+        return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
 
 class Persona(models.Model):
@@ -136,19 +159,20 @@ class Persona(models.Model):
     sexo = models.CharField(max_length=9, choices=SEXO_CHOICES, null=True, blank=True)
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
     telefono = models.CharField(max_length=250, verbose_name=u'Teléfono de contacto', null=True, blank=True)
-    fecha_ingreso = models.DateField(verbose_name='Desde cuándo participa en FF', null=True, blank=True)
+    fecha_participa = models.DateField(verbose_name='Desde cuándo participa en FF', null=True, blank=True)
+    fecha_ingreso = models.DateField(null=True, blank=True)
 
-    estado_civil = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_CIVIL_CHOICES)
-    nivel_escolaridad = models.CharField(max_length=250, null=True, blank=True, choices=NIVEL_ESC_CHOICES)
+    estado_civil = models.IntegerField(null=True, blank=True, choices=ESTADO_CIVIL_CHOICES, default=0)
+    nivel_escolaridad = models.IntegerField(null=True, blank=True, choices=NIVEL_ESC_CHOICES, default=0)
     ocupacion = models.CharField(max_length=250, verbose_name=u'Ocupación', null=True, blank=True, choices=OCUPACION_CHOICES)
-    prevision_salud = models.CharField(max_length=250, verbose_name=u'Previsión de salud', null=True, blank=True)
+    prevision_salud = models.IntegerField(verbose_name=u'Previsión de salud', null=True, blank=True, choices=PREVISION_SALUD_CHOICES, default=0)
     aporta_ingreso = models.BooleanField(default=False)
     calificacion_laboral = models.CharField(max_length=250, verbose_name=u'Calificación laboral', null=True, blank=True, choices=CALIFICACION_LABORAL_CHOICES)
 
     familia = models.ForeignKey(Familia)
 
     principal = models.BooleanField(default=False)  # indica la persona que primero se ficho
-    parentesco = models.CharField(max_length=150, null=True, blank=True)  # parentesco con la persona principal, nulo si es el principal
+    parentesco = models.IntegerField(null=True, blank=True, choices=PARENTESCO_CHOICES, default=0)  # parentesco con la persona principal, nulo si es el principal
 
     def __unicode__(self):
         return u'%s %s (Familia %s)' % (self.nombres, self.apellido_paterno, self.familia)

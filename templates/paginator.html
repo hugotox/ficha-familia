@@ -1,38 +1,63 @@
-<div class="pagination">
+<div class="pagination pagination-small">
     <ul>
+
         {% if obj_list.has_previous %}
             <li>
-                <a href="{{ paginator_links_pref }}&page={{ obj_list.previous_page_number }}">Anterior</a>
+                <a href="{{ paginator_links_pref }}&page=1">Primera</a>
+            </li>
+            <li>
+                <a href="{{ paginator_links_pref }}&page={{ obj_list.previous_page_number }}">«</a>
             </li>
         {% else %}
+            <li class="disabled">
+                <a>Primera</a>
+            </li>
             <li class="disabled">
                 <a>Anterior</a>
             </li>
         {% endif %}
 
+
         {% for num_page in obj_list.paginator.page_range %}
-            {% ifequal num_page obj_list.number %}
-                <li class="active"><a>{{ num_page }}</a></li>
-            {% else %}
+
+            {% if num_page > page_link_lower and num_page < page %}
+
                 <li><a href="{{ paginator_links_pref }}&page={{ num_page }}">{{ num_page }}</a></li>
-            {% endifequal %}
+
+            {% elif num_page == obj_list.number %}
+
+                <li class="active"><a>{{ num_page }}</a></li>
+
+            {% elif num_page < page_link_upper and num_page > page %}
+
+                <li><a href="{{ paginator_links_pref }}&page={{ num_page }}">{{ num_page }}</a></li>
+
+            {% endif %}
+
         {% endfor %}
+
 
         {% if obj_list.has_next %}
             <li>
-                <a href="{{ paginator_links_pref }}&page={{ obj_list.next_page_number }}">Siguiente</a>
+                <a href="{{ paginator_links_pref }}&page={{ obj_list.next_page_number }}">»</a>
+            </li>
+            <li>
+                <a href="{{ paginator_links_pref }}&page={{ obj_list.paginator.num_pages }}">Última</a>
             </li>
         {% else %}
             <li class="disabled">
                 <a>Siguiente</a>
             </li>
+            <li class="disabled">
+                <a>Última</a>
+            </li>
         {% endif %}
+
     </ul>
 </div>
 
 Página {{ obj_list.number }} de {{ obj_list.paginator.num_pages }}.
-Ver
-    <select id="psize_select" style="width: auto">
+Ver <select id="psize_select" style="width: auto">
         <option value="20" {% ifequal page_size 20 %}selected="selected"{% endifequal %}>20</option>
         <option value="50" {% ifequal page_size 50 %}selected="selected"{% endifequal %}>50</option>
         <option value="100" {% ifequal page_size 100 %}selected="selected"{% endifequal %}>100</option>

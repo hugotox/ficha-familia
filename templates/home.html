@@ -41,9 +41,9 @@
                 <th>
                     <a href="{{ link_col_ficha }}">Ficha Nro.</a>
                 </th>
-                <th>
+                {% if es_admin %}<th>
                     <a href="{{ link_col_centro }}">Centro</a>
-                </th>
+                </th>{% endif %}
                 <th>
                     <a href="{{ link_col_apellidos }}">Apellidos</a>
                 </th>
@@ -59,16 +59,16 @@
             <tbody>
             <tr>
                 <td><input id="num_ficha" type="text" name="num_ficha" value="{{ num_ficha }}"></td>
-                <td>
-                    {% if es_admin %}
+                {% if es_admin %}
+                    <td>
                         <select name="centro" id="centro">
                             <option value="">--Todos--</option>
                             {% for c in centros %}
                                 <option value="{{ c.id }}" {% ifequal centro c.id %}selected="selected"{% endifequal %}>{{ c }}</option>
                             {% endfor %}
                         </select>
-                    {% endif %}
-                </td>
+                    </td>
+                {% endif %}
                 <td><input id="apellidos" type="text" name="apellidos" value="{{ apellidos }}"></td>
                 <td>
                     <select name="tipo" id="tipo">
@@ -93,15 +93,15 @@
                     <td>
                         <a href="/familia/{{ familia.id }}">{{ familia.id|zfill:10 }}</a>
                     </td>
-                    <td>
+                    {% if es_admin %}<td>
                         {{ familia.centro_familiar }}
-                    </td>
+                    </td>{% endif %}
                     <td>
-                        {{ familia.apellidos }}
+                        {{ familia }}
                     </td>
                     <td>
                         {% if familia.tipo_de_familia %}
-                            {{ familia.tipo_de_familia }}
+                            {{ familia.get_tipo_de_familia_display }}
                         {% endif %}
                     </td>
                     <td>
