@@ -79,7 +79,11 @@ def home(request):
         od = '-'
     else:
         od = ''
-    familias = familias.order_by('%s%s' % (od, order_by))
+
+    if order_by == 'apellidos':
+        familias = familias.order_by('%sapellido_paterno' % od, '%sapellido_materno' % od)
+    else:
+        familias = familias.order_by('%s%s' % (od, order_by))
 
     # --- Paginacion ---
     page = request.GET.get('page', 1)
