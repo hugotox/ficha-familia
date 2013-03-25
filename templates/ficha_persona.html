@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
+{% load common_tags %}
 
 {% block title %}
     Ficha: {{ persona }}
 {% endblock %}
+
+{% if not es_admin %}
+    {% block extra_brand %}
+        - Centro Familiar {{ centro_familiar }}
+    {% endblock %}
+{% endif %}
 
 {% block content %}
 
@@ -16,81 +23,88 @@
 
     <br>
 
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+    <form action="" method="post" class="form-horizontal form-evaluacion">{% csrf_token %}
         {{ form.persona }}
+        {{ form.anio_aplicacion }}
 
-        {% with form.anio_aplicacion as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
-        {% with form.etapa as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        <div class="control-group">
+            <label class="control-label">
+                Ficha de Desarrollo N°:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b></b>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                Familia:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>{{ persona.familia }} ({{ persona.familia.id|zfill:10 }})</b>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                Persona:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>{{ persona }}</b>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                Año de aplicación:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>{{ anio }}</b>
+            </div>
+        </div>
 
         <fieldset>
             <legend>A. Relaciones Comunitarias</legend>
         </fieldset>
 
-        <table class="table table-hover table-condensed">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Factor Protector</th>
-                    <th>Tendencia a FP</th>
-                    <th>Línea Base</th>
-                    <th>Tendencia a FR</th>
-                    <th>Factor de Riesgo</th>
-                    <th>No Aplica</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% with form.presencia_red_de_apoyo as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                {% with form.relaciones_con_vecindario as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                {% with form.participacion_social as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                <tr>
-                    <td colspan="7"></td>
-                    <td>
-                        <label>
-                            <span style="width: 62px;display: inline-block">Prom (I):</span>
-                            <span class="prom-ini"></span>&nbsp;</label>
-                        <label>
-                            <span style="width: 62px;display: inline-block">Prom (C):</span>
-                            <span class="prom-cum"> &nbsp; </span></label>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        {% include 'tabla_evaluacion_a.html' %}
 
         <fieldset>
             <legend>B. Acceso</legend>
         </fieldset>
 
-        <table class="table table-hover table-condensed">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Factor Protector</th>
-                    <th>Tendencia a FP</th>
-                    <th>Línea Base</th>
-                    <th>Tendencia a FR</th>
-                    <th>Factor de Riesgo</th>
-                    <th>No Aplica</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% with form.red_de_servicios_y_beneficios_sociales as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                {% with form.ocio_y_encuentro_con_pares as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                {% with form.espacios_formativos_y_de_desarrollo as field %}{% include 'fila_evaluacion.html' %}{% endwith %}
-                <tr>
-                    <td colspan="7"></td>
-                    <td>
-                        <label>
-                            <span style="width: 62px;display: inline-block">Prom (I):</span>
-                            <span class="prom-ini"></span>&nbsp;</label>
-                        <label>
-                            <span style="width: 62px;display: inline-block">Prom (C):</span>
-                            <span class="prom-cum"> &nbsp; </span></label>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        {% include 'tabla_evaluacion_b.html' %}
+
+        <fieldset>
+            <legend>C. Vínculos Familiares</legend>
+        </fieldset>
+
+        {% include 'tabla_evaluacion_c.html' %}
+
+        <fieldset>
+            <legend>D. Derechos Infantiles</legend>
+        </fieldset>
+
+        {% include 'tabla_evaluacion_d.html' %}
+
+        <fieldset>
+            <legend>E. Desarrollo Personal</legend>
+        </fieldset>
+
+        {% include 'tabla_evaluacion_e.html' %}
+
+        <br>
+
+        <div class="form-actions">
+            <button type="submit" value="Guardar" class="btn btn-primary">
+                Guardar
+            </button>
+
+            <a href="{{ back_url }}" class="pull-right">
+                Volver
+            </a>
+
+        </div>
 
     </form>
 
@@ -117,33 +131,46 @@
         if(num_elementos > 0){
             var promedio = round_number(suma / num_elementos, 2);
             $table.find(".prom-" + etapa).html(promedio);
+        } else {
+            $table.find(".prom-" + etapa).html("");
         }
     }
 
     $(document).ready(function () {
 
         $('.fila-evaluacion').each(function(){
+
             var $fila = $(this);
-            var $sum_ini = $fila.find(".suma-ini");
-            var $sum_cum = $fila.find(".suma-cum");
+
             $fila.find("input[type='radio'].ini").change(function(){
                 var valor = $(this).val();
-                if(valor == -100){
-                    $sum_ini.html("");
-                } else {
-                    $sum_ini.html(valor);
-                }
                 promediar($fila, 'ini');
             });
+
             $fila.find("input[type='radio'].cum").change(function(){
                 var valor = $(this).val();
-                if(valor == -100){
-                    $sum_cum.html("");
-                } else {
-                    $sum_cum.html(valor);
-                }
                 promediar($fila, 'cum');
             });
+
+            $fila.find(".link-limpiar-ini").click(function(){
+                $fila.find("input[type='radio'].ini").each(function(){
+                    $(this).attr("checked", false);
+                });
+                promediar($fila, 'ini');
+                return false;
+            });
+
+            $fila.find(".link-limpiar-cum").click(function(){
+                $fila.find("input[type='radio'].cum").each(function(){
+                    $(this).attr("checked", false);
+                });
+                promediar($fila, 'cum');
+                return false;
+            });
+
+            promediar($fila, 'ini');
+            promediar($fila, 'cum');
+
         });
 
     });

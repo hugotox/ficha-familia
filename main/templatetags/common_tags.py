@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import template
 from FichaFamilia.settings import STATIC_FILES_VERSION
 register = template.Library()
@@ -10,3 +11,8 @@ def zfill(value, digits):
 @register.simple_tag
 def get_static_version():
     return STATIC_FILES_VERSION
+
+
+@register.simple_tag
+def get_date_now(format="%d/%m/%Y"):
+    return datetime.now().strftime(format)

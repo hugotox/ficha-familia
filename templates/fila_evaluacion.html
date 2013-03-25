@@ -1,27 +1,40 @@
 <tr class="fila-evaluacion">
-    <td>{{ field.label }}</td>
+    <td>
+        {{ field.label }}
+        <span class="pull-right" style="font-family: monospace">(I)</span>
+        <br>
+        <span class="pull-right" style="font-family: monospace">(C)</span>
+    </td>
 
     {% for value, text in field.field.choices %}
         {% ifnotequal value "" %}
             {% ifnotequal value -100 %}
                 <td>
                     <label class="radio">
-                        <input type="radio" name="{{ field.name }}" value="{{ value }}" class="ini" >
+                        <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
+                               {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               class="ini">
                         {{ value }}
                     </label>
                     <label class="radio">
-                        <input type="radio" name="{{ field.name }}_c" value="{{ value }}" class="cum" >
+                        <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
+                               {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               class="cum" >
                         {{ value }}
                     </label>
                 </td>
             {% else %}
                 <td>
                     <label class="radio">
-                        <input type="radio" name="{{ field.name }}" value="{{ value }}" class="ini" >
+                        <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
+                               {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               class="ini" >
                         N/A
                     </label>
                     <label class="radio">
-                        <input type="radio" name="{{ field.name }}_c" value="{{ value }}" class="cum" >
+                        <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
+                               {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               class="cum" >
                         N/A
                     </label>
                 </td>
@@ -30,7 +43,11 @@
     {% endfor %}
 
     <td>
-        <label>(I): <span class="suma-ini"></span></label>
-        <label>(C): <span class="suma-cum" ></span> </label>
+        <label class="radio">
+            <a href="#" class="link-limpiar-ini">Limpiar</a>
+        </label>
+        <label class="radio">
+            <a href="#" class="link-limpiar-cum">Limpiar</a>
+        </label>
     </td>
 </tr>

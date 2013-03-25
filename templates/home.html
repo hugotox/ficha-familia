@@ -14,13 +14,19 @@
 {#    </form>#}
 {% endblock %}
 
+{% if not es_admin %}
+    {% block extra_brand %}
+        - Centro Familiar {{ centro_familiar }}
+    {% endblock %}
+{% endif %}
+
 {% block content %}
 
     <h1>Listado de Familias</h1>
 
     <hr>
 
-    <form id="form_search" class="form-search" method="post" action=".">{% csrf_token %}
+    <form id="form_search" class="form-search" method="get" action=".">
 
         <div class="botones-busqueda">
             <button class="btn" type="submit">
@@ -29,7 +35,7 @@
             <a id="btn_limpiar" href="#" class="btn">
                 Limpiar
             </a>
-            <a href="/familia/0/" class="btn pull-right">
+            <a href="/familia/0/?{{ current_querystring }}" class="btn pull-right">
                 <i class="icon-plus-sign"></i>
                 Agregar Familia
             </a>
@@ -91,7 +97,7 @@
             {% for familia in familias %}
                 <tr>
                     <td>
-                        <a href="/familia/{{ familia.id }}">{{ familia.id|zfill:10 }}</a>
+                        <a href="/familia/{{ familia.id }}/?{{ current_querystring }}">{{ familia.id|zfill:10 }}</a>
                     </td>
                     {% if es_admin %}<td>
                         {{ familia.centro_familiar }}
@@ -108,7 +114,7 @@
                         {{ familia.estado }}
                     </td>
                     <td style="text-align: center">
-                        <a class="btn btn-small" href="/familia/{{ familia.id }}/del">
+                        <a class="btn btn-small" href="/familia/{{ familia.id }}/del/?{{ current_querystring }}">
                             <i class="icon-remove"></i>
                             Eliminar
                         </a>

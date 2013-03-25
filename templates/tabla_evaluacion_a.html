@@ -1,0 +1,19 @@
+{% extends 'tabla_evaluacion_base.html' %}
+
+{% block fields %}
+    {% with form.presencia_red_de_apoyo as field %}
+        {% with form.presencia_red_de_apoyo2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+    {% with form.relaciones_con_vecindario as field %}
+        {% with form.relaciones_con_vecindario2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+    {% with form.participacion_social as field %}
+        {% with form.participacion_social2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}

@@ -4,12 +4,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from FichaFamilia.mensajes import DATOS_GUARDADOS
-from main.models import PersonaForm, FamiliaForm, Familia, Persona, EvaluacionForm, CentroFamiliar, TIPOS_FAMILIA_CHOICES, ESTADO_FAMILIA_CHOICES
+from main.models import PersonaForm, FamiliaForm, Familia, Persona, EvaluacionForm, CentroFamiliar, TIPOS_FAMILIA_CHOICES, ESTADO_FAMILIA_CHOICES, EvaluacionFactoresProtectores
 from django.utils import simplejson
 
 
-def get_sort_link(columna, order_by, order_dir, page, page_size):
+def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params):
 
     if columna == order_by:
         # flip order
@@ -17,9 +18,10 @@ def get_sort_link(columna, order_by, order_dir, page, page_size):
     else:
         order_dir = 'desc' if order_dir == 'desc' else 'asc'
 
-    link = "/?order_by=%s&order_dir=%s&page=%s&psize=%s" % (columna, order_dir, page, page_size)
+    link = "/?order_by=%s&order_dir=%s&page=%s&psize=%s&%s" % (columna, order_dir, page, page_size, filtros_params)
 
     return link
+
 
 @login_required
 def home(request):
@@ -30,44 +32,40 @@ def home(request):
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
 
+    user_profile = request.user.get_profile()
+
     # --- Filtros ---
-    if request.method == "POST":
-        num_ficha = request.POST.get('num_ficha', '')
-        centro = request.POST.get('centro', '')
-        apellidos = request.POST.get('apellidos', '')
-        tipo = request.POST.get('tipo', '')
-        estado = request.POST.get('estado', '')
-
-        if num_ficha != '':
-            num_ficha = int(num_ficha)
-            familias = familias.filter(id=num_ficha)
-
-        if centro != '':
-            centro = int(centro)
-            familias = familias.filter(centro_familiar=centro)
-
-        if apellidos != '':
-            familias = familias.filter(
-                Q(apellido_materno__icontains=apellidos) |
-                Q(apellido_paterno__icontains=apellidos)
-            )
-
-        if tipo != '':
-            familias = familias.filter(tipo_de_familia=tipo)
-
-        if estado != '':
-            familias = familias.filter(estado=estado)
-
-    else:
-        num_ficha = ''
-        centro = ''
-        apellidos = ''
-        tipo = ''
-        estado = ''
+    num_ficha = request.GET.get('num_ficha', '')
+    centro = request.GET.get('centro', '')
+    apellidos = request.GET.get('apellidos', '')
+    tipo = request.GET.get('tipo', '')
+    estado = request.GET.get('estado', '')
 
     if not es_admin:
-        user_profile = request.user.get_profile()
-        familias = familias.filter(centro_familiar=user_profile.centro_familiar)
+        centro = str(user_profile.centro_familiar.id)
+        centro_familiar = user_profile.centro_familiar
+
+    if num_ficha != '':
+        num_ficha = int(num_ficha)
+        familias = familias.filter(id=num_ficha)
+
+    if centro != '':
+        centro = int(centro)
+        familias = familias.filter(centro_familiar=centro)
+
+    if apellidos != '':
+        familias = familias.filter(
+            Q(apellido_materno__icontains=apellidos) |
+            Q(apellido_paterno__icontains=apellidos)
+        )
+
+    if tipo != '':
+        familias = familias.filter(tipo_de_familia=tipo)
+
+    if estado != '':
+        familias = familias.filter(estado=estado)
+
+    filtros_params = 'num_ficha=%s&centro=%s&apellidos=%s&tipo=%s&estado=%s' % (num_ficha, centro, apellidos, tipo, estado)
 
     # --- Orden ---
     columnas_permitidas = ['id', 'centro_familiar', 'apellidos', 'tipo_de_familia', 'estado']
@@ -111,19 +109,21 @@ def home(request):
         familias = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    paginator_links_pref = "/?order_by=%s&order_dir=%s&psize=%s" % (order_by, order_dir, page_size)
-    psize_select_pref = "/?order_by=%s&order_dir=%s&page=%s" % (order_by, order_dir, page)
+    paginator_links_pref = "/?order_by=%s&order_dir=%s&psize=%s&%s" % (order_by, order_dir, page_size, filtros_params)
+    psize_select_pref =    "/?order_by=%s&order_dir=%s&page=%s&%s" % (order_by, order_dir, page, filtros_params)
 
     page_link_lower = page - 5
     page_link_upper = page + 5
 
     # --- Links del header ---
 
-    link_col_ficha = get_sort_link('id', order_by, order_dir, page, page_size)
-    link_col_centro = get_sort_link('centro_familiar', order_by, order_dir, page, page_size)
-    link_col_apellidos = get_sort_link('apellidos', order_by, order_dir, page, page_size)
-    link_col_tipo = get_sort_link('tipo_de_familia', order_by, order_dir, page, page_size)
-    link_col_estado = get_sort_link('estado', order_by, order_dir, page, page_size)
+    link_col_ficha = get_sort_link('id', order_by, order_dir, page, page_size, filtros_params)
+    link_col_centro = get_sort_link('centro_familiar', order_by, order_dir, page, page_size, filtros_params)
+    link_col_apellidos = get_sort_link('apellidos', order_by, order_dir, page, page_size, filtros_params)
+    link_col_tipo = get_sort_link('tipo_de_familia', order_by, order_dir, page, page_size, filtros_params)
+    link_col_estado = get_sort_link('estado', order_by, order_dir, page, page_size, filtros_params)
+
+    current_querystring = "order_by=%s&order_dir=%s&page=%s&psize=%s&%s" % (order_by, order_dir, page, page_size, filtros_params)
 
     return render(request, 'home.html', locals())
 
@@ -133,7 +133,19 @@ def familia(request, id):
     id = int(id)
     message = None
     message_class = ''
+    user_profile = request.user.get_profile()
     es_admin = request.user.is_superuser
+
+    if not es_admin:
+        centro = str(user_profile.centro_familiar.id)
+        centro_familiar = user_profile.centro_familiar
+
+    filters = []
+
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+
+    back_url = "/?%s" % ("&".join(filters))
 
     try:
         familia = Familia.objects.get(id=id)
@@ -151,13 +163,12 @@ def familia(request, id):
             message = DATOS_GUARDADOS
             message_class = 'success'
             if id == 0:
-                return HttpResponseRedirect('/familia/%s' % familia_form.instance.id)
+                return HttpResponseRedirect('/familia/%s%s' % (familia_form.instance.id, back_url))
     else:
         if familia is not None:
             familia_form = FamiliaForm(instance=familia)
         else:
             # agregar nuevo registro
-            user_profile = request.user.get_profile()
             centro = user_profile.centro_familiar.id if user_profile.centro_familiar is not None else None
             familia_form = FamiliaForm(initial={'centro_familiar': centro})
 
@@ -166,6 +177,13 @@ def familia(request, id):
 
 @login_required
 def eliminar_familia(request, id):
+
+    filters = []
+
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+
+    back_url = "/?%s" % ("&".join(filters))
 
     if request.method == 'POST':
         id = request.POST['id']
@@ -177,14 +195,14 @@ def eliminar_familia(request, id):
 
     if request.method == 'POST':
         familia.delete()
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(back_url)
 
     return render(request, 'eliminar_familia.html', locals())
 
 
 @login_required
 def eliminar_persona(request, id):
-    next = request.GET.get('next', '/')
+
     if request.method == 'POST':
         id = request.POST['id']
 
@@ -193,9 +211,16 @@ def eliminar_persona(request, id):
     except:
         return Http404()
 
+    filters = []
+
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+
+    back_url = "/familia/%s/?%s" % (persona.familia.id, "&".join(filters))
+
     if request.method == 'POST':
         persona.delete()
-        return HttpResponseRedirect(next)
+        return HttpResponseRedirect(back_url)
 
     return render(request, 'eliminar_persona.html', locals())
 
@@ -231,14 +256,51 @@ def get_persona_form(request, familia_id, id):
         else:
             form = PersonaForm(initial={'familia': familia})
 
-    return HttpResponse(simplejson.dumps({'form': form.as_table(), 'saved': saved, 'id': id}), content_type='application/json')
+    form_html = render_to_string('persona_form.html', {'form': form})
+
+    return HttpResponse(simplejson.dumps({'form': form_html, 'saved': saved, 'id': id}), content_type='application/json')
 
 
 @login_required
-def ficha(request, id):
+def ficha(request, id, anio):
     try:
         persona = Persona.objects.get(id=id)
     except:
         return Http404()
-    form = EvaluacionForm(initial={'persona': persona})
+
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        centro = str(user_profile.centro_familiar.id)
+        centro_familiar = user_profile.centro_familiar
+    filters = []
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+    back_url = "/familia/%s/?%s" % (persona.familia.id, "&".join(filters))
+
+    # --- handle requests
+    try:
+        evaluacion = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=anio)
+    except:
+        evaluacion = None
+
+    if request.method == "POST":
+
+        if evaluacion is not None:
+            form = EvaluacionForm(request.POST, instance=evaluacion)
+        else:
+            form = EvaluacionForm(request.POST, initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
+
+        if form.is_valid():
+            form.save()
+            evaluacion = form.instance
+            # re-create the form
+            form = EvaluacionForm(instance=evaluacion)
+
+    else:
+        if evaluacion is not None:
+            form = EvaluacionForm(instance=evaluacion)
+        else:
+            form = EvaluacionForm(initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
+
     return render(request, 'ficha_persona.html', locals())

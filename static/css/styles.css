@@ -18,10 +18,6 @@ ul.errorlist li{
     list-style-type: none;
 }
 
-.modal-body ul.errorlist{
-    margin: 0;
-}
-
 .ficha-form tr > td > ul{
     margin:0;
 }
@@ -106,4 +102,12 @@ span.prom-cum{
 
 .botones-busqueda{
     margin-bottom: 8px;
+}
+
+.modal .form-horizontal .controls {
+    position: relative;
+}
+
+.form-evaluacion legend {
+    border: none;
 }

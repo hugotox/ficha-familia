@@ -4,6 +4,7 @@ from django.core.management import setup_environ
 setup_environ(settings)
 from main.models import *
 import csv
+from django.db import connection, transaction
 
 
 def extraer_centros():
@@ -44,7 +45,7 @@ def extraer_familias():
     with open('databackup/DatosFF.csv', 'rb') as datos_familias:
         familia_reader = csv.reader(datos_familias, delimiter=';', quotechar='"')
         for fila in familia_reader:
-            the_id = fila[26]
+            the_id = fila[27]
             if the_id not in id_list:
                 id_list.append(the_id)
                 familia = Familia()
@@ -60,6 +61,48 @@ def extraer_familias():
     Familia.objects.bulk_create(familia_obj_list)
 
     print Familia.objects.all().count()
+
+
+def extraer_personas():
+
+    Persona.objects.all().delete()
+    persona_obj_list = []
+    id_list = []
+
+    with open('databackup/DatosFF.csv', 'rb') as datos_familias:
+        familia_reader = csv.reader(datos_familias, delimiter=';', quotechar='"')
+        for fila in familia_reader:
+            the_id = fila[0]
+            if the_id not in id_list:
+                id_list.append(the_id)
+
+                persona = Persona()
+                persona.id = fila[0]
+                persona.nombres = fila[2]
+                persona.apellido_paterno = fila[3]
+                persona.apellido_materno = fila[4]
+                persona.rut = fila[1]
+                persona.fecha_nacimiento = fila[5] if fila[5] != '' else settings.NULL_DATE
+                persona.sexo = fila[8]
+                persona.direccion = fila[6]
+                persona.telefono = fila[21]
+                persona.fecha_participa = fila[28] if fila[28] != '' else settings.NULL_DATE
+                persona.fecha_ingreso = fila[11] if fila[11] != '' else settings.NULL_DATE
+                persona.estado_civil = fila[15]
+                persona.nivel_escolaridad = fila[17]
+                persona.ocupacion = fila[10]
+                persona.prevision_salud = fila[19]
+                # persona.aporta_ingreso = fila[]
+                # persona.calificacion_laboral = fila[]
+                persona.familia = Familia.objects.get(id=fila[26])
+                # persona.principal = fila[]
+                persona.parentesco = fila[24]
+
+                persona_obj_list.append(persona)
+
+    Persona.objects.bulk_create(persona_obj_list)
+
+    print Persona.objects.all().count()
 
 
 def extraer_columnas_id_descripcion(index_id, index_descripcion, max_distinct_items=100):
@@ -84,8 +127,19 @@ def extraer_columnas_id_descripcion(index_id, index_descripcion, max_distinct_it
     print "Total: %s" % len(id_list)
 
 
+def actualizar_secuencias():
+    # select setval('main_familia_id_seq', (select max(id)+1 from main_familia), false)
+    cursor = connection.cursor()
+
+    cursor.execute("select setval('main_familia_id_seq', (select max(id)+1 from main_familia), false)")
+    transaction.commit_unless_managed()
+
+    cursor.execute("select setval('main_persona_id_seq', (select max(id)+1 from main_persona), false)")
+    transaction.commit_unless_managed()
+
+
 # centros familiares
-extraer_centros()
+#extraer_centros()
 
 # estados civiles
 #extraer_columnas_id_descripcion(15, 16)
@@ -107,5 +161,12 @@ extraer_centros()
 # ingreso total
 #extraer_columnas_id_descripcion(35, 36)
 
+#  ocupacion
+#extraer_columnas_id_descripcion(10, 10)
+
 extraer_familias()
-  
+
+extraer_personas()
+
+# actualizar secuencias (SOLO PARA POSTGRESQL):
+#actualizar_secuencias()

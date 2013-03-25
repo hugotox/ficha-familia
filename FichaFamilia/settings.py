@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -41,7 +41,7 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -170,6 +170,8 @@ DATE_INPUT_FORMATS = (
 AUTH_PROFILE_MODULE = 'main.UserProfile'
 
 STATIC_FILES_VERSION = datetime.now().strftime("%Y%m%d%H%M%S")
+
+NULL_DATE = date(100, 1, 1)
 
 try:
     from settings_local import *

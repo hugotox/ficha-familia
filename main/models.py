@@ -11,7 +11,6 @@ BOOLEAN_CHOICES = (
 )
 
 NIVEL_ESC_CHOICES = (
-    (0, 'Sin Información'),
     (1, 'Básica'),
     (2, 'Media'),
     (3, 'Universitaria'),
@@ -55,7 +54,6 @@ TIPOS_FAMILIA_CHOICES = (
 SEXO_CHOICES = (('Masculino', 'Masculino'), ('Femenino', 'Femenino'))
 
 ESTADO_CIVIL_CHOICES = (
-    (0, 'Sin Información'),
     (1, 'Soltero (a)'),
     (2, 'Casado (a)'),
     (3, 'Viudo (a)'),
@@ -66,11 +64,11 @@ ESTADO_CIVIL_CHOICES = (
 ETAPA_EVAL_CHOICES = (('inicio', 'Inicio'), ('cumplimiento', 'Cumplimiento'))
 
 OCUPACION_CHOICES = (
-    (u'Dueña de casa', u'Dueña de casa'),
-    (u'Empleado', u'Empleado'),
-    (u'Comerciante', u'Comerciante'),
-    (u'Obrero', u'Obrero'),
-    (u'Otro', u'Otro'),
+    u'Dueña de casa',
+    u'Empleado',
+    u'Comerciante',
+    u'Obrero',
+    u'Otro'
 )
 
 ESTADO_FAMILIA_CHOICES = (
@@ -80,7 +78,6 @@ ESTADO_FAMILIA_CHOICES = (
 )
 
 PREVISION_SALUD_CHOICES = (
-    (0, 'Sin Información'),
     (1, 'Isapre'),
     (2, 'INP'),
     (3, 'Fonasa'),
@@ -154,20 +151,20 @@ class Persona(models.Model):
     nombres = models.CharField(max_length=250)
     apellido_paterno = models.CharField(max_length=250)
     apellido_materno = models.CharField(max_length=250)
-    rut = models.CharField(max_length=12, null=True, blank=True)
+    rut = models.CharField(max_length=50, null=True, blank=True)
     fecha_nacimiento = models.DateField(verbose_name='Fecha de nacimiento', null=True, blank=True)
     sexo = models.CharField(max_length=9, choices=SEXO_CHOICES, null=True, blank=True)
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
     telefono = models.CharField(max_length=250, verbose_name=u'Teléfono de contacto', null=True, blank=True)
     fecha_participa = models.DateField(verbose_name='Desde cuándo participa en FF', null=True, blank=True)
-    fecha_ingreso = models.DateField(null=True, blank=True)
+    fecha_ingreso = models.DateTimeField(null=True, blank=True)
 
     estado_civil = models.IntegerField(null=True, blank=True, choices=ESTADO_CIVIL_CHOICES, default=0)
     nivel_escolaridad = models.IntegerField(null=True, blank=True, choices=NIVEL_ESC_CHOICES, default=0)
-    ocupacion = models.CharField(max_length=250, verbose_name=u'Ocupación', null=True, blank=True, choices=OCUPACION_CHOICES)
+    ocupacion = models.CharField(max_length=250, verbose_name=u'Ocupación', null=True, blank=True, default='')
     prevision_salud = models.IntegerField(verbose_name=u'Previsión de salud', null=True, blank=True, choices=PREVISION_SALUD_CHOICES, default=0)
     aporta_ingreso = models.BooleanField(default=False)
-    calificacion_laboral = models.CharField(max_length=250, verbose_name=u'Calificación laboral', null=True, blank=True, choices=CALIFICACION_LABORAL_CHOICES)
+    calificacion_laboral = models.CharField(max_length=250, verbose_name=u'Calificación laboral', null=True, blank=True, choices=CALIFICACION_LABORAL_CHOICES, default="")
 
     familia = models.ForeignKey(Familia)
 
@@ -184,7 +181,10 @@ class PersonaForm(forms.ModelForm):
         widgets = {
             'fecha_nacimiento': DateInput(attrs={'class': "datepicker"}),
             'fecha_ingreso': DateInput(attrs={'class': 'datepicker'}),
-            'familia': forms.HiddenInput()
+            'familia': forms.HiddenInput(),
+            'ocupacion': forms.TextInput(attrs={"data-provide": "typeahead",
+                                                "data-items": 4,
+                                                "data-source": '[%s]' % (",".join('"%s"' % x for x in OCUPACION_CHOICES))})
         }
 
 
@@ -218,22 +218,39 @@ EVALUACION_CHOICES = (
 class EvaluacionFactoresProtectores(models.Model):
     persona = models.ForeignKey(Persona)
     anio_aplicacion = models.IntegerField(verbose_name=u'Año de aplicación')
-    etapa = models.CharField(max_length=20, choices=ETAPA_EVAL_CHOICES)
-    presencia_red_de_apoyo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
-    relaciones_con_vecindario = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
+
+    presencia_red_de_apoyo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
+    relaciones_con_vecindario = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
     participacion_social = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
-    red_de_servicios_y_beneficios_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
-    ocio_y_encuentro_con_pares = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
-    espacios_formativos_y_de_desarrollo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
+    red_de_servicios_y_beneficios_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Red de servicios y beneficios sociales')
+    ocio_y_encuentro_con_pares = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Ocio y encuentro con pares')
+    espacios_formativos_y_de_desarrollo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Espacios formativos y de desarrollo')
     relaciones_y_cohesion_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Relaciones y cohesión familiar')
-    adaptabilidad_y_resistencia_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
-    competencias_parentales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
+    adaptabilidad_y_resistencia_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resistencia familiar')
+    competencias_parentales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Competencias parentales')
     proteccion_y_salud_integral = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Protección y salud integral')
     participacion_protagonica = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación protagónica')
     recreacion_y_juego_con_pares = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Recreación y juego con pares')
-    crecimiento_personal = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
+    crecimiento_personal = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Crecimiento personal')
     autonomia = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
-    habilidades_y_valores_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True)
+    habilidades_y_valores_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
+
+    presencia_red_de_apoyo2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
+    relaciones_con_vecindario2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
+    participacion_social2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
+    red_de_servicios_y_beneficios_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Red de servicios y beneficios sociales')
+    ocio_y_encuentro_con_pares2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Ocio y encuentro con pares')
+    espacios_formativos_y_de_desarrollo2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Espacios formativos y de desarrollo')
+    relaciones_y_cohesion_familiar2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Relaciones y cohesión familiar')
+    adaptabilidad_y_resistencia_familiar2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resistencia familiar')
+    competencias_parentales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Competencias parentales')
+    proteccion_y_salud_integral2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Protección y salud integral')
+    participacion_protagonica2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación protagónica')
+    recreacion_y_juego_con_pares2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Recreación y juego con pares')
+    crecimiento_personal2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Crecimiento personal')
+    autonomia2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
+    habilidades_y_valores_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
+
 
 
 class EvaluacionForm(forms.ModelForm):
@@ -241,7 +258,8 @@ class EvaluacionForm(forms.ModelForm):
         model = EvaluacionFactoresProtectores
 
         widgets = {
-            'persona': forms.HiddenInput()
+            'persona': forms.HiddenInput(),
+            'anio_aplicacion': forms.HiddenInput(),
         }
 
 # class PlanDeDesarrollo(models.Model):

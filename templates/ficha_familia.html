@@ -4,6 +4,12 @@
     {% if familia %}Familia {{ familia }}{% else %}Nueva familia{% endif %}
 {% endblock %}
 
+{% if not es_admin %}
+    {% block extra_brand %}
+        - Centro Familiar {{ centro_familiar }}
+    {% endblock %}
+{% endif %}
+
 
 {% block content %}
 
@@ -42,14 +48,16 @@
         </fieldset>
 
         {# composicion #}
-        <div>
-            {% if familia %}
-                <div class="pull-right">
-                    <a href="#" id="btn_add_person" class="btn"><i class="icon-plus-sign"></i> Agregar Persona</a>
-                </div>
-            {% endif %}
-        </div>
-        <table id="lista_personas" class="table table-hover table-condensed">
+        {% if familia %}
+            <div class="botones-busqueda">
+                <button id="btn_add_person" class="btn pull-right">
+                    <i class="icon-plus-sign"></i>
+                    Agregar Persona
+                </button>
+                <div style="clear:both;"></div>
+            </div>
+        {% endif %}
+        <table id="lista_personas" class="table table-hover table-condensed table-bordered tabla-filtrable">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -60,8 +68,7 @@
                     <th>Calificación laboral</th>
                     <th>Ocupación</th>
                     <th>Aporta ingresos</th>
-                    <th></th>
-                    <th></th>
+                    <th colspan="2">Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -70,24 +77,37 @@
                         <td>
                             <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona.nombres }} {{ persona.apellido_paterno }}</a>
                         </td>
-                        <td></td>
+                        <td class="parentesco">{% if persona.parentesco %}{{ persona.get_parentesco_display }}{% endif %}</td>
                         <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
-                        <td class="estado_civil">{{ persona.estado_civil }}</td>
-                        <td class="nivel_escolaridad">{{ persona.nivel_escolaridad }}</td>
-                        <td class="calificacion_laboral">{{ persona.calificacion_laboral }}</td>
-                        <td class="ocupacion">{{ persona.ocupacion }}</td>
+                        <td class="estado_civil">{% if persona.estado_civil %}{{ persona.get_estado_civil_display }}{% endif %}</td>
+                        <td class="nivel_escolaridad">{% if persona.nivel_escolaridad %}{{ persona.get_nivel_escolaridad_display }}{% endif %}</td>
+                        <td class="calificacion_laboral">{% if persona.calificacion_laboral %}{{ persona.get_calificacion_laboral_display }}{% endif %}</td>
+                        <td class="ocupacion">{% if persona.ocupacion %}{{ persona.get_ocupacion_display }}{% endif %}</td>
                         <td class="aporta_ingreso">{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}</td>
                         <td>
-                            <a href="/persona/del/{{ persona.id }}/?next=/familia/{{ familia.id }}" class="btn">
+                            <a href="/persona/del/{{ persona.id }}{{ back_url }}" class="btn btn-small">
                                 <i class="icon-remove"></i>
                                 Eliminar
                             </a>
                         </td>
                         <td>
-                            <a href="/ficha/{{ persona.id }}/" class="btn">
-                                <i class="icon-pencil"></i>
-                                Ficha
-                            </a>
+
+{#                            <a href="/ficha/{{ persona.id }}{{ back_url }}" class="btn btn-small">#}
+{#                                <i class="icon-pencil"></i>#}
+{#                                Ficha#}
+{#                            </a>#}
+
+                            <div class="btn-group">
+                                <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                  <li><a href="/ficha/{{ persona.id }}/2012{{ back_url }}">2012</a></li>
+                                  <li><a href="/ficha/{{ persona.id }}/2013{{ back_url }}">2013</a></li>
+                                  <li><a href="/ficha/{{ persona.id }}/2014{{ back_url }}">2014</a></li>
+                                  <li class="divider"></li>
+                                  <li><a href="/ficha/{{ persona.id }}/0{{ back_url }}">Nueva</a></li>
+                                </ul>
+                            </div>
+
                         </td>
                     </tr>
                 {% endfor %}
@@ -100,7 +120,7 @@
             <legend>Principales Condiciones de Vulnerabilidad Social en el Grupo Familiar</legend>
         </fieldset>
 
-        <table class="table table-hover table-condensed ficha-form">
+        <table class="table table-hover table-condensed table-bordered tabla-filtrable ficha-form">
             <thead>
                 <tr>
                     <th></th>
@@ -154,12 +174,12 @@
             </button>
 
             {% if familia %}
-            <a href="/familia/{{ familia.id }}/del/" class="btn">
+            <a href="/familia/{{ familia.id }}/del{{ back_url }}" class="btn">
                 Eliminar
             </a>
             {% endif %}
 
-            <a href="#" class="pull-right" onclick="window.history.back()">
+            <a href="{{ back_url }}" class="pull-right">
                 Volver
             </a>
 
@@ -173,9 +193,9 @@
             <h3 id="myModalLabel">Editar información personal</h3>
         </div>
         <div class="modal-body">
-            <form id="form_persona">
+            <form id="form_persona" class="form-horizontal">
                 {% csrf_token %}
-                <table class="form_fields"></table>
+                <div class="form_fields"></div>
             </form>
         </div>
         <div class="modal-footer">
@@ -190,17 +210,17 @@
         <table>
             <tr id="fila_template">
                 <td><a class="link_persona nombre" href="#" id=""></a></td>
-                <td></td>
+                <td class="parentesco"></td>
                 <td class="fecha_nacimiento"></td>
                 <td class="estado_civil"></td>
                 <td class="nivel_escolaridad"></td>
                 <td class="calificacion_laboral"></td>
                 <td class="ocupacion"></td>
                 <td class="aporta_ingreso"></td>
-                <td><a href="" class="btn btn_eliminar">
+                <td><a href="" class="btn btn_eliminar btn-small">
                     <i class="icon-remove"></i>
                     Eliminar</a></td>
-                <td><a href="" class="btn btn_ficha">
+                <td><a href="" class="btn btn_ficha btn-small">
                     <i class="icon-pencil"></i>
                     Ficha</a></td>
             </tr>
@@ -271,17 +291,17 @@
                             $lista_personas.find('tr:last').after("<tr class='persona-"+data.id+"'>" + $fila_template.html() + "</tr>");
                             $fila = $('.persona-' + data.id);
                             $fila.find('.nombre').attr('id', data.id);
-                            $fila.find('.btn_ficha').attr('href', "/ficha/"+data.id+"/");
-                            $fila.find('.btn_eliminar').attr('href', "/persona/del/"+data.id+"/?next=/familia/{{ familia.id }}");
+                            $fila.find('.btn_ficha').attr('href', "/ficha/"+data.id+"{{ back_url|safe }}");
+                            $fila.find('.btn_eliminar').attr('href', "/persona/del/"+data.id+"{{ back_url|safe }}");
                             set_link_persona();
                         }
 
                         $fila.find('.nombre').html($form_persona.find("input[name='nombres']").val() + ' ' + $form_persona.find("input[name='apellido_paterno']").val());
                         $fila.find('.fecha_nacimiento').html($form_persona.find("input[name='fecha_nacimiento']").val());
-                        $fila.find('.estado_civil').html($form_persona.find("input[name='estado_civil']").val());
-                        $fila.find('.nivel_escolaridad').html($form_persona.find("input[name='nivel_escolaridad']").val());
-                        $fila.find('.calificacion_laboral').html($form_persona.find("input[name='calificacion_laboral']").val());
-                        $fila.find('.ocupacion').html($form_persona.find("input[name='ocupacion']").val());
+                        $fila.find('.estado_civil').html($form_persona.find("select[name='estado_civil'] option:selected").html());
+                        $fila.find('.nivel_escolaridad').html($form_persona.find("select[name='nivel_escolaridad'] option:selected").html());
+                        $fila.find('.calificacion_laboral').html($form_persona.find("select[name='calificacion_laboral'] option:selected").html());
+                        $fila.find('.ocupacion').html($form_persona.find("select[name='ocupacion'] option:selected").html());
                         var aporta = "No";
                         if($form_persona.find("input[name='aporta_ingreso']").is(":checked")){
                             aporta = "Sí";

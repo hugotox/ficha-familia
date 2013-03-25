@@ -1,0 +1,30 @@
+<table class="table table-hover table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Factor Protector</th>
+            <th>Tendencia a FP</th>
+            <th>Línea Base</th>
+            <th>Tendencia a FR</th>
+            <th>Factor de Riesgo</th>
+            <th>No Aplica</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% block fields %}
+        
+        {% endblock %}
+        <tr>
+            <td colspan="7"></td>
+            <td>
+                <label>
+                    <span style="width: 62px;display: inline-block">Prom (I):</span>
+                    <span class="prom-ini"></span>&nbsp;</label>
+                <label>
+                    <span style="width: 62px;display: inline-block">Prom (C):</span>
+                    <span class="prom-cum"> &nbsp; </span></label>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,19 @@
+{% extends 'tabla_evaluacion_base.html' %}
+
+{% block fields %}
+    {% with form.red_de_servicios_y_beneficios_sociales as field %}
+        {% with form.red_de_servicios_y_beneficios_sociales2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+    {% with form.ocio_y_encuentro_con_pares as field %}
+        {% with form.ocio_y_encuentro_con_pares2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+    {% with form.espacios_formativos_y_de_desarrollo as field %}
+        {% with form.espacios_formativos_y_de_desarrollo2 as field2 %}
+            {% include 'fila_evaluacion.html' %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
