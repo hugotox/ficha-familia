@@ -32,7 +32,11 @@
                 Ficha de Desarrollo N°:
             </label>
             <div class="controls" style="padding-top: 5px">
-                <b></b>
+                <b>
+                    {% if evaluacion %}
+                        {{ evaluacion.id }}
+                    {% endif %}
+                </b>
             </div>
         </div>
 
