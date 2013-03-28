@@ -4,6 +4,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
+from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
 from FichaFamilia.mensajes import DATOS_GUARDADOS
 from main.models import PersonaForm, FamiliaForm, Familia, Persona, EvaluacionForm, CentroFamiliar, TIPOS_FAMILIA_CHOICES, ESTADO_FAMILIA_CHOICES, EvaluacionFactoresProtectores
@@ -276,31 +277,87 @@ def ficha(request, id, anio):
     filters = []
     for name, val in request.GET.items():
         filters.append("%s=%s" % (name, val))
-    back_url = "/familia/%s/?%s" % (persona.familia.id, "&".join(filters))
+
+    str_filters = "&".join(filters)
+
+    back_url = "/familia/%s/?%s" % (persona.familia.id, str_filters)
 
     # --- handle requests
-    try:
-        evaluacion = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=anio)
-    except:
-        evaluacion = None
+    existe = False
+    evaluacion = None
+    message = None
+    message_class = None
+
+    evaluacion_qs = EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=anio)
+
+    if evaluacion_qs.count():
+        evaluacion = evaluacion_qs[0]
 
     if request.method == "POST":
 
         if evaluacion is not None:
+            # update
             form = EvaluacionForm(request.POST, instance=evaluacion)
         else:
+            # new
             form = EvaluacionForm(request.POST, initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
 
         if form.is_valid():
-            form.save()
-            evaluacion = form.instance
-            # re-create the form
-            form = EvaluacionForm(instance=evaluacion)
+
+            valid = True
+
+            # si anio es cero y evaluacion ya existe entonces error
+
+            if str(anio) == '0':
+                form_anio = form.cleaned_data['anio_aplicacion']
+                if EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=form_anio).count():
+                    message = "La ficha para esta persona/año ya existe. Por favor vuelva a la página anterior y 1) Seleccione la ficha existente o 2) Cree una nueva ficha para un año diferente."
+                    message_class = "error"
+                    valid = False
+
+            if valid:
+
+                form.save()
+
+                if evaluacion is None:
+                    return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
+
+                # re-crear el form para q se muestren los cambios
+                form = EvaluacionForm(instance=form.instance)
 
     else:
         if evaluacion is not None:
+            # existe
             form = EvaluacionForm(instance=evaluacion)
         else:
-            form = EvaluacionForm(initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
+            # nueva
+            form = EvaluacionForm(initial={'persona': persona})
 
     return render(request, 'ficha_persona.html', locals())
+
+
+def eliminar_ficha(request, id, anio):
+    try:
+        persona = Persona.objects.get(id=id)
+    except:
+        return Http404()
+
+    try:
+        evaluacion = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=anio)
+    except:
+        return Http404()
+
+    filters = []
+
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+
+    back_url = "/ficha/%s/%s/?%s" % (persona.id, anio, "&".join(filters))
+
+    if request.method == 'POST':
+        id = request.POST['id']
+
+        evaluacion.delete()
+        return HttpResponseRedirect("/familia/%s/?%s" % (persona.familia.id, "&".join(filters)))
+
+    return render(request, 'eliminar_ficha.html', locals())

@@ -111,3 +111,12 @@ span.prom-cum{
 .form-evaluacion legend {
     border: none;
 }
+
+.fila-evaluacion label.radio {
+    text-align: center;
+}
+
+.fila-evaluacion .radio input[type="radio"], .fila-evaluacion .checkbox input[type="checkbox"] {
+    float: none;
+    margin: 0;
+}

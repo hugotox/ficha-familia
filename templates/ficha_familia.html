@@ -100,10 +100,12 @@
                             <div class="btn-group">
                                 <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
                                 <ul class="dropdown-menu">
-                                  <li><a href="/ficha/{{ persona.id }}/2012{{ back_url }}">2012</a></li>
-                                  <li><a href="/ficha/{{ persona.id }}/2013{{ back_url }}">2013</a></li>
-                                  <li><a href="/ficha/{{ persona.id }}/2014{{ back_url }}">2014</a></li>
-                                  <li class="divider"></li>
+                                    {% for eval in persona.evaluacionfactoresprotectores_set.all %}
+                                        <li><a href="/ficha/{{ persona.id }}/{{ eval.anio_aplicacion }}{{ back_url }}">{{ eval.anio_aplicacion }}</a></li>
+                                    {% endfor %}
+                                    {% if persona.evaluacionfactoresprotectores_set.all.count %}
+                                        <li class="divider"></li>
+                                    {% endif %}
                                   <li><a href="/ficha/{{ persona.id }}/0{{ back_url }}">Nueva</a></li>
                                 </ul>
                             </div>

@@ -206,11 +206,11 @@ class FamiliaForm(forms.ModelForm):
 
 
 EVALUACION_CHOICES = (
-    (2, 2),
-    (1, 1),
-    (0, 0),
-    (-1, -1),
     (-2, -2),
+    (-1, -1),
+    (0, 0),
+    (1, 1),
+    (2, 2),
     (-100, 'N/A'),
 )
 
@@ -251,6 +251,8 @@ class EvaluacionFactoresProtectores(models.Model):
     autonomia2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
     habilidades_y_valores_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
+    class Meta:
+        ordering = ['anio_aplicacion']
 
 
 class EvaluacionForm(forms.ModelForm):
@@ -261,6 +263,9 @@ class EvaluacionForm(forms.ModelForm):
             'persona': forms.HiddenInput(),
             'anio_aplicacion': forms.HiddenInput(),
         }
+
+    # def clean_anio_aplicacion(self):
+    #     anio = self.cleaned_data['anio_aplicacion']
 
 # class PlanDeDesarrollo(models.Model):
 #     familia = models.ForeignKey(Familia)

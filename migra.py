@@ -169,4 +169,4 @@ extraer_familias()
 extraer_personas()
 
 # actualizar secuencias (SOLO PARA POSTGRESQL):
-#actualizar_secuencias()
+actualizar_secuencias()

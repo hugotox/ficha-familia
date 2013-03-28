@@ -1,0 +1,94 @@
+{% load common_tags %}
+
+    <h1>Parte II: Evaluación de Factores Protectores</h1>
+
+    {% if message %}
+        <div class="alert alert-{{ message_class }}">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <br>
+
+    {{ form.persona }}
+
+    <div class="control-group">
+        <label class="control-label">
+            Ficha de Desarrollo N°:
+        </label>
+        <div class="controls" style="padding-top: 5px">
+            <b>
+                {% if evaluacion %}
+                    {{ evaluacion.id }}
+                {% endif %}
+            </b>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">
+            Familia:
+        </label>
+        <div class="controls" style="padding-top: 5px">
+            <b>{{ persona.familia }} ({{ persona.familia.id|zfill:10 }})</b>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">
+            Persona:
+        </label>
+        <div class="controls" style="padding-top: 5px">
+            <b>{{ persona }}</b>
+        </div>
+    </div>
+
+    <div class="control-group">
+        {% if form.anio_aplicacion.errors %}
+            {{ form.anio_aplicacion.errors }}
+        {% endif %}
+        <label class="control-label">
+            Año de aplicación:
+        </label>
+        <div class="controls" style="padding-top: 5px">
+            {% if evaluacion %}
+                <b>{{ anio }}</b>
+                {{ form.anio_aplicacion }}
+            {% else %}
+                <input type="text" name="{{ form.anio_aplicacion.name }}">
+            {% endif %}
+        </div>
+    </div>
+
+    <fieldset>
+        <legend>A. Relaciones Comunitarias</legend>
+    </fieldset>
+
+    {% include 'tabla_evaluacion_a.html' %}
+
+    <fieldset>
+        <legend>B. Acceso</legend>
+    </fieldset>
+
+    {% include 'tabla_evaluacion_b.html' %}
+
+    <fieldset>
+        <legend>C. Vínculos Familiares</legend>
+    </fieldset>
+
+    {% include 'tabla_evaluacion_c.html' %}
+
+    <fieldset>
+        <legend>D. Derechos Infantiles</legend>
+    </fieldset>
+
+    {% include 'tabla_evaluacion_d.html' %}
+
+    <fieldset>
+        <legend>E. Desarrollo Personal</legend>
+    </fieldset>
+
+    {% include 'tabla_evaluacion_e.html' %}
+
+    <br>
+

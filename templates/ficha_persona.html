@@ -13,96 +13,32 @@
 
 {% block content %}
 
-    <h1>Parte II: Evaluación de Factores Protectores</h1>
-
-    {% if message %}
-        <div class="alert alert-{{ message_class }}">
-            {{ message }}
-        </div>
-    {% endif %}
-
-    <br>
-
     <form action="" method="post" class="form-horizontal form-evaluacion">{% csrf_token %}
-        {{ form.persona }}
-        {{ form.anio_aplicacion }}
 
-        <div class="control-group">
-            <label class="control-label">
-                Ficha de Desarrollo N°:
-            </label>
-            <div class="controls" style="padding-top: 5px">
-                <b>
-                    {% if evaluacion %}
-                        {{ evaluacion.id }}
-                    {% endif %}
-                </b>
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#parte2" data-toggle="tab">Parte II: Evaluación de Factores Protectores</a></li>
+            <li><a href="#parte3" data-toggle="tab">Parte III: Plan de Desarrollo</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="parte2">
+                {% include 'ficha_parte2.html' %}
+            </div>
+            <div class="tab-pane" id="parte3">
+                {% include 'ficha_parte3.html' %}
             </div>
         </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                Familia:
-            </label>
-            <div class="controls" style="padding-top: 5px">
-                <b>{{ persona.familia }} ({{ persona.familia.id|zfill:10 }})</b>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                Persona:
-            </label>
-            <div class="controls" style="padding-top: 5px">
-                <b>{{ persona }}</b>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                Año de aplicación:
-            </label>
-            <div class="controls" style="padding-top: 5px">
-                <b>{{ anio }}</b>
-            </div>
-        </div>
-
-        <fieldset>
-            <legend>A. Relaciones Comunitarias</legend>
-        </fieldset>
-
-        {% include 'tabla_evaluacion_a.html' %}
-
-        <fieldset>
-            <legend>B. Acceso</legend>
-        </fieldset>
-
-        {% include 'tabla_evaluacion_b.html' %}
-
-        <fieldset>
-            <legend>C. Vínculos Familiares</legend>
-        </fieldset>
-
-        {% include 'tabla_evaluacion_c.html' %}
-
-        <fieldset>
-            <legend>D. Derechos Infantiles</legend>
-        </fieldset>
-
-        {% include 'tabla_evaluacion_d.html' %}
-
-        <fieldset>
-            <legend>E. Desarrollo Personal</legend>
-        </fieldset>
-
-        {% include 'tabla_evaluacion_e.html' %}
-
-        <br>
 
         <div class="form-actions">
             <button type="submit" value="Guardar" class="btn btn-primary">
                 Guardar
             </button>
+
+            {% if evaluacion %}
+                <a href="/ficha/{{ persona.id }}/{{ evaluacion.anio_aplicacion }}/del/?{{ str_filters }}" class="btn">
+                    Eliminar Ficha
+                </a>
+            {% endif %}
 
             <a href="{{ back_url }}" class="pull-right">
                 Volver
