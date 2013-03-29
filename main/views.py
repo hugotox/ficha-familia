@@ -318,6 +318,7 @@ def ficha(request, id, anio):
             if valid:
 
                 form.save()
+                persona.familia.actualizar_estado()
 
                 if evaluacion is None:
                     return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))

@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.db import models
 from django import forms
 from django.forms.widgets import DateInput
+from main.fields import JsonField
 
 BOOLEAN_CHOICES = (
     (True, u'Sí'),
@@ -146,6 +147,9 @@ class Familia(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
+    def actualizar_estado(self):
+        pass
+
 
 class Persona(models.Model):
     nombres = models.CharField(max_length=250)
@@ -251,6 +255,23 @@ class EvaluacionFactoresProtectores(models.Model):
     autonomia2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
     habilidades_y_valores_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
+    # I.a (contiene lista json)
+    objetivos_desarrollo_socio_fam = JsonField(blank=True, null=True)
+
+    # I.b
+    propuesta_ciclo_desarrollo_socio_fam = models.TextField(verbose_name='Propuesta de Ciclo de Desarrollo Socio-Familiar', null=True, blank=True)
+
+    # II.a
+    talleres_grup_desarrollo_fam = models.TextField(null=True, blank=True)
+    talleres_grup_cultura_salud = models.TextField(null=True, blank=True)
+    eventos_y_enc_desarrollo_fam = models.TextField(null=True, blank=True)
+    eventos_y_enc_cultura_salud = models.TextField(null=True, blank=True)
+    modulos_acciones_desarrollo_fam = models.TextField(null=True, blank=True)
+    modulos_acciones_cultura_salud = models.TextField(null=True, blank=True)
+
+    # II.c
+    evaluacion_cualitativa = models.TextField(null=True, blank=True)
+
     class Meta:
         ordering = ['anio_aplicacion']
 
@@ -262,10 +283,14 @@ class EvaluacionForm(forms.ModelForm):
         widgets = {
             'persona': forms.HiddenInput(),
             'anio_aplicacion': forms.HiddenInput(),
+            'objetivos_desarrollo_socio_fam': forms.HiddenInput(),
+            'propuesta_ciclo_desarrollo_socio_fam': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
+            'talleres_grup_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
+            'talleres_grup_cultura_salud': forms.Textarea(attrs={'rows': 3}),
+            'eventos_y_enc_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
+            'eventos_y_enc_cultura_salud': forms.Textarea(attrs={'rows': 3}),
+            'modulos_acciones_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
+            'modulos_acciones_cultura_salud': forms.Textarea(attrs={'rows': 3}),
+            'evaluacion_cualitativa': forms.Textarea(attrs={'rows': 3,  'class': 'input-xxlarge'}),
         }
 
-    # def clean_anio_aplicacion(self):
-    #     anio = self.cleaned_data['anio_aplicacion']
-
-# class PlanDeDesarrollo(models.Model):
-#     familia = models.ForeignKey(Familia)

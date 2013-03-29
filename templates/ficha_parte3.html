@@ -1,2 +1,195 @@
+
 <h1>Parte III: Plan de Desarrollo</h1>
+
+<br>
+
+<h3>I. Propuesta de Trabajo (Inicio)</h3>
+
+<label>a. Objetivos de Desarrollo Socio-Familiar:</label>
+
+{{ form.objetivos_desarrollo_socio_fam }}
+
+<table id="tabla_objetivos" class="table table-hover table-condensed tabla-objetivos">
+    <thead>
+    <tr>
+        <th>Componente</th>
+        <th>Objetivo del participante</th>
+        <th>Objetivo del grupo familiar</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% if evaluacion %}
+
+        {% if evaluacion.objetivos_desarrollo_socio_fam %}
+
+            {% for obj in evaluacion.objetivos_desarrollo_socio_fam %}
+
+                <tr class="fila_objs">
+                    <td>
+                        <textarea class="componente" cols="30" rows="3" name="obj_componente">{{ obj.obj_componente }}</textarea>
+                    </td>
+                    <td>
+                        <textarea class="obj-participante" cols="30" rows="3" name="obj_participante">{{ obj.obj_participante }}</textarea>
+                    </td>
+                    <td>
+                        <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo">{{ obj.obj_grupo }}</textarea>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
+                            <i class="icon-remove"></i>
+                        </button>
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr class="fila_objs">
+                <td>
+                    <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
+                </td>
+                <td>
+                    <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
+                </td>
+                <td>
+                    <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
+                        <i class="icon-remove"></i>
+                    </button>
+                </td>
+            </tr>
+
+        {% endif %}
+
+    {% else %}
+
+        <tr class="fila_objs">
+            <td>
+                <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
+            </td>
+            <td>
+                <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
+            </td>
+            <td>
+                <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
+            </td>
+            <td>
+                <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
+                    <i class="icon-remove"></i>
+                </button>
+            </td>
+        </tr>
+
+    {% endif %}
+
+    </tbody>
+</table>
+
+<div class="pull-right">
+    <button id="btn_agregar_obj" type="button" class="btn btn-small">
+        <i class="icon-plus-sign"></i>
+        Agregar Objetivo
+    </button>
+</div>
+
+<br>
+
+<label>b. Propuesta de Ciclo de Desarrollo Socio-Familiar:</label>
+{{ form.propuesta_ciclo_desarrollo_socio_fam }}
+
+<hr>
+
+<h3>II. Revisión del Proceso (Cumplimiento)</h3>
+
+<label>a. Ciclo de Desarrollo Socio-Familiar realizado:</label>
+
+<table class="table table-hover table-condensed table-bordered tabla-ciclo-desarrollo">
+    <thead>
+    <tr>
+        <td></td>
+        <th>Desarrollo y Formación Familiar</th>
+        <th>Cultura, Salud y Medio Ambiente</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th>Talleres Grupales</th>
+        <td>{{ form.talleres_grup_desarrollo_fam }}</td>
+        <td>{{ form.talleres_grup_cultura_salud }}</td>
+    </tr>
+    <tr>
+        <th>Eventos y Encuentros</th>
+        <td>{{ form.eventos_y_enc_desarrollo_fam }}</td>
+        <td>{{ form.eventos_y_enc_cultura_salud }}</td>
+    </tr>
+    <tr>
+        <th>Módulos y Acciones Complementarias</th>
+        <td>{{ form.modulos_acciones_desarrollo_fam }}</td>
+        <td>{{ form.modulos_acciones_cultura_salud }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+
+<label>b. Evaluación cuantitativa del proceso</label>
+
+<table class="table table-hover table-bordered tabla-eval-cuanti">
+    <thead>
+    <tr>
+        <th>Componentes</th>
+        <th>Puntaje Inicio (I)</th>
+        <th>Puntaje Cumplimiento (C)</th>
+        <th>Puntaje Variación (C)-(I)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Relaciones Comunitarias</td>
+        <td class="eval-cuanti"><span  id="rel_comu_ini"></span></td>
+        <td class="eval-cuanti"><span  id="rel_comu_cum"></span></td>
+        <td class="eval-cuanti"><span  id="rel_comu_var"></span></td>
+    </tr>
+    <tr>
+        <td>Acceso</td>
+        <td class="eval-cuanti"><span  id="acc_ini"></span></td>
+        <td class="eval-cuanti"><span  id="acc_cum"></span></td>
+        <td class="eval-cuanti"><span  id="acc_var"></span></td>
+    </tr>
+    <tr>
+        <td>Vínculos Familiares</td>
+        <td class="eval-cuanti"><span  id="vinc_fam_ini"></span></td>
+        <td class="eval-cuanti"><span  id="vinc_fam_cum"></span></td>
+        <td class="eval-cuanti"><span  id="vinc_fa,_var"></span></td>
+    </tr>
+    <tr>
+        <td>Derechos Infantiles</td>
+        <td class="eval-cuanti"><span  id="der_inf_ini"></span></td>
+        <td class="eval-cuanti"><span  id="der_inf_cum"></span></td>
+        <td class="eval-cuanti"><span  id="der_inf_var"></span></td>
+    </tr>
+    <tr>
+        <td>Desarrollo Personal</td>
+        <td class="eval-cuanti"><span  id="des_per_ini"></span></td>
+        <td class="eval-cuanti"><span  id="des_per_cum"></span></td>
+        <td class="eval-cuanti"><span  id="des_per_var"></span></td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+
+<label>c. Evaluación cualitativa del proceso y cumplimiento de objetivos</label>
+
+{{ form.evaluacion_cualitativa }}
+
 

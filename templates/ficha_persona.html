@@ -13,7 +13,88 @@
 
 {% block content %}
 
-    <form action="" method="post" class="form-horizontal form-evaluacion">{% csrf_token %}
+{#    template para la parte III#}
+    <div style="display: none">
+        <table>
+            <tr id="template_fila">
+                <td>
+                    <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
+                </td>
+                <td>
+                    <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
+                </td>
+                <td>
+                    <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
+                        <i class="icon-remove"></i>
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <form id="form_ficha" action="" method="post" class="form-horizontal form-evaluacion">{% csrf_token %}
+
+        {% if message %}
+            <div class="alert alert-{{ message_class }}">
+                {{ message }}
+            </div>
+            <br>
+        {% endif %}
+
+        {{ form.persona }}
+
+        <div class="control-group" style="margin: 0">
+            <label class="control-label">
+                Ficha de Desarrollo N°:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>
+                    {% if evaluacion %}
+                        {{ evaluacion.id }}
+                    {% endif %}
+                </b>
+            </div>
+        </div>
+
+        <div class="control-group" style="margin: 0">
+            <label class="control-label">
+                Familia:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>{{ persona.familia }} ({{ persona.familia.id|zfill:10 }})</b>
+            </div>
+        </div>
+
+        <div class="control-group" style="margin: 0">
+            <label class="control-label">
+                Persona:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                <b>{{ persona }}</b>
+            </div>
+        </div>
+
+        <div class="control-group" style="margin: 0">
+            {% if form.anio_aplicacion.errors %}
+                {{ form.anio_aplicacion.errors }}
+            {% endif %}
+            <label class="control-label">
+                Año de aplicación:
+            </label>
+            <div class="controls" style="padding-top: 5px">
+                {% if evaluacion %}
+                    <b>{{ anio }}</b>
+                    {{ form.anio_aplicacion }}
+                {% else %}
+                    <input type="text" name="{{ form.anio_aplicacion.name }}">
+                {% endif %}
+            </div>
+        </div>
+
+        <br>
 
         <ul class="nav nav-tabs">
             <li class="active"><a href="#parte2" data-toggle="tab">Parte II: Evaluación de Factores Protectores</a></li>
@@ -71,13 +152,32 @@
         if(num_elementos > 0){
             var promedio = round_number(suma / num_elementos, 2);
             $table.find(".prom-" + etapa).html(promedio);
+            actualizar_totales($table, etapa, promedio);
         } else {
             $table.find(".prom-" + etapa).html("");
+            actualizar_totales($table, etapa, 0);
+        }
+    }
+
+    function actualizar_totales($table, etapa, promedio){
+        if($table.hasClass("relaciones")) {
+            $("#rel_comu_"+etapa).html(promedio);
+        } else if($table.hasClass("acceso")) {
+            $("#acc_"+etapa).html(promedio);
+        } else if($table.hasClass("vinculos")) {
+            $("#vinc_fam_"+etapa).html(promedio);
+        } else if($table.hasClass("der-infantiles")) {
+            $("#der_inf_"+etapa).html(promedio);
+        } else if($table.hasClass("des-personal")) {
+            $("#des_per_"+etapa).html(promedio);
         }
     }
 
     $(document).ready(function () {
 
+        /*
+        Logica de los radiobutton
+         */
         $('.fila-evaluacion').each(function(){
 
             var $fila = $(this);
@@ -108,11 +208,63 @@
                 return false;
             });
 
-            promediar($fila, 'ini');
-            promediar($fila, 'cum');
+{#            promediar($fila, 'ini');#}
+{#            promediar($fila, 'cum');#}
 
         });
 
+        promediar($("table.relaciones").first(".fila-evaluacion"), 'ini');
+        promediar($("table.relaciones").first(".fila-evaluacion"), 'cum');
+
+        promediar($("table.acceso").first(".fila-evaluacion"), 'ini');
+        promediar($("table.acceso").first(".fila-evaluacion"), 'cum');
+
+        promediar($("table.vinculos").first(".fila-evaluacion"), 'ini');
+        promediar($("table.vinculos").first(".fila-evaluacion"), 'cum');
+
+        promediar($("table.der-infantiles").first(".fila-evaluacion"), 'ini');
+        promediar($("table.der-infantiles").first(".fila-evaluacion"), 'cum');
+
+        promediar($("table.des-personal").first(".fila-evaluacion"), 'ini');
+        promediar($("table.des-personal").first(".fila-evaluacion"), 'cum');
+
+        // Parte III ------------------------------
+        function bind_btn_eliminar_obj(){
+            $(".btn_eliminar_obj").click(function(){
+                $(this).closest("tr").remove();
+            });
+        }
+
+        bind_btn_eliminar_obj();
+        var $template_fila = $("#template_fila");
+        var $tabla_objetivos = $("#tabla_objetivos");
+
+        $("#btn_agregar_obj").click(function(){
+            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila.html() + "</tr>");
+            bind_btn_eliminar_obj();
+        });
+
+
+        //preparar el arreglo de objetivos de la parte III
+        var $form_ficha = $("#form_ficha");
+
+        $form_ficha.submit(function(){
+
+            var objetivos_list = [];
+
+            $tabla_objetivos.find("tr.fila_objs").each(function(){
+                var $tr = $(this);
+                var objs_item = {
+                    'obj_componente': $tr.find("textarea[name='obj_componente']").val(),
+                    'obj_participante': $tr.find("textarea[name='obj_participante']").val(),
+                    'obj_grupo': $tr.find("textarea[name='obj_grupo']").val()
+                };
+                objetivos_list.push(objs_item);
+            });
+
+            $("#{{ form.objetivos_desarrollo_socio_fam.auto_id }}").val(JSON.stringify(objetivos_list));
+
+        });
     });
 </script>
 {% endblock %}

@@ -120,3 +120,30 @@ span.prom-cum{
     float: none;
     margin: 0;
 }
+
+.fila-ini {
+    background-color: #f8f8f8;
+}
+
+.fila-cum {
+    background-color: #f4ffed;
+}
+
+span.fila-ini,
+span.fila-cum{
+    padding: 4px;
+    margin: 2px;
+    border: solid 1px #eee;
+    display: inline-block;
+    min-width: 120px;
+}
+
+.tabla-objetivos textarea,
+.tabla-ciclo-desarrollo textarea
+{
+    width: 95%;
+}
+
+.table td.eval-cuanti {
+    text-align: center;
+}

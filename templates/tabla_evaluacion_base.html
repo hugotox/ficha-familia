@@ -1,4 +1,4 @@
-<table class="table table-hover table-condensed table-bordered">
+<table class="table table-condensed table-bordered {% block extra_class %}{% endblock %}">
     <thead>
         <tr>
             <th></th>
@@ -15,7 +15,15 @@
         {% block fields %}
         {% endblock %}
         <tr>
-            <td colspan="7"></td>
+            <td colspan="7">
+                <span class="fila-ini">
+                    (I): Inicio
+                </span>
+                <br>
+                <span class="fila-cum">
+                    (C): Cumplimiento
+                </span>
+            </td>
             <td>
                 <label>
                     <span style="width: 62px;display: inline-block">Prom (I):</span>
