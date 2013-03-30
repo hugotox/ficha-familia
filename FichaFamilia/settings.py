@@ -1,10 +1,10 @@
 from datetime import datetime, date
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('Hugo Pineda', 'hugo.trucker@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -68,7 +68,7 @@ STATICFILES_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '/Users/hpineda/PycharmProjects/FichaFamilia/static',
-    '/home/funfamilia/ficha_familia/static'
+    '/home/funfamilia/ficha_familia/static',
 )
 
 # List of finder classes that know how to find static files in
@@ -109,7 +109,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '/Users/hpineda/PycharmProjects/FichaFamilia/templates',
-    '/home/funfamilia/ficha_familia/templates'
+    '/home/funfamilia/ficha_familia/templates',
 )
 
 INSTALLED_APPS = (

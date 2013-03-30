@@ -136,6 +136,7 @@ def familia(request, id):
     message_class = ''
     user_profile = request.user.get_profile()
     es_admin = request.user.is_superuser
+    centro_familiar = None
 
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
@@ -152,6 +153,10 @@ def familia(request, id):
         familia = Familia.objects.get(id=id)
     except:
         familia = None
+
+    if not es_admin:
+        if familia.centro_familiar != centro_familiar:
+            raise Http404
 
     if request.method == "POST":
         if familia is not None:
@@ -178,6 +183,11 @@ def familia(request, id):
 
 @login_required
 def eliminar_familia(request, id):
+    es_admin = request.user.is_superuser
+    user_profile = request.user.get_profile()
+    centro_familiar = None
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
 
     filters = []
 
@@ -192,7 +202,11 @@ def eliminar_familia(request, id):
     try:
         familia = Familia.objects.get(id=id)
     except:
-        return Http404()
+        raise Http404
+
+    if not es_admin:
+        if familia.centro_familiar != centro_familiar:
+            raise Http404
 
     if request.method == 'POST':
         familia.delete()
@@ -203,6 +217,11 @@ def eliminar_familia(request, id):
 
 @login_required
 def eliminar_persona(request, id):
+    es_admin = request.user.is_superuser
+    user_profile = request.user.get_profile()
+    centro_familiar = None
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
 
     if request.method == 'POST':
         id = request.POST['id']
@@ -210,7 +229,11 @@ def eliminar_persona(request, id):
     try:
         persona = Persona.objects.get(id=id)
     except:
-        return Http404()
+        raise Http404
+
+    if not es_admin:
+        if persona.familia.centro_familiar != centro_familiar:
+            raise Http404
 
     filters = []
 
@@ -228,9 +251,18 @@ def eliminar_persona(request, id):
 
 @login_required
 def get_persona_form(request, familia_id, id):
+    es_admin = request.user.is_superuser
+    user_profile = request.user.get_profile()
+    centro_familiar = None
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
 
     saved = False
     familia = Familia.objects.get(id=familia_id)
+
+    if not es_admin:
+        if familia.centro_familiar != centro_familiar:
+            raise Http404
 
     id = int(id)
 
@@ -267,13 +299,16 @@ def ficha(request, id, anio):
     try:
         persona = Persona.objects.get(id=id)
     except:
-        return Http404()
+        raise Http404
 
     user_profile = request.user.get_profile()
     es_admin = request.user.is_superuser
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
         centro_familiar = user_profile.centro_familiar
+        if persona.familia.centro_familiar != centro_familiar:
+            raise Http404
+
     filters = []
     for name, val in request.GET.items():
         filters.append("%s=%s" % (name, val))
@@ -338,15 +373,25 @@ def ficha(request, id, anio):
 
 
 def eliminar_ficha(request, id, anio):
+    es_admin = request.user.is_superuser
+    user_profile = request.user.get_profile()
+    centro_familiar = None
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
+
     try:
         persona = Persona.objects.get(id=id)
     except:
-        return Http404()
+        raise Http404
+
+    if not es_admin:
+        if persona.familia.centro_familiar != centro_familiar:
+            raise Http404
 
     try:
         evaluacion = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=anio)
     except:
-        return Http404()
+        raise Http404
 
     filters = []
 
