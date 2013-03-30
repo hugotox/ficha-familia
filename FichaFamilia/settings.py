@@ -1,6 +1,6 @@
 from datetime import datetime, date
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
