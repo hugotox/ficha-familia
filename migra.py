@@ -138,9 +138,6 @@ def actualizar_secuencias():
     transaction.commit_unless_managed()
 
 
-# centros familiares
-#extraer_centros()
-
 # estados civiles
 #extraer_columnas_id_descripcion(15, 16)
 
@@ -163,6 +160,9 @@ def actualizar_secuencias():
 
 #  ocupacion
 #extraer_columnas_id_descripcion(10, 10)
+
+# centros familiares
+extraer_centros()
 
 extraer_familias()
 

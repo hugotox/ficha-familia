@@ -5,10 +5,62 @@
 
 <h3>I. Propuesta de Trabajo (Inicio)</h3>
 
-<label>a. Objetivos de Desarrollo Socio-Familiar:</label>
+<label><strong>a. Objetivos de Desarrollo Socio-Familiar:</strong></label>
+
+<br>
+
+<ul>
+    <li>
+        <strong>Por Individuo</strong>
+        <br>
+        <br>
+        <table class="table table-hover table-condensed tabla-objetivos">
+            <thead>
+            <tr>
+                <td>Componente</td>
+                <td>Objetivo del Factor Protector</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <select name="componente-ind">
+                        <option value="">--Seleccione--</option>
+                        {% for componente in componentes %}
+                            <option value="{{ componente.id }}">{{ componente }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="objetivo-ind">
+
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pull-right">
+            <button id="btn_agregar_obj_ind" type="button" class="btn btn-small">
+                <i class="icon-plus-sign"></i>
+                Agregar Objetivo
+            </button>
+        </div>
+
+        <div style="clear: both"></div>
+        <br>
+    </li>
+    <li>
+        <strong>Por Grupo Familiar</strong>
+        <br>
+        <br>
+
+    </li>
+</ul>
 
 {{ form.objetivos_desarrollo_socio_fam }}
 
+{% comment %}
 <table id="tabla_objetivos" class="table table-hover table-condensed tabla-objetivos">
     <thead>
     <tr>
@@ -96,17 +148,18 @@
         Agregar Objetivo
     </button>
 </div>
+{% endcomment %}
 
 <br>
 
-<label>b. Propuesta de Ciclo de Desarrollo Socio-Familiar:</label>
+<label><strong>b. Propuesta de Ciclo de Desarrollo Socio-Familiar:</strong></label>
 {{ form.propuesta_ciclo_desarrollo_socio_fam }}
 
 <hr>
 
 <h3>II. Revisión del Proceso (Cumplimiento)</h3>
 
-<label>a. Ciclo de Desarrollo Socio-Familiar realizado:</label>
+<label><strong>a. Ciclo de Desarrollo Socio-Familiar realizado:</strong></label>
 
 <table class="table table-hover table-condensed table-bordered tabla-ciclo-desarrollo">
     <thead>
@@ -119,25 +172,53 @@
     <tbody>
     <tr>
         <th>Talleres Grupales</th>
-        <td>{{ form.talleres_grup_desarrollo_fam }}</td>
-        <td>{{ form.talleres_grup_cultura_salud }}</td>
+        <td>
+             <label class="checkbox"> <input type="checkbox">Talleres de Formación y Orientación Familiar.</label>
+        </td>
+        <td>
+            <label class="checkbox"> <input type="checkbox">Talleres Deportivos Recreativos.</label>
+            <label class="checkbox"> <input type="checkbox">Talleres Fútbol Calle.</label>
+            <label class="checkbox"> <input type="checkbox">Talleres Boccias.</label>
+            <label class="checkbox"> <input type="checkbox">Talleres Artísticos y Culturales.</label>
+            <label class="checkbox"> <input type="checkbox">Talleres de Alimentación Saludable.</label>
+            <label class="checkbox"> <input type="checkbox">Talleres de Huertos Familiares.</label>
+        </td>
     </tr>
     <tr>
         <th>Eventos y Encuentros</th>
-        <td>{{ form.eventos_y_enc_desarrollo_fam }}</td>
-        <td>{{ form.eventos_y_enc_cultura_salud }}</td>
+        <td>
+            <label class="checkbox"> <input type="checkbox">Encuentros Familiares. </label>
+            <label class="checkbox"> <input type="checkbox">Eventos Recreativos. </label>
+        </td>
+        <td>
+            <label class="checkbox"> <input type="checkbox">Eventos, Encuentros y Campeonatos Deportivos.</label>
+            <label class="checkbox"> <input type="checkbox">Eventos Deportivos Familiares.</label>
+            <label class="checkbox"> <input type="checkbox">Eventos Culturales.</label>
+            <label class="checkbox"> <input type="checkbox">Muestras Familiares Artísticos- Culturales.</label>
+            <label class="checkbox"> <input type="checkbox">Encuentros de Vida Saludable.</label>
+        </td>
     </tr>
     <tr>
         <th>Módulos y Acciones Complementarias</th>
-        <td>{{ form.modulos_acciones_desarrollo_fam }}</td>
-        <td>{{ form.modulos_acciones_cultura_salud }}</td>
+        <td>
+            <label class="checkbox"> <input type="checkbox">Módulos de Formación Familiar.</label>
+            <label class="checkbox"> <input type="checkbox">Acciones de Información y Difusión.</label>
+            <label class="checkbox"> <input type="checkbox">Atención Individual y Familiar.</label>
+        </td>
+        <td>
+            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas Deportivas.</label>
+            <label class="checkbox"> <input type="checkbox">Acceso, Paseos, Visitas y Salidas Culturales.</label>
+            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas Artístico- Culturales.</label>
+            <label class="checkbox"> <input type="checkbox">Acciones de Recuperación de Áreas Verdes.</label>
+            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente.</label>
+        </td>
     </tr>
     </tbody>
 </table>
 
 <br>
 
-<label>b. Evaluación cuantitativa del proceso</label>
+<label><strong>b. Evaluación cuantitativa del proceso</strong></label>
 
 <table class="table table-hover table-bordered tabla-eval-cuanti">
     <thead>
@@ -188,7 +269,7 @@
 
 <br>
 
-<label>c. Evaluación cualitativa del proceso y cumplimiento de objetivos</label>
+<label><strong>c. Evaluación cualitativa del proceso y cumplimiento de objetivos</strong></label>
 
 {{ form.evaluacion_cualitativa }}
 

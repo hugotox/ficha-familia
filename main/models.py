@@ -6,9 +6,9 @@ from django import forms
 from django.forms.widgets import DateInput
 from main.fields import JsonField
 
-BOOLEAN_CHOICES = (
-    (True, u'Sí'),
-    (False, u'No'),
+PRESENTE_CHOICES = (
+    (True, u'Presente'),
+    (False, u'No presente'),
 )
 
 NIVEL_ESC_CHOICES = (
@@ -182,6 +182,7 @@ class Persona(models.Model):
 class PersonaForm(forms.ModelForm):
     class Meta:
         model = Persona
+        exclude = ('calificacion_laboral', )
         widgets = {
             'fecha_nacimiento': DateInput(attrs={'class': "datepicker"}),
             'fecha_ingreso': DateInput(attrs={'class': 'datepicker'}),
@@ -198,14 +199,14 @@ class FamiliaForm(forms.ModelForm):
         exclude = ('date_created', 'date_modified', 'estado')
 
         widgets = {
-            'cond_precariedad': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_vulnerabilidad': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_hogar_uni_riesgo': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_familia_mono_riesgo': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_alcohol_drogas': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_discapacidad': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_malos_tratos': forms.RadioSelect(choices=BOOLEAN_CHOICES),
-            'cond_socializ_delictual': forms.RadioSelect(choices=BOOLEAN_CHOICES),
+            'cond_precariedad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_vulnerabilidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_hogar_uni_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_familia_mono_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_alcohol_drogas': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_discapacidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_malos_tratos': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_socializ_delictual': forms.RadioSelect(choices=PRESENTE_CHOICES),
         }
 
 
@@ -217,6 +218,36 @@ EVALUACION_CHOICES = (
     (2, 2),
     (-100, 'N/A'),
 )
+
+
+ALCANCE_OBJ_CHOICES = (
+    (1, 'Individual'),
+    (2, 'Grupo Familiar')
+)
+
+
+class Componentes(models.Model):
+    nombre = models.CharField(max_length=250)
+
+    def __unicode__(self):
+        return self.nombre
+
+
+class FactorProtector(models.Model):
+    componente = models.ForeignKey(Componentes)
+    factor_protector = models.CharField(max_length=250)
+
+    def __unicode__(self):
+        return self.factor_protector
+
+
+class Objetivo(models.Model):
+    factor_protector = models.ForeignKey(FactorProtector)
+    alcance = models.IntegerField(choices=ALCANCE_OBJ_CHOICES, default=1)
+    objetivo = models.CharField(max_length=250)
+
+    def __unicode__(self):
+        return "%s (%s - %s)" % (self.objetivo, self.factor_protector, ALCANCE_OBJ_CHOICES[self.alcance-1][1])
 
 
 class EvaluacionFactoresProtectores(models.Model):

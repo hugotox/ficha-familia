@@ -13,4 +13,9 @@ var round_number = function (number, decimals) {
 
 $(document).ready(function () {
     bind_datepickers();
+
+    $.ajaxSetup({
+        cache:false
+    });
+
 });

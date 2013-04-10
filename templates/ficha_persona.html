@@ -152,10 +152,10 @@
         if(num_elementos > 0){
             var promedio = round_number(suma / num_elementos, 2);
             $table.find(".prom-" + etapa).html(promedio);
-            actualizar_totales($table, etapa, promedio);
+            //actualizar_totales($table, etapa, promedio);
         } else {
             $table.find(".prom-" + etapa).html("");
-            actualizar_totales($table, etapa, 0);
+            //actualizar_totales($table, etapa, 0);
         }
     }
 
@@ -228,13 +228,27 @@
         promediar($("table.des-personal").first(".fila-evaluacion"), 'ini');
         promediar($("table.des-personal").first(".fila-evaluacion"), 'cum');
 
-        // Parte III ------------------------------
+        // --- Parte III ------------------------------
+
+        function bind_fila_objetivos(){
+            $("select[name='componente-ind']").change(function(){
+                var comp_id = $(this).val();
+                if(comp_id != ""){
+                    var select_obj = $(this).closest('tr').find("select[name='objetivo-ind']");
+                    $.getJSON("/get_objetivos/ind/"+comp_id+"/", function(data){
+
+                    });
+                }
+            });
+        }
+
         function bind_btn_eliminar_obj(){
             $(".btn_eliminar_obj").click(function(){
                 $(this).closest("tr").remove();
             });
         }
 
+        bind_fila_objetivos();
         bind_btn_eliminar_obj();
         var $template_fila = $("#template_fila");
         var $tabla_objetivos = $("#tabla_objetivos");

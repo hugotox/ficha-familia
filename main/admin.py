@@ -8,6 +8,9 @@ admin.site.register(CentroFamiliar)
 admin.site.register(Persona)
 admin.site.register(EvaluacionFactoresProtectores)
 admin.site.register(UserProfile)
+admin.site.register(Componentes)
+admin.site.register(FactorProtector)
+admin.site.register(Objetivo)
 
 
 # No funciona!

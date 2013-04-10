@@ -65,7 +65,6 @@
                     <th>Fecha de nacimiento</th>
                     <th>Estado civil</th>
                     <th>Nivel de escolaridad</th>
-                    <th>Calificación laboral</th>
                     <th>Ocupación</th>
                     <th>Aporta ingresos</th>
                     <th colspan="2">Acción</th>
@@ -81,22 +80,9 @@
                         <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
                         <td class="estado_civil">{% if persona.estado_civil %}{{ persona.get_estado_civil_display }}{% endif %}</td>
                         <td class="nivel_escolaridad">{% if persona.nivel_escolaridad %}{{ persona.get_nivel_escolaridad_display }}{% endif %}</td>
-                        <td class="calificacion_laboral">{% if persona.calificacion_laboral %}{{ persona.get_calificacion_laboral_display }}{% endif %}</td>
                         <td class="ocupacion">{% if persona.ocupacion %}{{ persona.get_ocupacion_display }}{% endif %}</td>
                         <td class="aporta_ingreso">{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}</td>
                         <td>
-                            <a href="/persona/del/{{ persona.id }}{{ back_url }}" class="btn btn-small">
-                                <i class="icon-remove"></i>
-                                Eliminar
-                            </a>
-                        </td>
-                        <td>
-
-{#                            <a href="/ficha/{{ persona.id }}{{ back_url }}" class="btn btn-small">#}
-{#                                <i class="icon-pencil"></i>#}
-{#                                Ficha#}
-{#                            </a>#}
-
                             <div class="btn-group">
                                 <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
                                 <ul class="dropdown-menu">
@@ -109,7 +95,11 @@
                                   <li><a href="/ficha/{{ persona.id }}/0{{ back_url }}">Nueva</a></li>
                                 </ul>
                             </div>
-
+                        </td>
+                        <td>
+                            <a href="/persona/del/{{ persona.id }}{{ back_url }}" class="btn btn-mini" title="Eliminar">
+                                <i class="icon-remove"></i>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -123,15 +113,15 @@
         </fieldset>
 
         <table class="table table-hover table-condensed table-bordered tabla-filtrable ficha-form">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>
-                        Presente
-                        <span style="margin-left: 20px">No presente</span>
-                    </th>
-                </tr>
-            </thead>
+{#            <thead>#}
+{#                <tr>#}
+{#                    <th></th>#}
+{#                    <th>#}
+{#                        Presente#}
+{#                        <span style="margin-left: 20px">No presente</span>#}
+{#                    </th>#}
+{#                </tr>#}
+{#            </thead>#}
             <tbody>
                 <tr>
                     <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
@@ -216,15 +206,21 @@
                 <td class="fecha_nacimiento"></td>
                 <td class="estado_civil"></td>
                 <td class="nivel_escolaridad"></td>
-                <td class="calificacion_laboral"></td>
                 <td class="ocupacion"></td>
                 <td class="aporta_ingreso"></td>
-                <td><a href="" class="btn btn_eliminar btn-small">
-                    <i class="icon-remove"></i>
-                    Eliminar</a></td>
-                <td><a href="" class="btn btn_ficha btn-small">
-                    <i class="icon-pencil"></i>
-                    Ficha</a></td>
+                <td>
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                          <li><a href="" class="link_nueva_ficha">Nueva</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <a href="" class="btn btn_eliminar btn-mini" title="Eliminar">
+                        <i class="icon-remove"></i>
+                    </a>
+                </td>
             </tr>
         </table>
     </div>
@@ -293,7 +289,7 @@
                             $lista_personas.find('tr:last').after("<tr class='persona-"+data.id+"'>" + $fila_template.html() + "</tr>");
                             $fila = $('.persona-' + data.id);
                             $fila.find('.nombre').attr('id', data.id);
-                            $fila.find('.btn_ficha').attr('href', "/ficha/"+data.id+"{{ back_url|safe }}");
+                            $fila.find('.link_nueva_ficha').attr('href', "/ficha/"+data.id+"/0{{ back_url|safe }}");
                             $fila.find('.btn_eliminar').attr('href', "/persona/del/"+data.id+"{{ back_url|safe }}");
                             set_link_persona();
                         }
@@ -302,7 +298,6 @@
                         $fila.find('.fecha_nacimiento').html($form_persona.find("input[name='fecha_nacimiento']").val());
                         $fila.find('.estado_civil').html($form_persona.find("select[name='estado_civil'] option:selected").html());
                         $fila.find('.nivel_escolaridad').html($form_persona.find("select[name='nivel_escolaridad'] option:selected").html());
-                        $fila.find('.calificacion_laboral').html($form_persona.find("select[name='calificacion_laboral'] option:selected").html());
                         $fila.find('.ocupacion').html($form_persona.find("select[name='ocupacion'] option:selected").html());
                         var aporta = "No";
                         if($form_persona.find("input[name='aporta_ingreso']").is(":checked")){

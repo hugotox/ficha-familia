@@ -27,13 +27,6 @@
             </button>
             <a class="brand" href="/">Ficha Desarrollo {% block extra_brand %}{% endblock %}</a>
 
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-
-                </ul>
-            </div>
-            <!--/.nav-collapse -->
-            
             <div class="pull-right" style="padding: 10px">
                 {% block top_right_content %}
                 {% endblock %}
@@ -41,10 +34,17 @@
                     <span>Hola {{ user.username }}!</span>
                     <a href="/accounts/logout/">Cerrar sesión</a>
                 {% else %}
-                    
+
                 {% endif %}
             </div>
-            
+
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+
         </div>
     </div>
 </div>
