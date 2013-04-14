@@ -19,10 +19,11 @@
             <tr>
                 <td>Componente</td>
                 <td>Objetivo del Factor Protector</td>
+                <td></td>
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr class="fila_objs">
                 <td>
                     <select name="componente-ind">
                         <option value="">--Seleccione--</option>
@@ -35,6 +36,11 @@
                     <select name="objetivo-ind">
 
                     </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-small btn_eliminar_obj">
+                        <i class="icon-remove"></i>
+                    </button>
                 </td>
             </tr>
             </tbody>
@@ -54,11 +60,49 @@
         <strong>Por Grupo Familiar</strong>
         <br>
         <br>
+        <table class="table table-hover table-condensed tabla-objetivos">
+            <thead>
+            <tr>
+                <td>Componente</td>
+                <td>Objetivo del Factor Protector</td>
+                <td></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fila_objs">
+                <td>
+                    <select name="componente-grup">
+                        <option value="">--Seleccione--</option>
+                        {% for componente in componentes %}
+                            <option value="{{ componente.id }}">{{ componente }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="objetivo-grup">
 
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-small btn_eliminar_obj">
+                        <i class="icon-remove"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pull-right">
+            <button id="btn_agregar_obj_grup" type="button" class="btn btn-small">
+                <i class="icon-plus-sign"></i>
+                Agregar Objetivo
+            </button>
+        </div>
+
+        <div style="clear: both"></div>
+        <br>
     </li>
 </ul>
-
-{{ form.objetivos_desarrollo_socio_fam }}
 
 {% comment %}
 <table id="tabla_objetivos" class="table table-hover table-condensed tabla-objetivos">

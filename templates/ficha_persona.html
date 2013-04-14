@@ -5,29 +5,53 @@
     Ficha: {{ persona }}
 {% endblock %}
 
-{% if not es_admin %}
-    {% block extra_brand %}
+{% block extra_brand %}
+    {% if not es_admin %}
         - Centro Familiar {{ centro_familiar }}
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
 {#    template para la parte III#}
     <div style="display: none">
         <table>
-            <tr id="template_fila">
+            <tr id="template_fila-ind">
                 <td>
-                    <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
+                    <select name="componente-ind">
+                        <option value="">--Seleccione--</option>
+                        {% for componente in componentes %}
+                            <option value="{{ componente.id }}">{{ componente }}</option>
+                        {% endfor %}
+                    </select>
                 </td>
                 <td>
-                    <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
+                    <select name="objetivo-ind">
+
+                    </select>
                 </td>
                 <td>
-                    <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
+                    <button type="button" class="btn btn-small btn_eliminar_obj">
+                        <i class="icon-remove"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr id="template_fila-grup">
+                <td>
+                    <select name="componente-grup">
+                        <option value="">--Seleccione--</option>
+                        {% for componente in componentes %}
+                            <option value="{{ componente.id }}">{{ componente }}</option>
+                        {% endfor %}
+                    </select>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
+                    <select name="objetivo-grup">
+
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-small btn_eliminar_obj">
                         <i class="icon-remove"></i>
                     </button>
                 </td>
@@ -173,6 +197,8 @@
         }
     }
 
+    var factores = JSON.parse('{{ factores_json|safe }}');
+
     $(document).ready(function () {
 
         /*
@@ -208,9 +234,6 @@
                 return false;
             });
 
-{#            promediar($fila, 'ini');#}
-{#            promediar($fila, 'cum');#}
-
         });
 
         promediar($("table.relaciones").first(".fila-evaluacion"), 'ini');
@@ -228,16 +251,42 @@
         promediar($("table.des-personal").first(".fila-evaluacion"), 'ini');
         promediar($("table.des-personal").first(".fila-evaluacion"), 'cum');
 
+
         // --- Parte III ------------------------------
 
         function bind_fila_objetivos(){
             $("select[name='componente-ind']").change(function(){
+                var select_obj = $(this).closest('tr').find("select[name='objetivo-ind']");
+                select_obj.html("");
                 var comp_id = $(this).val();
                 if(comp_id != ""){
-                    var select_obj = $(this).closest('tr').find("select[name='objetivo-ind']");
-                    $.getJSON("/get_objetivos/ind/"+comp_id+"/", function(data){
-
-                    });
+                    comp_id = parseInt(comp_id);
+                    var options = "";
+                    for(var i=0; i<factores.length; i++){
+                        if(factores[i].fields.componente == comp_id) {
+                            if(factores[i].fields.objetivo_personal != null) {
+                                options += "<option value='"+factores[i].pk+"'>"+factores[i].fields.objetivo_personal+"</option>";
+                            }
+                        }
+                    }
+                    select_obj.html(options);
+                }
+            });
+            $("select[name='componente-grup']").change(function(){
+                var select_obj = $(this).closest('tr').find("select[name='objetivo-grup']");
+                select_obj.html("");
+                var comp_id = $(this).val();
+                if(comp_id != ""){
+                    comp_id = parseInt(comp_id);
+                    var options = "";
+                    for(var i=0; i<factores.length; i++){
+                        if(factores[i].fields.componente == comp_id) {
+                            if(factores[i].fields.objetivo_grupal != null) {
+                                options += "<option value='"+factores[i].pk+"'>"+factores[i].fields.objetivo_grupal+"</option>";
+                            }
+                        }
+                    }
+                    select_obj.html(options);
                 }
             });
         }
@@ -250,33 +299,26 @@
 
         bind_fila_objetivos();
         bind_btn_eliminar_obj();
-        var $template_fila = $("#template_fila");
-        var $tabla_objetivos = $("#tabla_objetivos");
+        var $template_fila_ind = $("#template_fila-ind");
+        var $template_fila_grup = $("#template_fila-grup");
 
-        $("#btn_agregar_obj").click(function(){
-            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila.html() + "</tr>");
+        $("#btn_agregar_obj_ind").click(function(){
+            var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
+            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_ind.html() + "</tr>");
+            bind_fila_objetivos();
+            bind_btn_eliminar_obj();
+        });
+        $("#btn_agregar_obj_grup").click(function(){
+            var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
+            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_grup.html() + "</tr>");
+            bind_fila_objetivos();
             bind_btn_eliminar_obj();
         });
 
-
-        //preparar el arreglo de objetivos de la parte III
         var $form_ficha = $("#form_ficha");
 
         $form_ficha.submit(function(){
 
-            var objetivos_list = [];
-
-            $tabla_objetivos.find("tr.fila_objs").each(function(){
-                var $tr = $(this);
-                var objs_item = {
-                    'obj_componente': $tr.find("textarea[name='obj_componente']").val(),
-                    'obj_participante': $tr.find("textarea[name='obj_participante']").val(),
-                    'obj_grupo': $tr.find("textarea[name='obj_grupo']").val()
-                };
-                objetivos_list.push(objs_item);
-            });
-
-            $("#{{ form.objetivos_desarrollo_socio_fam.auto_id }}").val(JSON.stringify(objetivos_list));
 
         });
     });

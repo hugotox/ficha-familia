@@ -4,11 +4,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
-from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
 from FichaFamilia.mensajes import DATOS_GUARDADOS
-from main.models import PersonaForm, FamiliaForm, Familia, Persona, EvaluacionForm, CentroFamiliar, TIPOS_FAMILIA_CHOICES, ESTADO_FAMILIA_CHOICES, EvaluacionFactoresProtectores, Componentes, Objetivo
+from main.models import *
 from django.utils import simplejson
+from django.core import serializers
 
 
 def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params):
@@ -324,6 +324,7 @@ def ficha(request, id, anio):
     message_class = None
 
     componentes = Componentes.objects.all()
+    factores_json = serializers.serialize("json", FactorProtector.objects.all())
 
     evaluacion_qs = EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=anio)
 
@@ -409,10 +410,3 @@ def eliminar_ficha(request, id, anio):
         return HttpResponseRedirect("/familia/%s/?%s" % (persona.familia.id, "&".join(filters)))
 
     return render(request, 'eliminar_ficha.html', locals())
-
-
-def get_objetivos(request, alcance, comp_id):
-    componente = Componentes.objects.get(id=comp_id)
-    if alcance == 'ind':
-        objetivos = Objetivo.objects.filter(alcance=1, factor_protector__componente=componente)
-        return HttpResponse()

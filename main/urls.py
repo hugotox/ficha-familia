@@ -14,5 +14,4 @@ urlpatterns = patterns('',
     url(r'^get_persona_form/(?P<familia_id>\d+)/(?P<id>\d+)$', 'main.views.get_persona_form', name='get_persona_form'),
     url(r'^accounts/login/$', 'main.auth.login_view', name='login'),
     url(r'^accounts/logout/$', 'main.auth.logout_view', name='logout'),
-    url(r'^get_objetivos/(?P<alcance>\w+)/(?P<comp_id>\d+)/', 'main.views.get_objetivos'),
 )

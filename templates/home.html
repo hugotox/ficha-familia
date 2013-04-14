@@ -14,11 +14,11 @@
 {#    </form>#}
 {% endblock %}
 
-{% if not es_admin %}
-    {% block extra_brand %}
+{% block extra_brand %}
+    {% if not es_admin %}
         - Centro Familiar {{ centro_familiar }}
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -44,9 +44,6 @@
         <table class="table table-hover table-condensed table-bordered tabla-filtrable">
             <thead>
             <tr>
-                <th>
-                    <a href="{{ link_col_ficha }}">Cód. Familia</a>
-                </th>
                 {% if es_admin %}<th>
                     <a href="{{ link_col_centro }}">Centro</a>
                 </th>{% endif %}
@@ -64,7 +61,6 @@
             </thead>
             <tbody>
             <tr>
-                <td><input id="num_ficha" type="text" name="num_ficha" value="{{ num_ficha }}"></td>
                 {% if es_admin %}
                     <td>
                         <select name="centro" id="centro">
@@ -96,14 +92,11 @@
             </tr>
             {% for familia in familias %}
                 <tr>
-                    <td>
-                        <a href="/familia/{{ familia.id }}/?{{ current_querystring }}">{{ familia.id|zfill:10 }}</a>
-                    </td>
                     {% if es_admin %}<td>
                         {{ familia.centro_familiar }}
                     </td>{% endif %}
                     <td>
-                        {{ familia }}
+                        <a href="/familia/{{ familia.id }}/?{{ current_querystring }}">{{ familia }}</a>
                     </td>
                     <td>
                         {% if familia.tipo_de_familia %}

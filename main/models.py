@@ -64,6 +64,11 @@ ESTADO_CIVIL_CHOICES = (
 
 ETAPA_EVAL_CHOICES = (('inicio', 'Inicio'), ('cumplimiento', 'Cumplimiento'))
 
+OBJS_EVAL_CHOICES = (
+    (1, "Individual"),
+    (2, "Grupo Familiar"),
+)
+
 OCUPACION_CHOICES = (
     u'Dueña de casa',
     u'Empleado',
@@ -115,13 +120,6 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-post_save.connect(create_user_profile, sender=User)
-
-
 class Familia(models.Model):
     apellido_materno = models.CharField(max_length=250)  # apellidos de la familia
     apellido_paterno = models.CharField(max_length=250)  # apellidos de la familia
@@ -161,7 +159,7 @@ class Persona(models.Model):
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
     telefono = models.CharField(max_length=250, verbose_name=u'Teléfono de contacto', null=True, blank=True)
     fecha_participa = models.DateField(verbose_name='Desde cuándo participa en FF', null=True, blank=True)
-    fecha_ingreso = models.DateTimeField(null=True, blank=True)
+    fecha_ingreso = models.DateField(null=True, blank=True)
 
     estado_civil = models.IntegerField(null=True, blank=True, choices=ESTADO_CIVIL_CHOICES, default=0)
     nivel_escolaridad = models.IntegerField(null=True, blank=True, choices=NIVEL_ESC_CHOICES, default=0)
@@ -175,6 +173,9 @@ class Persona(models.Model):
     principal = models.BooleanField(default=False)  # indica la persona que primero se ficho
     parentesco = models.IntegerField(null=True, blank=True, choices=PARENTESCO_CHOICES, default=0)  # parentesco con la persona principal, nulo si es el principal
 
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return u'%s %s (Familia %s)' % (self.nombres, self.apellido_paterno, self.familia)
 
@@ -182,9 +183,10 @@ class Persona(models.Model):
 class PersonaForm(forms.ModelForm):
     class Meta:
         model = Persona
-        exclude = ('calificacion_laboral', )
+        exclude = ('calificacion_laboral', "date_created", "date_modified")
         widgets = {
             'fecha_nacimiento': DateInput(attrs={'class': "datepicker"}),
+            'fecha_participa': DateInput(attrs={'class': "datepicker"}),
             'fecha_ingreso': DateInput(attrs={'class': 'datepicker'}),
             'familia': forms.HiddenInput(),
             'ocupacion': forms.TextInput(attrs={"data-provide": "typeahead",
@@ -220,12 +222,6 @@ EVALUACION_CHOICES = (
 )
 
 
-ALCANCE_OBJ_CHOICES = (
-    (1, 'Individual'),
-    (2, 'Grupo Familiar')
-)
-
-
 class Componentes(models.Model):
     nombre = models.CharField(max_length=250)
 
@@ -236,18 +232,11 @@ class Componentes(models.Model):
 class FactorProtector(models.Model):
     componente = models.ForeignKey(Componentes)
     factor_protector = models.CharField(max_length=250)
+    objetivo_personal = models.TextField(null=True, blank=True)
+    objetivo_grupal = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
         return self.factor_protector
-
-
-class Objetivo(models.Model):
-    factor_protector = models.ForeignKey(FactorProtector)
-    alcance = models.IntegerField(choices=ALCANCE_OBJ_CHOICES, default=1)
-    objetivo = models.CharField(max_length=250)
-
-    def __unicode__(self):
-        return "%s (%s - %s)" % (self.objetivo, self.factor_protector, ALCANCE_OBJ_CHOICES[self.alcance-1][1])
 
 
 class EvaluacionFactoresProtectores(models.Model):
@@ -287,7 +276,7 @@ class EvaluacionFactoresProtectores(models.Model):
     habilidades_y_valores_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
     # I.a (contiene lista json)
-    objetivos_desarrollo_socio_fam = JsonField(blank=True, null=True)
+    #objetivos_desarrollo_socio_fam = JsonField(blank=True, null=True)
 
     # I.b
     propuesta_ciclo_desarrollo_socio_fam = models.TextField(verbose_name='Propuesta de Ciclo de Desarrollo Socio-Familiar', null=True, blank=True)
@@ -303,18 +292,29 @@ class EvaluacionFactoresProtectores(models.Model):
     # II.c
     evaluacion_cualitativa = models.TextField(null=True, blank=True)
 
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
     class Meta:
         ordering = ['anio_aplicacion']
+
+
+class ObjetivosEvaluacion(models.Model):
+    evaluacion = models.ForeignKey(EvaluacionFactoresProtectores)
+    factor = models.ForeignKey(FactorProtector)
+    tipo = models.IntegerField(choices=OBJS_EVAL_CHOICES, default=1)
 
 
 class EvaluacionForm(forms.ModelForm):
     class Meta:
         model = EvaluacionFactoresProtectores
 
+        exclude = ("date_created", "date_modified")
+
         widgets = {
             'persona': forms.HiddenInput(),
             'anio_aplicacion': forms.HiddenInput(),
-            'objetivos_desarrollo_socio_fam': forms.HiddenInput(),
+            #'objetivos_desarrollo_socio_fam': forms.HiddenInput(),
             'propuesta_ciclo_desarrollo_socio_fam': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
             'talleres_grup_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
             'talleres_grup_cultura_salud': forms.Textarea(attrs={'rows': 3}),

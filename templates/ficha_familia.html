@@ -4,12 +4,11 @@
     {% if familia %}Familia {{ familia }}{% else %}Nueva familia{% endif %}
 {% endblock %}
 
-{% if not es_admin %}
-    {% block extra_brand %}
+{% block extra_brand %}
+    {% if not es_admin %}
         - Centro Familiar {{ centro_familiar }}
-    {% endblock %}
-{% endif %}
-
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 

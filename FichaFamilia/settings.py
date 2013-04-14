@@ -1,7 +1,10 @@
 from datetime import datetime, date
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 ADMINS = (
     ('Hugo Pineda', 'hugo.trucker@gmail.com'),
@@ -67,8 +70,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/Users/hpineda/PycharmProjects/FichaFamilia/static',
-    '/home/funfamilia/ficha_familia/static',
+    os.path.join(SITE_ROOT, os.pardir, "static"),
 )
 
 # List of finder classes that know how to find static files in
@@ -108,8 +110,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/Users/hpineda/PycharmProjects/FichaFamilia/templates',
-    '/home/funfamilia/ficha_familia/templates',
+    "/Users/hugopineda/PycharmProjects/FichaFamilia/templates",
+    os.path.join(SITE_ROOT, os.pardir, "templates"),
 )
 
 INSTALLED_APPS = (
@@ -159,12 +161,7 @@ LOGGING = {
 #TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 DATE_INPUT_FORMATS = (
-    '%d/%m/%Y',
-    '%Y-%m-%d', '%m/%d/%Y', '%m/%d/%y', # '2006-10-25', '10/25/2006', '10/25/06'
-    '%b %d %Y', '%b %d, %Y',            # 'Oct 25 2006', 'Oct 25, 2006'
-    '%d %b %Y', '%d %b, %Y',            # '25 Oct 2006', '25 Oct, 2006'
-    '%B %d %Y', '%B %d, %Y',            # 'October 25 2006', 'October 25, 2006'
-    '%d %B %Y', '%d %B, %Y',            # '25 October 2006', '25 October, 2006'
+    '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y',  # '2006-10-25', '10/25/2006', '10/25/06'
 )
 
 AUTH_PROFILE_MODULE = 'main.UserProfile'

@@ -82,12 +82,12 @@ def extraer_personas():
                 persona.apellido_paterno = fila[3]
                 persona.apellido_materno = fila[4]
                 persona.rut = fila[1]
-                persona.fecha_nacimiento = fila[5] if fila[5] != '' else settings.NULL_DATE
+                persona.fecha_nacimiento = fila[5].split(" ")[0] if fila[5] != '' else settings.NULL_DATE
                 persona.sexo = fila[8]
                 persona.direccion = fila[6]
                 persona.telefono = fila[21]
-                persona.fecha_participa = fila[28] if fila[28] != '' else settings.NULL_DATE
-                persona.fecha_ingreso = fila[11] if fila[11] != '' else settings.NULL_DATE
+                persona.fecha_participa = fila[28].split(" ")[0] if fila[28] != '' else settings.NULL_DATE
+                persona.fecha_ingreso = fila[11].split(" ")[0] if fila[11] != '' else settings.NULL_DATE
                 persona.estado_civil = fila[15]
                 persona.nivel_escolaridad = fila[17]
                 persona.ocupacion = fila[10]
@@ -138,6 +138,46 @@ def actualizar_secuencias():
     transaction.commit_unless_managed()
 
 
+def crear_componentes_y_objetivos():
+
+    FactorProtector.objects.all().delete()
+    Componentes.objects.all().delete()
+
+    comp = Componentes.objects.create(nombre="Relaciones Comunitarias")
+    FactorProtector.objects.create(componente=comp, factor_protector="Presencia red de apoyo", objetivo_personal="Promover la presencia de red de apoyo")
+    FactorProtector.objects.create(componente=comp, factor_protector="Relaciones con vecindario", objetivo_personal="Promover las relaciones con el vecindario")
+    FactorProtector.objects.create(componente=comp, factor_protector="Participación social", objetivo_personal="Fomentar la participación social")
+
+    comp = Componentes.objects.create(nombre="Acceso")
+    FactorProtector.objects.create(componente=comp, factor_protector="Red de servicios y beneficios sociales",
+                                   objetivo_personal="Promover el acceso a la red de servicios y beneficios sociales",
+                                   objetivo_grupal="Promover el acceso a la red de servicios y beneficios sociales")
+    FactorProtector.objects.create(componente=comp, factor_protector="Ocio y encuentro con pares",
+                                   objetivo_personal="Facilitar el acceso a espacios de canalización de ocio y encuentro con pares")
+    FactorProtector.objects.create(componente=comp, factor_protector="Espacios formativos y de desarrollo",
+                                   objetivo_personal="Promover el acceso a espacios formativos y de desarrollo")
+
+    comp = Componentes.objects.create(nombre="Vínculos Familiares")
+    FactorProtector.objects.create(componente=comp, factor_protector="Relaciones y cohesión familiar",
+                                   objetivo_personal="Promover las relaciones y cohesión familiar",
+                                   objetivo_grupal="Promover las relaciones y cohesión familiar")
+    FactorProtector.objects.create(componente=comp, factor_protector="Adaptabilidad y resistencia familiar",
+                                   objetivo_personal="Facilitar procesos de adaptabilidad y resiliencia familiar",
+                                   objetivo_grupal="Facilitar procesos de adaptabilidad y resiliencia familiar")
+    FactorProtector.objects.create(componente=comp, factor_protector="Competencias parentales",
+                                   objetivo_personal="Promover el desarrollo de competencias parentales")
+
+    comp = Componentes.objects.create(nombre="Derechos Infantiles")
+    FactorProtector.objects.create(componente=comp, factor_protector="Protección y salud integral", objetivo_personal="Activar instancias de protección y salud integral")
+    FactorProtector.objects.create(componente=comp, factor_protector="Participación protagónica", objetivo_personal="Fomentar la participación protagónica")
+    FactorProtector.objects.create(componente=comp, factor_protector="Recreación y juego con pares", objetivo_personal="Promover instancias de recreación y juego con pares")
+
+    comp = Componentes.objects.create(nombre="Desarrollo Personal")
+    FactorProtector.objects.create(componente=comp, factor_protector="Crecimiento personal ", objetivo_personal="Promover el crecimiento personal")
+    FactorProtector.objects.create(componente=comp, factor_protector="Autonomía ", objetivo_personal="Facilitar el desarrollo de autonomía")
+    FactorProtector.objects.create(componente=comp, factor_protector="Habilidades y valores sociales ", objetivo_personal="Promover el desarrollo de habilidades y valores sociales")
+
+
 # estados civiles
 #extraer_columnas_id_descripcion(15, 16)
 
@@ -170,3 +210,5 @@ extraer_personas()
 
 # actualizar secuencias (SOLO PARA POSTGRESQL):
 actualizar_secuencias()
+
+crear_componentes_y_objetivos()
