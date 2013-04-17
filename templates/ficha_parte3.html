@@ -14,7 +14,7 @@
         <strong>Por Individuo</strong>
         <br>
         <br>
-        <table class="table table-hover table-condensed tabla-objetivos">
+        <table class="table table-hover table-condensed tabla-objetivos objetivos-ind">
             <thead>
             <tr>
                 <td>Componente</td>
@@ -23,26 +23,6 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="fila_objs">
-                <td>
-                    <select name="componente-ind">
-                        <option value="">--Seleccione--</option>
-                        {% for componente in componentes %}
-                            <option value="{{ componente.id }}">{{ componente }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td>
-                    <select name="objetivo-ind">
-
-                    </select>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-small btn_eliminar_obj">
-                        <i class="icon-remove"></i>
-                    </button>
-                </td>
-            </tr>
             </tbody>
         </table>
 
@@ -60,7 +40,7 @@
         <strong>Por Grupo Familiar</strong>
         <br>
         <br>
-        <table class="table table-hover table-condensed tabla-objetivos">
+        <table class="table table-hover table-condensed tabla-objetivos objetivos-grup">
             <thead>
             <tr>
                 <td>Componente</td>
@@ -69,26 +49,26 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="fila_objs">
-                <td>
-                    <select name="componente-grup">
-                        <option value="">--Seleccione--</option>
-                        {% for componente in componentes %}
-                            <option value="{{ componente.id }}">{{ componente }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td>
-                    <select name="objetivo-grup">
-
-                    </select>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-small btn_eliminar_obj">
-                        <i class="icon-remove"></i>
-                    </button>
-                </td>
-            </tr>
+{#            <tr class="fila_objs">#}
+{#                <td>#}
+{#                    <select name="componente-grup">#}
+{#                        <option value="">--Seleccione--</option>#}
+{#                        {% for componente in componentes %}#}
+{#                            <option value="{{ componente.id }}">{{ componente }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <select name="objetivo-grup" class="input-xlarge">#}
+{##}
+{#                    </select>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <button type="button" class="btn btn-small btn_eliminar_obj">#}
+{#                        <i class="icon-remove"></i>#}
+{#                    </button>#}
+{#                </td>#}
+{#            </tr>#}
             </tbody>
         </table>
 
@@ -104,100 +84,12 @@
     </li>
 </ul>
 
-{% comment %}
-<table id="tabla_objetivos" class="table table-hover table-condensed tabla-objetivos">
-    <thead>
-    <tr>
-        <th>Componente</th>
-        <th>Objetivo del participante</th>
-        <th>Objetivo del grupo familiar</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-
-    {% if evaluacion %}
-
-        {% if evaluacion.objetivos_desarrollo_socio_fam %}
-
-            {% for obj in evaluacion.objetivos_desarrollo_socio_fam %}
-
-                <tr class="fila_objs">
-                    <td>
-                        <textarea class="componente" cols="30" rows="3" name="obj_componente">{{ obj.obj_componente }}</textarea>
-                    </td>
-                    <td>
-                        <textarea class="obj-participante" cols="30" rows="3" name="obj_participante">{{ obj.obj_participante }}</textarea>
-                    </td>
-                    <td>
-                        <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo">{{ obj.obj_grupo }}</textarea>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
-                            <i class="icon-remove"></i>
-                        </button>
-                    </td>
-                </tr>
-
-            {% endfor %}
-
-        {% else %}
-
-            <tr class="fila_objs">
-                <td>
-                    <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
-                </td>
-                <td>
-                    <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
-                </td>
-                <td>
-                    <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
-                        <i class="icon-remove"></i>
-                    </button>
-                </td>
-            </tr>
-
-        {% endif %}
-
-    {% else %}
-
-        <tr class="fila_objs">
-            <td>
-                <textarea class="componente" cols="30" rows="3" name="obj_componente"></textarea>
-            </td>
-            <td>
-                <textarea class="obj-participante" cols="30" rows="3" name="obj_participante"></textarea>
-            </td>
-            <td>
-                <textarea class="obj-grupo" cols="30" rows="3" name="obj_grupo"></textarea>
-            </td>
-            <td>
-                <button type="button" class="btn btn-mini btn_eliminar_obj" title="Eliminar objetivo">
-                    <i class="icon-remove"></i>
-                </button>
-            </td>
-        </tr>
-
-    {% endif %}
-
-    </tbody>
-</table>
-
-<div class="pull-right">
-    <button id="btn_agregar_obj" type="button" class="btn btn-small">
-        <i class="icon-plus-sign"></i>
-        Agregar Objetivo
-    </button>
-</div>
-{% endcomment %}
-
 <br>
 
 <label><strong>b. Propuesta de Ciclo de Desarrollo Socio-Familiar:</strong></label>
 {{ form.propuesta_ciclo_desarrollo_socio_fam }}
+
+<br>
 
 <hr>
 
@@ -217,52 +109,74 @@
     <tr>
         <th>Talleres Grupales</th>
         <td>
-             <label class="checkbox"> <input type="checkbox">Talleres de Formación y Orientación Familiar.</label>
+{#             <label class="checkbox"> <input type="checkbox">Talleres de Formación y Orientación Familiar.</label>#}
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.tall_for_ori %}selected="selected"{% endif %} value="tall_for_ori">Talleres de Formación y Orientación Familiar.</option>
+            </select>
         </td>
         <td>
-            <label class="checkbox"> <input type="checkbox">Talleres Deportivos Recreativos.</label>
-            <label class="checkbox"> <input type="checkbox">Talleres Fútbol Calle.</label>
-            <label class="checkbox"> <input type="checkbox">Talleres Boccias.</label>
-            <label class="checkbox"> <input type="checkbox">Talleres Artísticos y Culturales.</label>
-            <label class="checkbox"> <input type="checkbox">Talleres de Alimentación Saludable.</label>
-            <label class="checkbox"> <input type="checkbox">Talleres de Huertos Familiares.</label>
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.tall_dep_rec %}selected="selected"{% endif %} value="tall_dep_rec">Talleres Deportivos Recreativos.</option>
+                <option {% if form.instance.tall_fut_cal %}selected="selected"{% endif %} value="tall_fut_cal">Talleres Fútbol Calle.</option>
+                <option {% if form.instance.tall_boccias %}selected="selected"{% endif %} value="tall_boccias">Talleres Boccias.</option>
+                <option {% if form.instance.tall_art_cul %}selected="selected"{% endif %} value="tall_art_cul">Talleres Artísticos y Culturales.</option>
+                <option {% if form.instance.tall_ali_sal %}selected="selected"{% endif %} value="tall_ali_sal">Talleres de Alimentación Saludable.</option>
+                <option {% if form.instance.tall_hue_fam %}selected="selected"{% endif %} value="tall_hue_fam">Talleres de Huertos Familiares.</option>
+            </select>
         </td>
     </tr>
     <tr>
         <th>Eventos y Encuentros</th>
         <td>
-            <label class="checkbox"> <input type="checkbox">Encuentros Familiares. </label>
-            <label class="checkbox"> <input type="checkbox">Eventos Recreativos. </label>
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.enc_familiar %}selected="selected"{% endif %} value="enc_familiar">Encuentros Familiares. </option>
+                <option {% if form.instance.even_recreat %}selected="selected"{% endif %} value="even_recreat">Eventos Recreativos. </option>
+            </select>
         </td>
         <td>
-            <label class="checkbox"> <input type="checkbox">Eventos, Encuentros y Campeonatos Deportivos.</label>
-            <label class="checkbox"> <input type="checkbox">Eventos Deportivos Familiares.</label>
-            <label class="checkbox"> <input type="checkbox">Eventos Culturales.</label>
-            <label class="checkbox"> <input type="checkbox">Muestras Familiares Artísticos- Culturales.</label>
-            <label class="checkbox"> <input type="checkbox">Encuentros de Vida Saludable.</label>
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.even_enc_cam %}selected="selected"{% endif %} value="even_enc_cam">Eventos, Encuentros y Campeonatos Deportivos.</option>
+                <option {% if form.instance.even_dep_fam %}selected="selected"{% endif %} value="even_dep_fam">Eventos Deportivos Familiares.</option>
+                <option {% if form.instance.even_cultura %}selected="selected"{% endif %} value="even_cultura">Eventos Culturales.</option>
+                <option {% if form.instance.mues_fam_art %}selected="selected"{% endif %} value="mues_fam_art">Muestras Familiares Artísticos- Culturales.</option>
+                <option {% if form.instance.enc_vida_sal %}selected="selected"{% endif %} value="enc_vida_sal">Encuentros de Vida Saludable.</option>
+            </select>
         </td>
     </tr>
     <tr>
         <th>Módulos y Acciones Complementarias</th>
         <td>
-            <label class="checkbox"> <input type="checkbox">Módulos de Formación Familiar.</label>
-            <label class="checkbox"> <input type="checkbox">Acciones de Información y Difusión.</label>
-            <label class="checkbox"> <input type="checkbox">Atención Individual y Familiar.</label>
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.mod_form_fam %}selected="selected"{% endif %} value="mod_form_fam">Módulos de Formación Familiar.</option>
+                <option {% if form.instance.acc_inf_difu %}selected="selected"{% endif %} value="acc_inf_difu">Acciones de Información y Difusión.</option>
+                <option {% if form.instance.aten_ind_fam %}selected="selected"{% endif %} value="aten_ind_fam">Atención Individual y Familiar.</option>
+            </select>
         </td>
         <td>
-            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas Deportivas.</label>
-            <label class="checkbox"> <input type="checkbox">Acceso, Paseos, Visitas y Salidas Culturales.</label>
-            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas Artístico- Culturales.</label>
-            <label class="checkbox"> <input type="checkbox">Acciones de Recuperación de Áreas Verdes.</label>
-            <label class="checkbox"> <input type="checkbox">Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente.</label>
+            <select name="ciclo_realizado">
+                <option value="">--Seleccione--</option>
+                <option {% if form.instance.mod_clin_dep %}selected="selected"{% endif %} value="mod_clin_dep">Módulos y Clínicas Deportivas.</option>
+                <option {% if form.instance.acc_pase_vis %}selected="selected"{% endif %} value="acc_pase_vis">Acceso, Paseos, Visitas y Salidas Culturales.</option>
+                <option {% if form.instance.mod_clin_art %}selected="selected"{% endif %} value="mod_clin_art">Módulos y Clínicas Artístico- Culturales.</option>
+                <option {% if form.instance.acc_recu_are %}selected="selected"{% endif %} value="acc_recu_are">Acciones de Recuperación de Áreas Verdes.</option>
+                <option {% if form.instance.mod_clin_ali %}selected="selected"{% endif %} value="mod_clin_ali">Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente.</option>
+            </select>
         </td>
     </tr>
     </tbody>
 </table>
 
-<br>
+<label><strong>b. Comentarios:</strong></label>
+{{ form.comentarios }}
 
-<label><strong>b. Evaluación cuantitativa del proceso</strong></label>
+<br><br>
+
+<label><strong>c. Evaluación cuantitativa del proceso</strong></label>
 
 <table class="table table-hover table-bordered tabla-eval-cuanti">
     <thead>
@@ -313,7 +227,7 @@
 
 <br>
 
-<label><strong>c. Evaluación cualitativa del proceso y cumplimiento de objetivos</strong></label>
+<label><strong>d. Evaluación cualitativa del proceso y cumplimiento de objetivos</strong></label>
 
 {{ form.evaluacion_cualitativa }}
 

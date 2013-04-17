@@ -26,7 +26,7 @@
                     </select>
                 </td>
                 <td>
-                    <select name="objetivo-ind">
+                    <select name="objetivo-ind" class="input-xlarge">
 
                     </select>
                 </td>
@@ -46,7 +46,7 @@
                     </select>
                 </td>
                 <td>
-                    <select name="objetivo-grup">
+                    <select name="objetivo-grup" class="input-xlarge">
 
                     </select>
                 </td>
@@ -121,15 +121,15 @@
         <br>
 
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#parte2" data-toggle="tab">Parte II: Evaluación de Factores Protectores</a></li>
-            <li><a href="#parte3" data-toggle="tab">Parte III: Plan de Desarrollo</a></li>
+            <li {% ifequal tab 1 %}class="active"{% endifequal %}><a href="#parte2" data-toggle="tab">Parte II: Evaluación de Factores Protectores</a></li>
+            <li {% ifequal tab 2 %}class="active"{% endifequal %}><a href="#parte3" data-toggle="tab">Parte III: Plan de Desarrollo</a></li>
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane active" id="parte2">
+            <div class="tab-pane {% ifequal tab 1 %}active{% endifequal %}" id="parte2">
                 {% include 'ficha_parte2.html' %}
             </div>
-            <div class="tab-pane" id="parte3">
+            <div class="tab-pane {% ifequal tab 2 %}active{% endifequal %}" id="parte3">
                 {% include 'ficha_parte3.html' %}
             </div>
         </div>
@@ -198,6 +198,8 @@
     }
 
     var factores = JSON.parse('{{ factores_json|safe }}');
+    var objetivos_ind = JSON.parse('{{ objetivos_ind_qs|safe }}');
+    var objetivos_grup = JSON.parse('{{ objetivos_grup_qs|safe }}');
 
     $(document).ready(function () {
 
@@ -254,6 +256,10 @@
 
         // --- Parte III ------------------------------
 
+        /**
+         * Establece las acciones para los eventos change de los select de componentes
+         * para popular los select de objetivos
+         */
         function bind_fila_objetivos(){
             $("select[name='componente-ind']").change(function(){
                 var select_obj = $(this).closest('tr').find("select[name='objetivo-ind']");
@@ -291,29 +297,112 @@
             });
         }
 
+        /**
+         * Establece las acciones del boton eliminar objetivo
+         */
         function bind_btn_eliminar_obj(){
             $(".btn_eliminar_obj").click(function(){
                 $(this).closest("tr").remove();
+                check_contador_objetivos();
             });
+        }
+
+        /**
+         * Establece las acciones para el boton agregar objetivo
+         */
+        function bind_btn_agregar_obj(){
+            $("#btn_agregar_obj_ind").click(function(){
+                var $template_fila_ind = $("#template_fila-ind");
+                var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
+                $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_ind.html() + "</tr>");
+                bind_fila_objetivos();
+                bind_btn_eliminar_obj();
+                check_contador_objetivos();
+            });
+            $("#btn_agregar_obj_grup").click(function(){
+                var $template_fila_grup = $("#template_fila-grup");
+                var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
+                $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_grup.html() + "</tr>");
+                bind_fila_objetivos();
+                bind_btn_eliminar_obj();
+                check_contador_objetivos();
+            });
+        }
+
+        /**
+         * Si hay 2 o mas objetivos entonces deshabilitar los botones agregar obj.
+         */
+        function check_contador_objetivos(){
+            var contador_objetivos = $("tr.fila_objs").length;
+            if(contador_objetivos >= 2) {
+                $("#btn_agregar_obj_ind").attr("disabled", "disabled");
+                $("#btn_agregar_obj_grup").attr("disabled", "disabled");
+            } else {
+                $("#btn_agregar_obj_ind").removeAttr("disabled");
+                $("#btn_agregar_obj_grup").removeAttr("disabled");
+            }
+        }
+
+        function poblar_objetivos(tipo){
+            var objetivos;
+            if(tipo == 'ind') {
+                objetivos = objetivos_ind;
+            } else {
+                objetivos = objetivos_grup;
+            }
+
+            var i;
+
+            for(i=0; i<objetivos.length; i++){
+
+                console.log(objetivos[i]);
+
+                var comp_id = parseInt(objetivos[i].componente);
+                var select_comp = "<select name='componente-"+tipo+"'><option value=''>--Seleccione--</option>";
+                {% for componente in componentes %}
+                    if(comp_id == {{ componente.id }}){
+                        select_comp += "<option value='{{ componente.id }}' selected='selected'>{{ componente }}</option>";
+                    } else {
+                        select_comp += "<option value='{{ componente.id }}'>{{ componente }}</option>";
+                    }
+                {% endfor %}
+                select_comp += "</select>";
+
+                var fact_id = parseInt(objetivos[i].factor);
+                var select_obj = "<select class='input-xlarge' name='objetivo-"+tipo+"'>";
+                var options = "";
+                var j = 0;
+                for(j=0; j<factores.length; j++){
+                    if(factores[j].fields.componente == comp_id) {
+                        if(factores[j].fields.objetivo_personal != null) {
+                            if(fact_id == factores[j].pk){
+                                options += "<option value='"+factores[j].pk+"' selected='selected'>"+factores[j].fields.objetivo_personal+"</option>";
+                            } else {
+                                options += "<option value='"+factores[j].pk+"'>"+factores[j].fields.objetivo_personal+"</option>";
+                            }
+                        }
+                    }
+                }
+                select_obj += options + "</select>";
+
+                var html = "<td>" + select_comp + "</td>";
+                html += "<td>" + select_obj + "</td>";
+                html += "<td>";
+                html += "<button type='button' class='btn btn-small btn_eliminar_obj'>";
+                html += "<i class='icon-remove'></i>";
+                html += "</button>";
+                html += "</td>";
+
+                $("table.objetivos-"+tipo).find("tbody").append("<tr class='fila_objs'>" + html + "</tr>");
+            }
         }
 
         bind_fila_objetivos();
         bind_btn_eliminar_obj();
-        var $template_fila_ind = $("#template_fila-ind");
-        var $template_fila_grup = $("#template_fila-grup");
-
-        $("#btn_agregar_obj_ind").click(function(){
-            var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
-            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_ind.html() + "</tr>");
-            bind_fila_objetivos();
-            bind_btn_eliminar_obj();
-        });
-        $("#btn_agregar_obj_grup").click(function(){
-            var $tabla_objetivos = $(this).closest("li").find("table.tabla-objetivos");
-            $tabla_objetivos.find("tbody").append("<tr class='fila_objs'>" + $template_fila_grup.html() + "</tr>");
-            bind_fila_objetivos();
-            bind_btn_eliminar_obj();
-        });
+        bind_btn_agregar_obj();
+        poblar_objetivos("ind");
+        poblar_objetivos("grup");
+        check_contador_objetivos();
 
         var $form_ficha = $("#form_ficha");
 

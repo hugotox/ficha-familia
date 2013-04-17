@@ -294,6 +294,18 @@ def get_persona_form(request, familia_id, id):
     return HttpResponse(simplejson.dumps({'form': form_html, 'saved': saved, 'id': id}), content_type='application/json')
 
 
+def crear_listas_objetivos(obj_qs):
+    daList = []
+    for obj in obj_qs:
+        daList.append({
+            'evaluacion': obj.evaluacion.id,
+            'factor': obj.factor.id,
+            'tipo': obj.tipo,
+            'componente': obj.factor.componente.id
+        })
+    return daList
+
+
 @login_required
 def ficha(request, id, anio):
     try:
@@ -332,6 +344,7 @@ def ficha(request, id, anio):
         evaluacion = evaluacion_qs[0]
 
     if request.method == "POST":
+        tab = 2
 
         if evaluacion is not None:
             # update
@@ -355,22 +368,75 @@ def ficha(request, id, anio):
 
             if valid:
 
+                # guarda el registro evaluacion
                 form.save()
                 persona.familia.actualizar_estado()
+
+                # guarda los objetivos por componente
+                comp_ind_list = request.POST.getlist('componente-ind')
+                comp_grup_list = request.POST.getlist('componente-grup')
+                objetivo_ind_list = request.POST.getlist('objetivo-ind')
+                objetivo_grup_list = request.POST.getlist('objetivo-grup')
+
+                eval_instance = form.instance
+
+                eval_instance.objetivosevaluacion_set.all().delete()
+
+                agregados = []
+
+                i = 0
+                for comp_ind in comp_ind_list:
+                    if comp_ind != '':
+                        obj_ind = objetivo_ind_list[i]
+                        if obj_ind != '':
+                            if (comp_ind, obj_ind) not in agregados:
+                                oFactor = FactorProtector.objects.get(pk=obj_ind)
+                                oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=1)
+                                oObjetivo.save()
+                                agregados.append((comp_ind, obj_ind))
+                    i += 1
+
+                agregados = []
+                i = 0
+                for comp_grup in comp_grup_list:
+                    if comp_grup != '':
+                        obj_grup = objetivo_grup_list[i]
+                        if obj_grup != '':
+                            if (comp_grup, obj_grup) not in agregados:
+                                oFactor = FactorProtector.objects.get(pk=obj_grup)
+                                oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=2)
+                                oObjetivo.save()
+                                agregados.append((comp_grup, obj_grup))
+                    i += 1
+
+                # actualizar los ciclos realizados
+                ciclos_realizado = request.POST.getlist('ciclo_realizado')
+                for ciclo in ciclos_realizado:
+                    if ciclo != '':
+                        setattr(eval_instance, ciclo, True)
+
+                eval_instance.save()
 
                 if evaluacion is None:
                     return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
 
                 # re-crear el form para q se muestren los cambios
                 form = EvaluacionForm(instance=form.instance)
+                objetivos_ind_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=1)) )
+                objetivos_grup_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=2)) )
 
     else:
+        tab = 1
         if evaluacion is not None:
             # existe
             form = EvaluacionForm(instance=evaluacion)
+            objetivos_ind_qs = simplejson.dumps( crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)) )
+            objetivos_grup_qs = simplejson.dumps( crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)) )
         else:
             # nueva
             form = EvaluacionForm(initial={'persona': persona})
+            objetivos_ind_qs = simplejson.dumps([])
+            objetivos_grup_qs = simplejson.dumps([])
 
     return render(request, 'ficha_persona.html', locals())
 

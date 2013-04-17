@@ -128,13 +128,21 @@ class Familia(models.Model):
     tipo_de_familia = models.IntegerField(choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
 
     cond_precariedad = models.BooleanField(default=False, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.')
+    cond_precariedad_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_vulnerabilidad = models.BooleanField(default=False, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).')
+    cond_vulnerabilidad_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_hogar_uni_riesgo = models.BooleanField(default=False, verbose_name=u'Hogar unipersonal en situación de riesgo.')
+    cond_hogar_uni_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_familia_mono_riesgo = models.BooleanField(default=False, verbose_name=u'Familia monoparental en situación de riesgo.')
+    cond_familia_mono_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_alcohol_drogas = models.BooleanField(default=False, verbose_name=u'Consumo problemático de alcohol y/o drogas.')
+    cond_alcohol_drogas_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_discapacidad = models.BooleanField(default=False, verbose_name=u'Presencia de discapacidad física y/o mental.')
+    cond_discapacidad_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_malos_tratos = models.BooleanField(default=False, verbose_name=u'Experiencias de malos tratos (actual o histórica).')
+    cond_malos_tratos_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_socializ_delictual = models.BooleanField(default=False, verbose_name=u'Historial de socialización delictual (detenciones, problemas judiciales).')
+    cond_socializ_delictual_coment = models.CharField(max_length=250, null=True, blank=True)
 
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
     estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
@@ -202,13 +210,21 @@ class FamiliaForm(forms.ModelForm):
 
         widgets = {
             'cond_precariedad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_precariedad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_vulnerabilidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_vulnerabilidad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_hogar_uni_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_hogar_uni_riesgo_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_familia_mono_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_familia_mono_riesgo_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_alcohol_drogas': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_alcohol_drogas_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_discapacidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_discapacidad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_malos_tratos': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_malos_tratos_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
             'cond_socializ_delictual': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_socializ_delictual_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
         }
 
 
@@ -243,6 +259,7 @@ class EvaluacionFactoresProtectores(models.Model):
     persona = models.ForeignKey(Persona)
     anio_aplicacion = models.IntegerField(verbose_name=u'Año de aplicación')
 
+    # Datos de las tablas con los puntajes (I):
     presencia_red_de_apoyo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
     relaciones_con_vecindario = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
     participacion_social = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
@@ -259,6 +276,7 @@ class EvaluacionFactoresProtectores(models.Model):
     autonomia = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
     habilidades_y_valores_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
+    # Datos de las tablas con los puntajes (C):
     presencia_red_de_apoyo2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
     relaciones_con_vecindario2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
     participacion_social2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
@@ -275,21 +293,39 @@ class EvaluacionFactoresProtectores(models.Model):
     autonomia2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
     habilidades_y_valores_sociales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
-    # I.a (contiene lista json)
-    #objetivos_desarrollo_socio_fam = JsonField(blank=True, null=True)
-
     # I.b
     propuesta_ciclo_desarrollo_socio_fam = models.TextField(verbose_name='Propuesta de Ciclo de Desarrollo Socio-Familiar', null=True, blank=True)
 
     # II.a
-    talleres_grup_desarrollo_fam = models.TextField(null=True, blank=True)
-    talleres_grup_cultura_salud = models.TextField(null=True, blank=True)
-    eventos_y_enc_desarrollo_fam = models.TextField(null=True, blank=True)
-    eventos_y_enc_cultura_salud = models.TextField(null=True, blank=True)
-    modulos_acciones_desarrollo_fam = models.TextField(null=True, blank=True)
-    modulos_acciones_cultura_salud = models.TextField(null=True, blank=True)
+    tall_for_ori = models.BooleanField(verbose_name='Talleres de Formación y Orientación Familiar')
+    tall_dep_rec = models.BooleanField(verbose_name='Talleres Deportivos Recreativos')
+    tall_fut_cal = models.BooleanField(verbose_name='Talleres Fútbol Calle')
+    tall_boccias = models.BooleanField(verbose_name='Talleres Boccias')
+    tall_art_cul = models.BooleanField(verbose_name='Talleres Artísticos y Culturales')
+    tall_ali_sal = models.BooleanField(verbose_name='Talleres de Alimentación Saludable')
+    tall_hue_fam = models.BooleanField(verbose_name='Talleres de Huertos Familiares')
 
-    # II.c
+    enc_familiar = models.BooleanField(verbose_name='Encuentros Familiares')
+    even_recreat = models.BooleanField(verbose_name='Eventos Recreativos')
+    even_enc_cam = models.BooleanField(verbose_name='Eventos, Encuentros y Campeonatos Deportivos')
+    even_dep_fam = models.BooleanField(verbose_name='Eventos Deportivos Familiares')
+    even_cultura = models.BooleanField(verbose_name='Eventos Culturales')
+    mues_fam_art = models.BooleanField(verbose_name='Muestras Familiares Artísticos-Culturales')
+    enc_vida_sal = models.BooleanField(verbose_name='Encuentros de Vida Saludable')
+
+    mod_form_fam = models.BooleanField(verbose_name='Módulos de Formación Familiar')
+    acc_inf_difu = models.BooleanField(verbose_name='Acciones de Información y Difusión')
+    aten_ind_fam = models.BooleanField(verbose_name='Atención Individual y Familiar')
+    mod_clin_dep = models.BooleanField(verbose_name='Módulos y Clínicas Deportivas')
+    acc_pase_vis = models.BooleanField(verbose_name='Acceso, Paseos, Visitas y Salidas Culturales')
+    mod_clin_art = models.BooleanField(verbose_name='Módulos y Clínicas Artístico- Culturales')
+    acc_recu_are = models.BooleanField(verbose_name='Acciones de Recuperación de Áreas Verdes')
+    mod_clin_ali = models.BooleanField(verbose_name='Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente')
+
+    # II.b
+    comentarios = models.TextField(null=True, blank=True)
+
+    # II.d
     evaluacion_cualitativa = models.TextField(null=True, blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
@@ -316,6 +352,7 @@ class EvaluacionForm(forms.ModelForm):
             'anio_aplicacion': forms.HiddenInput(),
             #'objetivos_desarrollo_socio_fam': forms.HiddenInput(),
             'propuesta_ciclo_desarrollo_socio_fam': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
+            'comentarios': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
             'talleres_grup_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
             'talleres_grup_cultura_salud': forms.Textarea(attrs={'rows': 3}),
             'eventos_y_enc_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),

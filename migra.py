@@ -201,7 +201,6 @@ def crear_componentes_y_objetivos():
 #  ocupacion
 #extraer_columnas_id_descripcion(10, 10)
 
-# centros familiares
 extraer_centros()
 
 extraer_familias()
@@ -209,6 +208,7 @@ extraer_familias()
 extraer_personas()
 
 # actualizar secuencias (SOLO PARA POSTGRESQL):
-actualizar_secuencias()
+if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql_psycopg2':
+    actualizar_secuencias()
 
 crear_componentes_y_objetivos()

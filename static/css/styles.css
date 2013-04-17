@@ -32,15 +32,6 @@ ul.errorlist li{
     display: inline;
 }
 
-span.prom-ini,
-span.prom-cum{
-    width: 40px;
-    border: 1px solid #999999;
-    padding: 3px;
-    display: inline-block;
-    min-height: 20px;
-}
-
 .form-actions, .form-horizontal .form-actions{
     padding: 22px;
 }
@@ -136,6 +127,12 @@ span.fila-cum{
     border: solid 1px #eee;
     display: inline-block;
     min-width: 120px;
+    width: auto;
+}
+
+span.prom-ini,
+span.prom-cum{
+    display: inline;
 }
 
 .tabla-objetivos textarea,

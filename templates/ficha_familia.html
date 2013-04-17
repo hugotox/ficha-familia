@@ -111,48 +111,56 @@
             <legend>Principales Condiciones de Vulnerabilidad Social en el Grupo Familiar</legend>
         </fieldset>
 
-        <table class="table table-hover table-condensed table-bordered tabla-filtrable ficha-form">
-{#            <thead>#}
-{#                <tr>#}
-{#                    <th></th>#}
-{#                    <th>#}
-{#                        Presente#}
-{#                        <span style="margin-left: 20px">No presente</span>#}
-{#                    </th>#}
-{#                </tr>#}
-{#            </thead>#}
+        <table class="table table-hover table-condensed table-bordered ficha-form">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>
+
+                    </th>
+                    <th>Comentarios</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
                     <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
                     <td>{{ familia_form.cond_precariedad }}</td>
+                    <td>{{ familia_form.cond_precariedad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).</td>
                     <td>{{ familia_form.cond_vulnerabilidad }}</td>
+                    <td>{{ familia_form.cond_vulnerabilidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Hogar unipersonal en situación de riesgo.</td>
                     <td>{{ familia_form.cond_hogar_uni_riesgo }}</td>
+                    <td>{{ familia_form.cond_hogar_uni_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Familia monoparental en situación de riesgo.</td>
                     <td>{{ familia_form.cond_familia_mono_riesgo }}</td>
+                    <td>{{ familia_form.cond_familia_mono_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Consumo problemático de alcohol y/o drogas.</td>
                     <td>{{ familia_form.cond_alcohol_drogas }}</td>
+                    <td>{{ familia_form.cond_alcohol_drogas_coment }}</td>
                 </tr>
                 <tr>
                     <td>Presencia de discapacidad física y/o mental.</td>
                     <td>{{ familia_form.cond_discapacidad }}</td>
+                    <td>{{ familia_form.cond_discapacidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Experiencias de malos tratos (actual o histórica).</td>
                     <td>{{ familia_form.cond_malos_tratos }}</td>
+                    <td>{{ familia_form.cond_malos_tratos_coment }}</td>
                 </tr>
                 <tr>
                     <td>Historial de socialización delictual (detenciones, problemas judiciales).</td>
                     <td>{{ familia_form.cond_socializ_delictual }}</td>
+                    <td>{{ familia_form.cond_socializ_delictual_coment }}</td>
                 </tr>
             </tbody>
         </table>
