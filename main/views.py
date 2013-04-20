@@ -337,6 +337,8 @@ def ficha(request, id, anio):
 
     componentes = Componentes.objects.all()
     factores_json = serializers.serialize("json", FactorProtector.objects.all())
+    objetivos_ind_qs = simplejson.dumps([])
+    objetivos_grup_qs = simplejson.dumps([])
 
     evaluacion_qs = EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=anio)
 
@@ -435,8 +437,6 @@ def ficha(request, id, anio):
         else:
             # nueva
             form = EvaluacionForm(initial={'persona': persona})
-            objetivos_ind_qs = simplejson.dumps([])
-            objetivos_grup_qs = simplejson.dumps([])
 
     return render(request, 'ficha_persona.html', locals())
 
