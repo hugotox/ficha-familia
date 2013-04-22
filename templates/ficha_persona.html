@@ -404,6 +404,18 @@
         poblar_objetivos("grup");
         check_contador_objetivos();
 
+        $(".ul_opciones_talleres label").click(function(e) {
+            e.stopPropagation();  // previene el auto cerrado del menu
+            var $ul_opciones_talleres = $(this).closest("ul.ul_opciones_talleres");
+            var $ul_seleccion = $(this).closest("td").find("ul.seleccion");
+            $ul_seleccion.html("");
+            $ul_opciones_talleres.find("input[type='checkbox']").each(function(){
+                if($(this).is(":checked")){
+                    $ul_seleccion.append("<li>"+$(this).parent().find("span").html()+"</li>");
+                }
+            });
+        });
+
         var $form_ficha = $("#form_ficha");
 
         $form_ficha.submit(function(){

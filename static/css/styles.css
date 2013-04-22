@@ -144,3 +144,7 @@ span.prom-cum{
 .table td.eval-cuanti {
     text-align: center;
 }
+
+.ul_opciones_talleres li{
+    padding: 5px 10px 0 10px;
+}

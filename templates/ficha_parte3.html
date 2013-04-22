@@ -109,62 +109,206 @@
     <tr>
         <th>Talleres Grupales</th>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.tall_for_ori %}selected="selected"{% endif %} value="tall_for_ori">Talleres de Formación y Orientación Familiar.</option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.tall_for_ori %}<li>{{ form.tall_for_ori.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_for_ori }} <span>{{ form.tall_for_ori.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.tall_dep_rec %}selected="selected"{% endif %} value="tall_dep_rec">Talleres Deportivos Recreativos.</option>
-                <option {% if form.instance.tall_fut_cal %}selected="selected"{% endif %} value="tall_fut_cal">Talleres Fútbol Calle.</option>
-                <option {% if form.instance.tall_boccias %}selected="selected"{% endif %} value="tall_boccias">Talleres Boccias.</option>
-                <option {% if form.instance.tall_art_cul %}selected="selected"{% endif %} value="tall_art_cul">Talleres Artísticos y Culturales.</option>
-                <option {% if form.instance.tall_ali_sal %}selected="selected"{% endif %} value="tall_ali_sal">Talleres de Alimentación Saludable.</option>
-                <option {% if form.instance.tall_hue_fam %}selected="selected"{% endif %} value="tall_hue_fam">Talleres de Huertos Familiares.</option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.tall_dep_rec %}<li>{{ form.tall_dep_rec.label }}</li>{% endif %}
+                {% if form.instance.tall_fut_cal %}<li>{{ form.tall_fut_cal.label }}</li>{% endif %}
+                {% if form.instance.tall_boccias %}<li>{{ form.tall_boccias.label }}</li>{% endif %}
+                {% if form.instance.tall_art_cul %}<li>{{ form.tall_art_cul.label }}</li>{% endif %}
+                {% if form.instance.tall_ali_sal %}<li>{{ form.tall_ali_sal.label }}</li>{% endif %}
+                {% if form.instance.tall_hue_fam %}<li>{{ form.tall_hue_fam.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_dep_rec }} <span>{{ form.tall_dep_rec.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_fut_cal }} <span>{{ form.tall_fut_cal.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_boccias }} <span>{{ form.tall_boccias.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_art_cul }} <span>{{ form.tall_art_cul.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_ali_sal }} <span>{{ form.tall_ali_sal.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.tall_hue_fam }} <span>{{ form.tall_hue_fam.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
     </tr>
     <tr>
         <th>Eventos y Encuentros</th>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.enc_familiar %}selected="selected"{% endif %} value="enc_familiar">Encuentros Familiares. </option>
-                <option {% if form.instance.even_recreat %}selected="selected"{% endif %} value="even_recreat">Eventos Recreativos. </option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.enc_familiar %}<li>{{ form.enc_familiar.label }}</li>{% endif %}
+                {% if form.instance.even_recreat %}<li>{{ form.even_recreat.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.enc_familiar }} <span>{{ form.enc_familiar.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.even_recreat }} <span>{{ form.even_recreat.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.even_enc_cam %}selected="selected"{% endif %} value="even_enc_cam">Eventos, Encuentros y Campeonatos Deportivos.</option>
-                <option {% if form.instance.even_dep_fam %}selected="selected"{% endif %} value="even_dep_fam">Eventos Deportivos Familiares.</option>
-                <option {% if form.instance.even_cultura %}selected="selected"{% endif %} value="even_cultura">Eventos Culturales.</option>
-                <option {% if form.instance.mues_fam_art %}selected="selected"{% endif %} value="mues_fam_art">Muestras Familiares Artísticos- Culturales.</option>
-                <option {% if form.instance.enc_vida_sal %}selected="selected"{% endif %} value="enc_vida_sal">Encuentros de Vida Saludable.</option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.even_enc_cam %}<li>{{ form.even_enc_cam.label }}</li>{% endif %}
+                {% if form.instance.even_dep_fam %}<li>{{ form.even_dep_fam.label }}</li>{% endif %}
+                {% if form.instance.even_cultura %}<li>{{ form.even_cultura.label }}</li>{% endif %}
+                {% if form.instance.mues_fam_art %}<li>{{ form.mues_fam_art.label }}</li>{% endif %}
+                {% if form.instance.enc_vida_sal %}<li>{{ form.enc_vida_sal.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.even_enc_cam }} <span>{{ form.even_enc_cam.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.even_dep_fam }} <span>{{ form.even_dep_fam.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.even_cultura }} <span>{{ form.even_cultura.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.mues_fam_art }} <span>{{ form.mues_fam_art.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.enc_vida_sal }} <span>{{ form.enc_vida_sal.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
     </tr>
     <tr>
         <th>Módulos y Acciones Complementarias</th>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.mod_form_fam %}selected="selected"{% endif %} value="mod_form_fam">Módulos de Formación Familiar.</option>
-                <option {% if form.instance.acc_inf_difu %}selected="selected"{% endif %} value="acc_inf_difu">Acciones de Información y Difusión.</option>
-                <option {% if form.instance.aten_ind_fam %}selected="selected"{% endif %} value="aten_ind_fam">Atención Individual y Familiar.</option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.mod_form_fam %}<li>{{ form.mod_form_fam.label }}</li>{% endif %}
+                {% if form.instance.acc_inf_difu %}<li>{{ form.acc_inf_difu.label }}</li>{% endif %}
+                {% if form.instance.aten_ind_fam %}<li>{{ form.aten_ind_fam.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.mod_form_fam }} <span>{{ form.mod_form_fam.label }}</span>
+                        </label>
+                    </li><li>
+                        <label class="checkbox">
+                            {{ form.acc_inf_difu }} <span>{{ form.acc_inf_difu.label }}</span>
+                        </label>
+                    </li><li>
+                        <label class="checkbox">
+                            {{ form.aten_ind_fam }} <span>{{ form.aten_ind_fam.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
         <td>
-            <select name="ciclo_realizado">
-                <option value="">--Seleccione--</option>
-                <option {% if form.instance.mod_clin_dep %}selected="selected"{% endif %} value="mod_clin_dep">Módulos y Clínicas Deportivas.</option>
-                <option {% if form.instance.acc_pase_vis %}selected="selected"{% endif %} value="acc_pase_vis">Acceso, Paseos, Visitas y Salidas Culturales.</option>
-                <option {% if form.instance.mod_clin_art %}selected="selected"{% endif %} value="mod_clin_art">Módulos y Clínicas Artístico- Culturales.</option>
-                <option {% if form.instance.acc_recu_are %}selected="selected"{% endif %} value="acc_recu_are">Acciones de Recuperación de Áreas Verdes.</option>
-                <option {% if form.instance.mod_clin_ali %}selected="selected"{% endif %} value="mod_clin_ali">Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente.</option>
-            </select>
+            <ul class="seleccion">
+                {% if form.instance.mod_clin_dep %}<li>{{ form.mod_clin_dep.label }}</li>{% endif %}
+                {% if form.instance.acc_pase_vis %}<li>{{ form.acc_pase_vis.label }}</li>{% endif %}
+                {% if form.instance.mod_clin_art %}<li>{{ form.mod_clin_art.label }}</li>{% endif %}
+                {% if form.instance.acc_recu_are %}<li>{{ form.acc_recu_are.label }}</li>{% endif %}
+                {% if form.instance.mod_clin_ali %}<li>{{ form.mod_clin_ali.label }}</li>{% endif %}
+            </ul>
+            <div class="btn-group">
+                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                    Seleccionar <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu ul_opciones_talleres">
+                    <li>
+                        <label class="checkbox">
+                            {{ form.mod_clin_dep }} <span>{{ form.mod_clin_dep.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.acc_pase_vis }} <span>{{ form.acc_pase_vis.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.mod_clin_art }} <span>{{ form.mod_clin_art.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.acc_recu_are }} <span>{{ form.acc_recu_are.label }}</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="checkbox">
+                            {{ form.mod_clin_ali }} <span>{{ form.mod_clin_ali.label }}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </td>
     </tr>
     </tbody>

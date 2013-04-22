@@ -80,7 +80,19 @@
                         <td class="estado_civil">{% if persona.estado_civil %}{{ persona.get_estado_civil_display }}{% endif %}</td>
                         <td class="nivel_escolaridad">{% if persona.nivel_escolaridad %}{{ persona.get_nivel_escolaridad_display }}{% endif %}</td>
                         <td class="ocupacion">{% if persona.ocupacion %}{{ persona.get_ocupacion_display }}{% endif %}</td>
-                        <td class="aporta_ingreso">{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}</td>
+                        <td class="aporta_ingreso">
+                            <div class="btn-group">
+                                <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">
+                                    {% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu aporta_ingresos">
+                                    <li><a href="#" value='Sí'>Sí</a></li>
+                                    <li><a href="#" value='No'>No</a></li>
+                                    <input type="hidden" name="aporta-{{ persona.id }}" value="{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}"/>
+                                </ul>
+                            </div>
+                        </td>
                         <td>
                             <div class="btn-group">
                                 <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
@@ -316,6 +328,17 @@
                     }
                 }
             );
+        });
+
+        // aporta ingresos code
+        $("ul.aporta_ingresos li a").click(function(e){
+            var $a = $(this);
+            var $ul_aporta_ingresos = $a.closest("ul.aporta_ingresos");
+            var $button = $ul_aporta_ingresos.parent().find("button.dropdown-toggle");
+            $ul_aporta_ingresos.find("input[type='hidden']").val($a.attr("value"));
+            $button.html($a.attr("value")+" <span class='caret'></span>");
+            $button.parent().removeClass("open");
+            return false;
         });
 
     });

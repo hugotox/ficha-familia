@@ -29,9 +29,6 @@
     <form id="form_search" class="form-search" method="get" action=".">
 
         <div class="botones-busqueda">
-            <button class="btn" type="submit">
-                Buscar
-            </button>
             <a id="btn_limpiar" href="#" class="btn">
                 Limpiar
             </a>
@@ -71,7 +68,10 @@
                         </select>
                     </td>
                 {% endif %}
-                <td><input id="apellidos" type="text" name="apellidos" value="{{ apellidos }}"></td>
+                <td>
+                    <input id="apellidos" type="text" name="apellidos" value="{{ apellidos }}">
+                    <button class="btn btn-small" type="submit">Buscar</button>
+                </td>
                 <td>
                     <select name="tipo" id="tipo">
                         <option value="">--Todos--</option>
@@ -148,6 +148,10 @@
             $psize_select.change(function(){
                 var url = "{{ psize_select_pref|safe }}&psize=" + $psize_select.val();
                 window.location.href = url;
+            });
+
+            $("table.tabla-filtrable select").change(function(){
+                $form_search.submit();
             });
         });
     </script>

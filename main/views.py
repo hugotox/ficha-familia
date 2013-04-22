@@ -55,10 +55,22 @@ def home(request):
         familias = familias.filter(centro_familiar=centro)
 
     if apellidos != '':
-        familias = familias.filter(
-            Q(apellido_materno__icontains=apellidos) |
-            Q(apellido_paterno__icontains=apellidos)
-        )
+
+        apellidos_no_tilde = apellidos.lower()
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"á", "a")
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"é", "e")
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"í", "i")
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"ó", "o")
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"ú", "u")
+        apellidos_no_tilde = apellidos_no_tilde.replace(u"ñ", "n")
+
+        the_aps = apellidos.split(' ') + apellidos_no_tilde.split(' ')
+
+        filters = Q(apellido_materno__icontains=the_aps[0]) | Q(apellido_paterno__icontains=the_aps[0])
+
+        for ap in the_aps:
+            filters = filters | Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
+        familias = familias.filter(filters)
 
     if tipo != '':
         familias = familias.filter(tipo_de_familia=tipo)
@@ -168,6 +180,13 @@ def familia(request, id):
             familia_form.save()
             message = DATOS_GUARDADOS
             message_class = 'success'
+
+            # guardar "aporta" en objeto persona
+            for persona in familia_form.instance.persona_set.all():
+                aporta = request.POST.get('aporta-%s' % persona.id)
+                persona.aporta_ingreso = aporta == u'Sí'
+                persona.save()
+
             if id == 0:
                 return HttpResponseRedirect('/familia/%s%s' % (familia_form.instance.id, back_url))
     else:
@@ -410,14 +429,6 @@ def ficha(request, id, anio):
                                 oObjetivo.save()
                                 agregados.append((comp_grup, obj_grup))
                     i += 1
-
-                # actualizar los ciclos realizados
-                ciclos_realizado = request.POST.getlist('ciclo_realizado')
-                for ciclo in ciclos_realizado:
-                    if ciclo != '':
-                        setattr(eval_instance, ciclo, True)
-
-                eval_instance.save()
 
                 if evaluacion is None:
                     return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))

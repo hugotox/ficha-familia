@@ -78,9 +78,9 @@ OCUPACION_CHOICES = (
 )
 
 ESTADO_FAMILIA_CHOICES = (
-    ('No trabajada', 'No trabajada'),
-    ('Vigente', 'Vigente'),
-    ('Cerrada', 'Cerrada')
+    ('Inactivo', 'Inactivo'),
+    ('Activo', 'Activo'),
+    ('Completo', 'Completo')
 )
 
 PREVISION_SALUD_CHOICES = (
@@ -307,6 +307,7 @@ class EvaluacionFactoresProtectores(models.Model):
 
     enc_familiar = models.BooleanField(verbose_name='Encuentros Familiares')
     even_recreat = models.BooleanField(verbose_name='Eventos Recreativos')
+
     even_enc_cam = models.BooleanField(verbose_name='Eventos, Encuentros y Campeonatos Deportivos')
     even_dep_fam = models.BooleanField(verbose_name='Eventos Deportivos Familiares')
     even_cultura = models.BooleanField(verbose_name='Eventos Culturales')
@@ -316,9 +317,10 @@ class EvaluacionFactoresProtectores(models.Model):
     mod_form_fam = models.BooleanField(verbose_name='Módulos de Formación Familiar')
     acc_inf_difu = models.BooleanField(verbose_name='Acciones de Información y Difusión')
     aten_ind_fam = models.BooleanField(verbose_name='Atención Individual y Familiar')
+
     mod_clin_dep = models.BooleanField(verbose_name='Módulos y Clínicas Deportivas')
     acc_pase_vis = models.BooleanField(verbose_name='Acceso, Paseos, Visitas y Salidas Culturales')
-    mod_clin_art = models.BooleanField(verbose_name='Módulos y Clínicas Artístico- Culturales')
+    mod_clin_art = models.BooleanField(verbose_name='Módulos y Clínicas Artístico-Culturales')
     acc_recu_are = models.BooleanField(verbose_name='Acciones de Recuperación de Áreas Verdes')
     mod_clin_ali = models.BooleanField(verbose_name='Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente')
 
