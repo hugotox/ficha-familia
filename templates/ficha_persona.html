@@ -176,10 +176,10 @@
         if(num_elementos > 0){
             var promedio = round_number(suma / num_elementos, 2);
             $table.find(".prom-" + etapa).html(promedio);
-            //actualizar_totales($table, etapa, promedio);
+            actualizar_totales($table, etapa, promedio);
         } else {
             $table.find(".prom-" + etapa).html("");
-            //actualizar_totales($table, etapa, 0);
+            actualizar_totales($table, etapa, 0);
         }
     }
 
@@ -195,6 +195,35 @@
         } else if($table.hasClass("des-personal")) {
             $("#des_per_"+etapa).html(promedio);
         }
+        actualizar_variacion($table);
+    }
+
+    function actualizar_variacion($table){
+        $("table.tabla-eval-cuanti tbody tr").each(function(){
+            var $this = $(this);
+            var prom_ini = $this.find("span.ini").html().trim();
+            if(prom_ini != ""){
+                prom_ini = parseFloat(prom_ini);
+            } else {
+                prom_ini = 0;
+            }
+            var prom_cum = $this.find("span.cum").html().trim();
+            if(prom_cum != ""){
+                prom_cum = parseFloat(prom_cum);
+            } else {
+                prom_cum = 0;
+            }
+            var variacion = round_number(prom_cum - prom_ini);
+            if(variacion == 0){
+                //verificar si son solo NA
+                var $span_prom_ini = $table.find("span.prom-ini");
+                var $span_prom_cum = $table.find("span.prom-cum");
+                if($span_prom_ini.html().trim() == "" || $span_prom_cum.html().trim() == ""){
+                    variacion = "-";
+                }
+            }
+            $this.find("span.var").html("" + variacion);
+        });
     }
 
     var factores = JSON.parse('{{ factores_json|safe }}');

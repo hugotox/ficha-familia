@@ -382,7 +382,13 @@ def ficha(request, id, anio):
 
             if str(anio) == '0':
                 form_anio = form.cleaned_data['anio_aplicacion']
-                if EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=form_anio).count():
+
+                if int(form_anio) < 2013:
+                    message = u"Por favor ingrese un año igual o mayor a 2013."
+                    message_class = "error"
+                    valid = False
+
+                elif EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=form_anio).count():
                     message = "La ficha para esta persona/año ya existe. Por favor vuelva a la página anterior y 1) Seleccione la ficha existente o 2) Cree una nueva ficha para un año diferente."
                     message_class = "error"
                     valid = False

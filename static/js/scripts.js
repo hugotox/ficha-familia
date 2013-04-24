@@ -8,6 +8,9 @@ function bind_datepickers(){
 }
 
 var round_number = function (number, decimals) {
+    if(typeof(decimals) == "undefined"){
+        decimals = 2;
+    }
     return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 };
 

@@ -226,7 +226,18 @@
                 <td class="estado_civil"></td>
                 <td class="nivel_escolaridad"></td>
                 <td class="ocupacion"></td>
-                <td class="aporta_ingreso"></td>
+                <td class="aporta_ingreso">
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">
+                            No <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu aporta_ingresos">
+                            <li><a href="#" value='Sí'>Sí</a></li>
+                            <li><a href="#" value='No'>No</a></li>
+                            <input type="hidden" name="aporta-{{ persona.id }}" value="No"/>
+                        </ul>
+                    </div>
+                </td>
                 <td>
                     <div class="btn-group">
                         <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
@@ -267,6 +278,19 @@
     function set_link_persona(){
         $('.link_persona').click(function(){
             get_persona_form($(this).attr('id'));
+            return false;
+        });
+    }
+
+    function bind_aporta_ingresos(){
+        // aporta ingresos code
+        $("ul.aporta_ingresos li a").click(function(e){
+            var $a = $(this);
+            var $ul_aporta_ingresos = $a.closest("ul.aporta_ingresos");
+            var $button = $ul_aporta_ingresos.parent().find("button.dropdown-toggle");
+            $ul_aporta_ingresos.find("input[type='hidden']").val($a.attr("value"));
+            $button.html($a.attr("value")+" <span class='caret'></span>");
+            $button.parent().removeClass("open");
             return false;
         });
     }
@@ -318,11 +342,12 @@
                         $fila.find('.estado_civil').html($form_persona.find("select[name='estado_civil'] option:selected").html());
                         $fila.find('.nivel_escolaridad').html($form_persona.find("select[name='nivel_escolaridad'] option:selected").html());
                         $fila.find('.ocupacion').html($form_persona.find("select[name='ocupacion'] option:selected").html());
-                        var aporta = "No";
+                        var aporta = "No <span class='caret'></span>";
                         if($form_persona.find("input[name='aporta_ingreso']").is(":checked")){
-                            aporta = "Sí";
+                            aporta = "Sí <span class='caret'></span>";
                         }
-                        $fila.find('.aporta_ingreso').html(aporta);
+                        $fila.find('.aporta_ingreso button.dropdown-toggle').html(aporta);
+                        bind_aporta_ingresos();
 
                         $persona_modal.modal('hide');
                     }
@@ -330,17 +355,7 @@
             );
         });
 
-        // aporta ingresos code
-        $("ul.aporta_ingresos li a").click(function(e){
-            var $a = $(this);
-            var $ul_aporta_ingresos = $a.closest("ul.aporta_ingresos");
-            var $button = $ul_aporta_ingresos.parent().find("button.dropdown-toggle");
-            $ul_aporta_ingresos.find("input[type='hidden']").val($a.attr("value"));
-            $button.html($a.attr("value")+" <span class='caret'></span>");
-            $button.parent().removeClass("open");
-            return false;
-        });
-
+        bind_aporta_ingresos();
     });
 </script>
 {% endblock %}

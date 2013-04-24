@@ -154,7 +154,9 @@ class Familia(models.Model):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
     def actualizar_estado(self):
-        pass
+        if self.estado == ESTADO_FAMILIA_CHOICES[0][0]:
+            self.estado = ESTADO_FAMILIA_CHOICES[1][0]
+            self.save()
 
 
 class Persona(models.Model):
