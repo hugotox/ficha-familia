@@ -5,6 +5,8 @@ setup_environ(settings)
 from main.models import *
 import csv
 from django.db import connection, transaction
+from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 
 
 def extraer_centros():
@@ -131,6 +133,9 @@ def actualizar_secuencias():
     # select setval('main_familia_id_seq', (select max(id)+1 from main_familia), false)
     cursor = connection.cursor()
 
+    cursor.execute("select setval('main_centrofamiliar_id_seq', (select max(id)+1 from main_centrofamiliar), false)")
+    transaction.commit_unless_managed()
+
     cursor.execute("select setval('main_familia_id_seq', (select max(id)+1 from main_familia), false)")
     transaction.commit_unless_managed()
 
@@ -178,6 +183,51 @@ def crear_componentes_y_objetivos():
     FactorProtector.objects.create(componente=comp, factor_protector="Habilidades y valores sociales ", objetivo_personal="Promover el desarrollo de habilidades y valores sociales")
 
 
+def crear_usuarios():
+    User.objects.exclude(username="admin").delete()
+
+    master_pass = "fun_familia2013"
+
+    centros = [
+        ('antofagasta', 'Antofagasta'),
+        ('copiapo', 'Copiapo'),
+        ('coquimbo', 'Coquimbo'),
+        ('curico', 'Curico'),
+        ('talca', 'Talca'),
+        ('talcahuano', 'Talcahuano'),
+        ('temuco', 'Temuco'),
+        ('puertomontt', 'Puerto Montt'),
+        ('penalolen', 'Recoleta'),
+        ('recoleta', u'Peñalolen'),
+        ('lapintana', 'La Florida'),
+        ('laflorida', 'La Pintana'),
+        ('sanbernardo', 'San Bernardo'),
+    ]
+
+    for tupla_centro in centros:
+        comuna = tupla_centro[1]
+        nom_user = tupla_centro[0]
+        usuarios = [nom_user, "%s2" % nom_user, "ac%s" % nom_user, "ac%s2" % nom_user]
+        centro = CentroFamiliar.objects.get(comuna=comuna)
+
+        for nombre_usuario in usuarios:
+            user = User.objects.create_user(nombre_usuario, '', master_pass)
+            UserProfile.objects.create(user=user, centro_familiar=centro)
+            print "Creado %s" % nombre_usuario
+
+    # Usuarios casa central
+    casa_central = CentroFamiliar.objects.create(comuna="Casa Central")
+
+    user = User.objects.create_superuser('apastore', '', master_pass)
+    UserProfile.objects.create(user=user, centro_familiar=casa_central)
+
+    user = User.objects.create_superuser('craby', '', master_pass)
+    UserProfile.objects.create(user=user, centro_familiar=casa_central)
+
+    user = User.objects.create_superuser('vgutierrez', '', master_pass)
+    UserProfile.objects.create(user=user, centro_familiar=casa_central)
+
+
 # estados civiles
 #extraer_columnas_id_descripcion(15, 16)
 
@@ -201,14 +251,16 @@ def crear_componentes_y_objetivos():
 #  ocupacion
 #extraer_columnas_id_descripcion(10, 10)
 
-extraer_centros()
+if False:
+    extraer_centros()
 
-extraer_familias()
+    extraer_familias()
 
-extraer_personas()
+    extraer_personas()
 
-# actualizar secuencias (SOLO PARA POSTGRESQL):
-if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql_psycopg2':
-    actualizar_secuencias()
+    # actualizar secuencias (SOLO PARA POSTGRESQL):
+    if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql_psycopg2':
+        actualizar_secuencias()
 
-crear_componentes_y_objetivos()
+    crear_componentes_y_objetivos()
+    crear_usuarios()
