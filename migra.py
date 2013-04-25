@@ -251,7 +251,7 @@ def crear_usuarios():
 #  ocupacion
 #extraer_columnas_id_descripcion(10, 10)
 
-if False:
+if True:
     extraer_centros()
 
     extraer_familias()
