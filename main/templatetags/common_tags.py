@@ -1,6 +1,6 @@
 from datetime import datetime
 from django import template
-from FichaFamilia.settings import STATIC_FILES_VERSION
+from settings import STATIC_FILES_VERSION
 register = template.Library()
 
 
@@ -16,3 +16,4 @@ def get_static_version():
 @register.simple_tag
 def get_date_now(format="%d/%m/%Y"):
     return datetime.now().strftime(format)
+

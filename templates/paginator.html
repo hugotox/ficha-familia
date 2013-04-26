@@ -24,15 +24,15 @@
 
                 <li><a href="{{ paginator_links_pref }}&page={{ num_page }}">{{ num_page }}</a></li>
 
-            {% elif num_page == obj_list.number %}
+            {% else %}{% if num_page == obj_list.number %}
 
                 <li class="active"><a>{{ num_page }}</a></li>
 
-            {% elif num_page < page_link_upper and num_page > page %}
+            {% else %}{% if num_page < page_link_upper and num_page > page %}
 
                 <li><a href="{{ paginator_links_pref }}&page={{ num_page }}">{{ num_page }}</a></li>
 
-            {% endif %}
+            {% endif %}{% endif %}{% endif %}
 
         {% endfor %}
 

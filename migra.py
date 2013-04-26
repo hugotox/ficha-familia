@@ -1,12 +1,11 @@
 # -*- encoding: UTF-8 -*-
-from FichaFamilia import settings
+import settings
 from django.core.management import setup_environ
 setup_environ(settings)
 from main.models import *
 import csv
 from django.db import connection, transaction
 from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
 
 
 def extraer_centros():
@@ -25,15 +24,12 @@ def extraer_centros():
             if count < 30:
                 if idcentrofamiliar not in idcentro_list:
                     idcentro_list.append(idcentrofamiliar)
-                    centro_obj_list.append(
-                        CentroFamiliar(id=idcentrofamiliar, comuna=nombrecentro)
-                    )
+                    #centro_obj_list.append(CentroFamiliar(id=idcentrofamiliar, comuna=nombrecentro))
+                    CentroFamiliar.objects.create(id=idcentrofamiliar, comuna=nombrecentro)
                     count += 1
                     print "%s - %s" % (idcentrofamiliar, nombrecentro)
             else:
                 break
-
-    CentroFamiliar.objects.bulk_create(centro_obj_list)
 
     print CentroFamiliar.objects.all()
 
@@ -58,9 +54,9 @@ def extraer_familias():
                 familia.ingreso_total_familiar = fila[35]
                 familia.tipo_de_familia = fila[33]
                 familia.centro_familiar = CentroFamiliar.objects.get(id=fila[13])
-                familia_obj_list.append(familia)
-
-    Familia.objects.bulk_create(familia_obj_list)
+                # familia_obj_list.append(familia)
+                familia.save()
+    # Familia.objects.bulk_create(familia_obj_list)
 
     print Familia.objects.all().count()
 
@@ -100,9 +96,10 @@ def extraer_personas():
                 # persona.principal = fila[]
                 persona.parentesco = fila[24]
 
-                persona_obj_list.append(persona)
+                # persona_obj_list.append(persona)
+                persona.save()
 
-    Persona.objects.bulk_create(persona_obj_list)
+    # Persona.objects.bulk_create(persona_obj_list)
 
     print Persona.objects.all().count()
 

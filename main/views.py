@@ -1,11 +1,11 @@
 # -*- encoding: UTF-8 -*-
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from FichaFamilia.mensajes import DATOS_GUARDADOS
+from mensajes import DATOS_GUARDADOS
 from main.models import *
 from django.utils import simplejson
 from django.core import serializers
@@ -114,10 +114,7 @@ def home(request):
 
     try:
         familias = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        familias = paginator.page(1)
-    except EmptyPage:
+    except (EmptyPage, InvalidPage):
         # If page is out of range (e.g. 9999), deliver last page of results.
         familias = paginator.page(paginator.num_pages)
         page = paginator.num_pages

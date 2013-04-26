@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django import forms
-from FichaFamilia.mensajes import CUENTA_EXPIRADA, LOGIN_ERR
+from mensajes import CUENTA_EXPIRADA, LOGIN_ERR
 
 
 class LoginForm(forms.Form):
@@ -45,7 +45,6 @@ def login_view(request):
     else:
 
         form = LoginForm()
-
 
     return render_to_response('login.html', {'form': form, 'msg_error': msg_error}, context_instance=RequestContext(request))
 

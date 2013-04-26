@@ -90,7 +90,7 @@
                 </td>
                 <td></td>
             </tr>
-            {% for familia in familias %}
+            {% for familia in familias.object_list %}
                 <tr>
                     {% if es_admin %}<td>
                         {{ familia.centro_familiar }}
