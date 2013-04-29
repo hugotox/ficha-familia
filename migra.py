@@ -54,8 +54,38 @@ def extraer_familias():
                 familia.ingreso_total_familiar = fila[35]
                 familia.tipo_de_familia = fila[33]
                 familia.centro_familiar = CentroFamiliar.objects.get(id=fila[13])
+                familia.date_created = fila[29].split(" ")[0] if fila[5] != '' else settings.NULL_DATE
                 # familia_obj_list.append(familia)
                 familia.save()
+    # Familia.objects.bulk_create(familia_obj_list)
+
+    print Familia.objects.all().count()
+
+
+def extraer_familias_restantes():
+
+    with open('databackup/familias.csv', 'rb') as datos_familias:
+        familia_reader = csv.reader(datos_familias, delimiter=';', quotechar='"')
+        for fila in familia_reader:
+            the_id = fila[0]
+
+            if Familia.objects.filter(id=the_id).count() == 0:
+
+                #   0   1              2                3          4           5               6                   7
+                # "id";"fechaingreso";"centrofamiliar";"amaterno";"apaterno";"idtipofamilia";"idingresofamiliar";"nintegrantes"
+
+                familia = Familia()
+                familia.id = the_id
+                familia.apellido_materno = fila[3]
+                familia.apellido_paterno = fila[4]
+                familia.numero_integrantes = fila[7]
+                familia.ingreso_total_familiar = fila[6]
+                familia.tipo_de_familia = fila[5]
+                familia.centro_familiar = CentroFamiliar.objects.get(id=fila[2])
+                familia.date_created = fila[1].split(" ")[0] if fila[5] != '' else settings.NULL_DATE
+                # familia_obj_list.append(familia)
+                familia.save()
+
     # Familia.objects.bulk_create(familia_obj_list)
 
     print Familia.objects.all().count()
@@ -224,6 +254,9 @@ def crear_usuarios():
     user = User.objects.create_superuser('vgutierrez', '', master_pass)
     UserProfile.objects.create(user=user, centro_familiar=casa_central)
 
+    user = User.objects.get(username='admin')
+    UserProfile.objects.create(user=user, centro_familiar=casa_central)
+
 
 # estados civiles
 #extraer_columnas_id_descripcion(15, 16)
@@ -260,4 +293,7 @@ if True:
         actualizar_secuencias()
 
     crear_componentes_y_objetivos()
+
     crear_usuarios()
+
+    extraer_familias_restantes()

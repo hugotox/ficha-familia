@@ -5,6 +5,7 @@ from django.db import models
 from django import forms
 from django.forms.widgets import DateInput
 from main.fields import JsonField
+from datetime import datetime
 
 PRESENTE_CHOICES = (
     (True, u'Presente'),
@@ -147,7 +148,7 @@ class Familia(models.Model):
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
     estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
 
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(default=datetime.now())
     date_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
