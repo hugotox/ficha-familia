@@ -164,6 +164,8 @@ STATIC_FILES_VERSION = datetime.now().strftime("%Y%m%d%H%M%S")
 
 NULL_DATE = date(100, 1, 1)
 
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
 try:
     from settings_local import *
 except:

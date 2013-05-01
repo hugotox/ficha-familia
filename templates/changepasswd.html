@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if success %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            La contraseña se ha cambiado con éxito.
+        </div>
+    {% endif %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        {{ form }}
+
+        <br><br>
+
+        <input type="submit" class="btn" value="Guardar"/>
+
+    </form>
+
+{% endblock %}

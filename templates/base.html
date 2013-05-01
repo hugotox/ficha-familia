@@ -20,30 +20,35 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
             <a class="brand" href="/">Ficha Desarrollo {% block extra_brand %}{% endblock %}</a>
 
             <div class="pull-right" style="padding: 10px">
                 {% block top_right_content %}
                 {% endblock %}
+
                 {% if user.is_authenticated %}
-                    <span>Hola {{ user.username }}!</span>
-                    <a href="/accounts/logout/">Cerrar sesión</a>
+
+                    <div class="btn-group pull-right">
+                        <a data-toggle="dropdown" class="btn dropdown-toggle" href="#">
+                            <i class="icon-user"></i>
+                            <span class="hidden-phone">{{ user.username }}</span>
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/accounts/changepasswd" class="navigation-link">Cambiar contraseña</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a class="navigation-link" href="/accounts/logout/">Cerrar Sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+
                 {% else %}
 
                 {% endif %}
             </div>
-
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-
-                </ul>
-            </div>
-            <!--/.nav-collapse -->
 
         </div>
     </div>

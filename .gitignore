@@ -1,5 +1,6 @@
 .DS_Store
 *.pyc
 .idea/
+.coverage
 settings_local.py
 pruebas.py

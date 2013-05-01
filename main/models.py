@@ -6,6 +6,7 @@ from django import forms
 from django.forms.widgets import DateInput
 from main.fields import JsonField
 from datetime import datetime
+from utils.widgets import RutInput
 
 PRESENTE_CHOICES = (
     (True, u'Presente'),
@@ -196,6 +197,7 @@ class PersonaForm(forms.ModelForm):
         model = Persona
         exclude = ('calificacion_laboral', "date_created", "date_modified")
         widgets = {
+            'rut': RutInput(),
             'fecha_nacimiento': DateInput(attrs={'class': "datepicker"}),
             'fecha_participa': DateInput(attrs={'class': "datepicker"}),
             'fecha_ingreso': DateInput(attrs={'class': 'datepicker'}),
@@ -364,6 +366,5 @@ class EvaluacionForm(forms.ModelForm):
             'eventos_y_enc_cultura_salud': forms.Textarea(attrs={'rows': 3}),
             'modulos_acciones_desarrollo_fam': forms.Textarea(attrs={'rows': 3}),
             'modulos_acciones_cultura_salud': forms.Textarea(attrs={'rows': 3}),
-            'evaluacion_cualitativa': forms.Textarea(attrs={'rows': 3,  'class': 'input-xxlarge'}),
+            'evaluacion_cualitativa': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
         }
-

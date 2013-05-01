@@ -25,6 +25,9 @@ ul.errorlist li{
 .ficha-form tr > td > ul > li{
     display: inline;
     list-style-type: none;
+}
+
+.ficha-form tr > td > ul > li:first-child{
     margin-right: 50px;
 }
 
