@@ -14,6 +14,15 @@ var round_number = function (number, decimals) {
     return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 };
 
+/**
+ * Adds trim() function to string objects (missing in IE)
+ */
+if(typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+    }
+}
+
 $(document).ready(function () {
     bind_datepickers();
 

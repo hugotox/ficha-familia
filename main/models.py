@@ -6,7 +6,8 @@ from django import forms
 from django.forms.widgets import DateInput
 from main.fields import JsonField
 from datetime import datetime
-from utils.widgets import RutInput
+import settings
+from utils.widgets import RutInput, HorizontalRadio
 
 PRESENTE_CHOICES = (
     (True, u'Presente'),
@@ -191,8 +192,18 @@ class Persona(models.Model):
     def __unicode__(self):
         return u'%s %s (Familia %s)' % (self.nombres, self.apellido_paterno, self.familia)
 
+    def get_fecha_nacimiento(self):
+        if self.fecha_nacimiento is not None:
+            if self.fecha_nacimiento != settings.NULL_DATE:
+                return self.fecha_nacimiento.strftime("%d/%m/%Y")
+            else:
+                return None
+        else:
+            return None
+
 
 class PersonaForm(forms.ModelForm):
+
     class Meta:
         model = Persona
         exclude = ('calificacion_laboral', "date_created", "date_modified")
@@ -214,21 +225,21 @@ class FamiliaForm(forms.ModelForm):
         exclude = ('date_created', 'date_modified', 'estado')
 
         widgets = {
-            'cond_precariedad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_precariedad': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_precariedad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_vulnerabilidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_vulnerabilidad': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_vulnerabilidad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_hogar_uni_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_hogar_uni_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_hogar_uni_riesgo_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_familia_mono_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_familia_mono_riesgo': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_familia_mono_riesgo_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_alcohol_drogas': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_alcohol_drogas': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_alcohol_drogas_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_discapacidad': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_discapacidad': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_discapacidad_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_malos_tratos': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_malos_tratos': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_malos_tratos_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'cond_socializ_delictual': forms.RadioSelect(choices=PRESENTE_CHOICES),
+            'cond_socializ_delictual': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
             'cond_socializ_delictual_coment': forms.TextInput(attrs={'class': 'input-xlarge'}),
         }
 

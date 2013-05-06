@@ -64,13 +64,34 @@ def home(request):
         apellidos_no_tilde = apellidos_no_tilde.replace(u"ú", "u")
         apellidos_no_tilde = apellidos_no_tilde.replace(u"ñ", "n")
 
-        the_aps = apellidos.split(' ') + apellidos_no_tilde.split(' ')
+        the_aps = apellidos_no_tilde.split(' ')
 
-        filters = Q(apellido_materno__icontains=the_aps[0]) | Q(apellido_paterno__icontains=the_aps[0])
+        # filters = None
+        #
+        # if len(the_aps) == 1:
+        #     filters = Q(apellido_materno__icontains=the_aps[0]) | Q(apellido_paterno__icontains=the_aps[0])
+        # else:
+        #     for ap in the_aps:
+        #
+        #         if filters is None:
+        #             filters = Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
+        #         else:
+        #             filters = filters | Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
+        #
+        # familias = familias.filter(filters)
 
-        for ap in the_aps:
-            filters = filters | Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
-        familias = familias.filter(filters)
+        extra_where = u''
+
+        if len(the_aps) == 1:
+            extra_where = u""" (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (the_aps[0], the_aps[0])
+        else:
+            for ap in the_aps:
+                if extra_where == u'':
+                    extra_where = u""" (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (ap, ap)
+                else:
+                    extra_where = u""" %s and (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (extra_where, ap, ap)
+
+        familias = familias.extra(where=[extra_where])
 
     if tipo != '':
         familias = familias.filter(tipo_de_familia=tipo)
@@ -286,6 +307,9 @@ def get_persona_form(request, familia_id, id):
         persona = None
     else:
         persona = Persona.objects.get(id=id)
+        if persona.fecha_nacimiento == settings.NULL_DATE:
+            persona.fecha_nacimiento = None
+            persona.save()
 
     if request.method == "POST":
         if persona is not None:

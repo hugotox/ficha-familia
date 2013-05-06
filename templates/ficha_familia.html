@@ -76,7 +76,7 @@
                             <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona.nombres }} {{ persona.apellido_paterno }}</a>
                         </td>
                         <td class="parentesco">{% if persona.parentesco %}{{ persona.get_parentesco_display }}{% endif %}</td>
-                        <td class="fecha_nacimiento">{% if persona.fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
+                        <td class="fecha_nacimiento">{% if persona.get_fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
                         <td class="estado_civil">{% if persona.estado_civil %}{{ persona.get_estado_civil_display }}{% endif %}</td>
                         <td class="nivel_escolaridad">{% if persona.nivel_escolaridad %}{{ persona.get_nivel_escolaridad_display }}{% endif %}</td>
                         <td class="ocupacion">{% if persona.ocupacion %}{{ persona.get_ocupacion_display }}{% endif %}</td>
