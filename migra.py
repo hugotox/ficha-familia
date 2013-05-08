@@ -226,8 +226,8 @@ def crear_usuarios():
         ('puertomontt', 'Puerto Montt'),
         ('recoleta', 'Recoleta'),
         ('penalolen', u'Peñalolen'),
-        ('lapintana', 'La Florida'),
-        ('laflorida', 'La Pintana'),
+        ('lapintana', 'La Pintana'),
+        ('laflorida', 'La Florida'),
         ('sanbernardo', 'San Bernardo'),
     ]
 
