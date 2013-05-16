@@ -77,7 +77,8 @@ OCUPACION_CHOICES = (
     u'Empleado',
     u'Comerciante',
     u'Obrero',
-    u'Otro'
+    u'Otro',
+    u'Estudiante',
 )
 
 ESTADO_FAMILIA_CHOICES = (
@@ -126,9 +127,10 @@ class UserProfile(models.Model):
 class Familia(models.Model):
     apellido_materno = models.CharField(max_length=250)  # apellidos de la familia
     apellido_paterno = models.CharField(max_length=250)  # apellidos de la familia
-    numero_integrantes = models.IntegerField(verbose_name=u'Número de integrantes', help_text='(que viven en el hogar)')
+    numero_integrantes = models.IntegerField(verbose_name=u'Número de integrantes', help_text='(que viven en el hogar)', )
     ingreso_total_familiar = models.IntegerField(choices=INGRESO_TOTAL_CHOICES, null=True, blank=True)
     tipo_de_familia = models.IntegerField(choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
+    direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
 
     cond_precariedad = models.BooleanField(default=False, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.')
     cond_precariedad_coment = models.CharField(max_length=250, null=True, blank=True)
@@ -148,6 +150,7 @@ class Familia(models.Model):
     cond_socializ_delictual_coment = models.CharField(max_length=250, null=True, blank=True)
 
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
+
     estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
 
     date_created = models.DateTimeField(default=datetime.now())
@@ -157,9 +160,41 @@ class Familia(models.Model):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
     def actualizar_estado(self):
-        if self.estado == ESTADO_FAMILIA_CHOICES[0][0]:
-            self.estado = ESTADO_FAMILIA_CHOICES[1][0]
+
+        if self.estado != ESTADO_FAMILIA_CHOICES[2][0]:  # si es distinto a cerrado
+
+            estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
+            anio = datetime.now().year
+            personas_qs = self.persona_set.all()
+
+            for persona in personas_qs:
+                for evaluacion in persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
+                    if evaluacion.objetivosevaluacion_set.count() > 0:
+                        estado = ESTADO_FAMILIA_CHOICES[1][0]
+                        break
+                if estado == ESTADO_FAMILIA_CHOICES[1][0]:
+                    break
+
+            self.estado = estado
             self.save()
+
+    def get_estado(self):
+        """
+        Estado es activo cuando: existe al menos una persona con ficha y esta tiene al menos un objetivo
+        """
+        estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
+        anio = datetime.now().year
+        personas_activas_count = 0
+        personas_qs = self.persona_set.all()
+
+        for persona in personas_qs:
+            for evaluacion in persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
+                if evaluacion.objetivosevaluacion_set.count() > 0:
+                    estado = ESTADO_FAMILIA_CHOICES[1][0]
+                    personas_activas_count += 1
+                    break
+
+        return "%s (%s/%s)" % (estado, personas_activas_count, personas_qs.count())
 
 
 class Persona(models.Model):
@@ -169,6 +204,8 @@ class Persona(models.Model):
     rut = models.CharField(max_length=50, null=True, blank=True)
     fecha_nacimiento = models.DateField(verbose_name='Fecha de nacimiento', null=True, blank=True)
     sexo = models.CharField(max_length=9, choices=SEXO_CHOICES, null=True, blank=True)
+
+    # deprecado: direccion pertenece a familia
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
     telefono = models.CharField(max_length=250, verbose_name=u'Teléfono de contacto', null=True, blank=True)
     fecha_participa = models.DateField(verbose_name='Desde cuándo participa en FF', null=True, blank=True)
@@ -201,12 +238,24 @@ class Persona(models.Model):
         else:
             return None
 
+    def get_color_btn_ficha(self):
+        clase = ''
+
+        anio = datetime.now().year
+
+        for evaluacion in self.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
+            if evaluacion.objetivosevaluacion_set.count() > 0:
+                clase = 'btn-success'
+                break
+
+        return clase
+
 
 class PersonaForm(forms.ModelForm):
 
     class Meta:
         model = Persona
-        exclude = ('calificacion_laboral', "date_created", "date_modified")
+        exclude = ('calificacion_laboral', "date_created", "date_modified", 'fecha_participa', 'direccion')
         widgets = {
             'rut': RutInput(),
             'fecha_nacimiento': DateInput(attrs={'class': "datepicker"}),

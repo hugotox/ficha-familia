@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from mensajes import DATOS_GUARDADOS
+from mensajes import DATOS_GUARDADOS, FORM_INCORRECTO
 from main.models import *
 from django.utils import simplejson
 from django.core import serializers
@@ -103,9 +103,9 @@ def home(request):
 
     # --- Orden ---
     columnas_permitidas = ['id', 'centro_familiar', 'apellidos', 'tipo_de_familia', 'estado']
-    order_by = request.GET.get('order_by', 'id')
+    order_by = request.GET.get('order_by', 'apellidos')
     if order_by not in columnas_permitidas:
-        order_by = 'id'
+        order_by = 'apellidos'
     order_dir = request.GET.get('order_dir', 'asc')
     if order_dir == 'desc':
         od = '-'
@@ -184,7 +184,7 @@ def familia(request, id):
     except:
         familia = None
 
-    if not es_admin:
+    if not es_admin and familia is not None:
         if familia.centro_familiar != centro_familiar:
             raise Http404
 
@@ -196,6 +196,7 @@ def familia(request, id):
 
         if familia_form.is_valid():
             familia_form.save()
+            familia_form.instance.actualizar_estado()
             message = DATOS_GUARDADOS
             message_class = 'success'
 
@@ -206,7 +207,12 @@ def familia(request, id):
                 persona.save()
 
             if id == 0:
+                request.session['nueva_familia'] = True
                 return HttpResponseRedirect('/familia/%s%s' % (familia_form.instance.id, back_url))
+
+        else:
+            message_class = "error"
+            message = FORM_INCORRECTO
     else:
         if familia is not None:
             familia_form = FamiliaForm(instance=familia)
@@ -214,6 +220,12 @@ def familia(request, id):
             # agregar nuevo registro
             centro = user_profile.centro_familiar.id if user_profile.centro_familiar is not None else None
             familia_form = FamiliaForm(initial={'centro_familiar': centro})
+
+        if request.session.get('nueva_familia', False):
+            message = DATOS_GUARDADOS
+            message_class = 'success'
+            request.session['nueva_familia'] = False
+
 
     return render(request, 'ficha_familia.html', locals())
 
@@ -435,26 +447,28 @@ def ficha(request, id, anio):
                 i = 0
                 for comp_ind in comp_ind_list:
                     if comp_ind != '':
-                        obj_ind = objetivo_ind_list[i]
-                        if obj_ind != '':
-                            if (comp_ind, obj_ind) not in agregados:
-                                oFactor = FactorProtector.objects.get(pk=obj_ind)
-                                oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=1)
-                                oObjetivo.save()
-                                agregados.append((comp_ind, obj_ind))
+                        if len(objetivo_ind_list) > i:
+                            obj_ind = objetivo_ind_list[i]
+                            if obj_ind != '':
+                                if (comp_ind, obj_ind) not in agregados:
+                                    oFactor = FactorProtector.objects.get(pk=obj_ind)
+                                    oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=1)
+                                    oObjetivo.save()
+                                    agregados.append((comp_ind, obj_ind))
                     i += 1
 
                 agregados = []
                 i = 0
                 for comp_grup in comp_grup_list:
                     if comp_grup != '':
-                        obj_grup = objetivo_grup_list[i]
-                        if obj_grup != '':
-                            if (comp_grup, obj_grup) not in agregados:
-                                oFactor = FactorProtector.objects.get(pk=obj_grup)
-                                oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=2)
-                                oObjetivo.save()
-                                agregados.append((comp_grup, obj_grup))
+                        if len(objetivo_grup_list) > i:
+                            obj_grup = objetivo_grup_list[i]
+                            if obj_grup != '':
+                                if (comp_grup, obj_grup) not in agregados:
+                                    oFactor = FactorProtector.objects.get(pk=obj_grup)
+                                    oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=2)
+                                    oObjetivo.save()
+                                    agregados.append((comp_grup, obj_grup))
                     i += 1
 
                 if evaluacion is None:
@@ -464,6 +478,10 @@ def ficha(request, id, anio):
                 form = EvaluacionForm(instance=form.instance)
                 objetivos_ind_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=1)) )
                 objetivos_grup_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=2)) )
+
+        else:
+            message_class = "error"
+            message = FORM_INCORRECTO
 
     else:
         tab = 1

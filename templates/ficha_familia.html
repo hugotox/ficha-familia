@@ -32,6 +32,7 @@
         {% with familia_form.apellido_paterno as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.apellido_materno as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
         {% with familia_form.numero_integrantes as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
+        {% with familia_form.direccion as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
 
         {% if es_admin %}
             {% with familia_form.centro_familiar as field %}{% include 'bootstrap_horizontal_field.html' %}{% endwith %}
@@ -95,7 +96,7 @@
                         </td>
                         <td>
                             <div class="btn-group">
-                                <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">Ficha<span class="caret"></span></button>
+                                <button data-toggle="dropdown" class="btn btn-small dropdown-toggle {{ persona.get_color_btn_ficha }}">Ficha<span class="caret"></span></button>
                                 <ul class="dropdown-menu">
                                     {% for eval in persona.evaluacionfactoresprotectores_set.all %}
                                         <li><a href="/ficha/{{ persona.id }}/{{ eval.anio_aplicacion }}{{ back_url }}">{{ eval.anio_aplicacion }}</a></li>

@@ -179,7 +179,12 @@
             actualizar_totales($table, etapa, promedio);
         } else {
             $table.find(".prom-" + etapa).html("");
-            actualizar_totales($table, etapa, 0);
+            if(etapa=='cum'){
+                actualizar_totales($table, etapa, '-');
+            } else {
+                actualizar_totales($table, etapa, 0);
+            }
+
         }
     }
 
@@ -208,7 +213,7 @@
                 prom_ini = 0;
             }
             var prom_cum = $this.find("span.cum").html().trim();
-            if(prom_cum != ""){
+            if(prom_cum != "" && prom_cum != '-'){
                 prom_cum = parseFloat(prom_cum);
             } else {
                 prom_cum = 0;
@@ -384,8 +389,6 @@
 
             for(i=0; i<objetivos.length; i++){
 
-                console.log(objetivos[i]);
-
                 var comp_id = parseInt(objetivos[i].componente);
                 var select_comp = "<select name='componente-"+tipo+"'><option value=''>--Seleccione--</option>";
                 {% for componente in componentes %}
@@ -427,11 +430,11 @@
         }
 
         bind_fila_objetivos();
-        bind_btn_eliminar_obj();
         bind_btn_agregar_obj();
         poblar_objetivos("ind");
         poblar_objetivos("grup");
         check_contador_objetivos();
+        bind_btn_eliminar_obj();
 
         $(".ul_opciones_talleres label").click(function(e) {
             e.stopPropagation();  // previene el auto cerrado del menu
