@@ -5,21 +5,10 @@ setup_environ(settings)
 from main.models import *
 from django.db import connection, transaction
 
-# 1. crear columna direccion
-try:
-    cursor = connection.cursor()
-    cursor.execute("ALTER TABLE main_familia ADD COLUMN direccion character varying(250);")
-    transaction.commit_unless_managed()
-except:
-    pass
-    
-# 2. crear columna ciclo_cerrado
-try:
-    cursor = connection.cursor()
-    cursor.execute("ALTER TABLE main_evaluacionfactoresprotectores ADD COLUMN ciclo_cerrado boolean;")
-    transaction.commit_unless_managed()
-except:
-    pass
+# 1. crear columnas
+cursor = connection.cursor()
+cursor.execute("ALTER TABLE main_familia ADD COLUMN direccion character varying(250); ALTER TABLE main_evaluacionfactoresprotectores ADD COLUMN ciclo_cerrado boolean;")
+transaction.commit_unless_managed()
 
 # actualizar columna direccion
 for fam in Familia.objects.all():
