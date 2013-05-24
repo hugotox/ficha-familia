@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="alert alert-info">
+        Está a punto de cerrar el ciclo año {{ anio }} de "{{ persona }}":
+        <br><br>
+        Luego de cerrado el ciclo no se podrán realizar modificaciones en la ficha. Desea continuar?
+        <br><br>
+
+        <form action="" method="post">{% csrf_token %}
+            <input type="hidden" name="id" value="{{ evaluacion.id}}">
+            <button type="submit" class="btn">
+                Sí
+            </button>
+            <a href="{{ back_url }}" class="btn">No</a>
+        </form>
+    </div>
+{% endblock %}

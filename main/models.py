@@ -160,31 +160,17 @@ class Familia(models.Model):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
     def actualizar_estado(self):
+        self.get_estado(True)
 
-        if self.estado != ESTADO_FAMILIA_CHOICES[2][0]:  # si es distinto a cerrado
-
-            estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
-            anio = datetime.now().year
-            personas_qs = self.persona_set.all()
-
-            for persona in personas_qs:
-                for evaluacion in persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
-                    if evaluacion.objetivosevaluacion_set.count() > 0:
-                        estado = ESTADO_FAMILIA_CHOICES[1][0]
-                        break
-                if estado == ESTADO_FAMILIA_CHOICES[1][0]:
-                    break
-
-            self.estado = estado
-            self.save()
-
-    def get_estado(self):
+    def get_estado(self, save_to_db=False):
         """
-        Estado es activo cuando: existe al menos una persona con ficha y esta tiene al menos un objetivo
+        Estado es activo cuando: existe al menos una persona con ficha y esta tiene al menos un objetivo.
+        Estado es cerrado cuando todas las fichas abiertas de una familia estan cerradas
         """
         estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
         anio = datetime.now().year
         personas_activas_count = 0
+        fichas_cerradas_count = 0
         personas_qs = self.persona_set.all()
 
         for persona in personas_qs:
@@ -192,7 +178,16 @@ class Familia(models.Model):
                 if evaluacion.objetivosevaluacion_set.count() > 0:
                     estado = ESTADO_FAMILIA_CHOICES[1][0]
                     personas_activas_count += 1
-                    break
+                    if evaluacion.ciclo_cerrado:
+                        fichas_cerradas_count += 1
+
+        if personas_activas_count > 0:
+            if personas_activas_count == fichas_cerradas_count:
+                estado = ESTADO_FAMILIA_CHOICES[2][0]  # cerrada
+
+        self.estado = estado
+        if save_to_db:
+            self.save()
 
         return "%s (%s/%s)" % (estado, personas_activas_count, personas_qs.count())
 
@@ -239,14 +234,21 @@ class Persona(models.Model):
             return None
 
     def get_color_btn_ficha(self):
+        """
+        Establece el color del boton "Ficha" en la tabla de personas (ficha familiar)
+        Gris: normal
+        Verde: Ficha activa
+        Naranjo: Ficha cerrada
+        """
         clase = ''
 
         anio = datetime.now().year
 
         for evaluacion in self.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
-            if evaluacion.objetivosevaluacion_set.count() > 0:
+            if evaluacion.ciclo_cerrado:
                 clase = 'btn-success'
-                break
+            elif evaluacion.objetivosevaluacion_set.count() > 0:
+                clase = 'btn-warning'
 
         return clase
 
@@ -324,7 +326,7 @@ class EvaluacionFactoresProtectores(models.Model):
     persona = models.ForeignKey(Persona)
     anio_aplicacion = models.IntegerField(verbose_name=u'Año de aplicación')
 
-    # Datos de las tablas con los puntajes (I):
+    # Datos de las tablas con los puntajes (Inicio):
     presencia_red_de_apoyo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
     relaciones_con_vecindario = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
     participacion_social = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
@@ -332,7 +334,7 @@ class EvaluacionFactoresProtectores(models.Model):
     ocio_y_encuentro_con_pares = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Ocio y encuentro con pares')
     espacios_formativos_y_de_desarrollo = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Espacios formativos y de desarrollo')
     relaciones_y_cohesion_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Relaciones y cohesión familiar')
-    adaptabilidad_y_resistencia_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resistencia familiar')
+    adaptabilidad_y_resistencia_familiar = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resiliencia familiar')
     competencias_parentales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Competencias parentales')
     proteccion_y_salud_integral = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Protección y salud integral')
     participacion_protagonica = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación protagónica')
@@ -341,7 +343,7 @@ class EvaluacionFactoresProtectores(models.Model):
     autonomia = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Autonomía')
     habilidades_y_valores_sociales = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Habilidades y valores sociales')
 
-    # Datos de las tablas con los puntajes (C):
+    # Datos de las tablas con los puntajes (Cumplimiento):
     presencia_red_de_apoyo2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Presencia red de apoyo')
     relaciones_con_vecindario2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Relaciones con vecindario')
     participacion_social2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación social')
@@ -349,7 +351,7 @@ class EvaluacionFactoresProtectores(models.Model):
     ocio_y_encuentro_con_pares2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Ocio y encuentro con pares')
     espacios_formativos_y_de_desarrollo2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Espacios formativos y de desarrollo')
     relaciones_y_cohesion_familiar2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Relaciones y cohesión familiar')
-    adaptabilidad_y_resistencia_familiar2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resistencia familiar')
+    adaptabilidad_y_resistencia_familiar2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Adaptabilidad y resiliencia familiar')
     competencias_parentales2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name='Competencias parentales')
     proteccion_y_salud_integral2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Protección y salud integral')
     participacion_protagonica2 = models.IntegerField(choices=EVALUACION_CHOICES, null=True, blank=True, verbose_name=u'Participación protagónica')
@@ -363,6 +365,7 @@ class EvaluacionFactoresProtectores(models.Model):
 
     # II.a
     tall_for_ori = models.BooleanField(verbose_name='Talleres de Formación y Orientación Familiar')
+
     tall_dep_rec = models.BooleanField(verbose_name='Talleres Deportivos Recreativos')
     tall_fut_cal = models.BooleanField(verbose_name='Talleres Fútbol Calle')
     tall_boccias = models.BooleanField(verbose_name='Talleres Boccias')
@@ -397,6 +400,245 @@ class EvaluacionFactoresProtectores(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
+    ciclo_cerrado = models.BooleanField(default=False)
+
+    def cerrar_ciclo(self):
+
+        # ciclo ya esta cerrado
+        if self.ciclo_cerrado:
+            return ""
+
+        error_msg = "No se puede cerrar este ciclo debido a los siguientes errores: <br> <ul>"
+        valid = True
+
+        # --- validacion de factores protectores ---
+
+        if self.presencia_red_de_apoyo is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('presencia_red_de_apoyo')[0].verbose_name
+
+        if self.presencia_red_de_apoyo2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('presencia_red_de_apoyo2')[0].verbose_name
+
+        if self.relaciones_con_vecindario is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('relaciones_con_vecindario')[0].verbose_name
+
+        if self.relaciones_con_vecindario2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('relaciones_con_vecindario2')[0].verbose_name
+
+        if self.participacion_social is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('participacion_social')[0].verbose_name
+
+        if self.participacion_social2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('participacion_social2')[0].verbose_name
+
+        if self.red_de_servicios_y_beneficios_sociales is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('red_de_servicios_y_beneficios_sociales')[0].verbose_name
+
+        if self.red_de_servicios_y_beneficios_sociales2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('red_de_servicios_y_beneficios_sociales2')[0].verbose_name
+
+        if self.ocio_y_encuentro_con_pares is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('ocio_y_encuentro_con_pares')[0].verbose_name
+
+        if self.ocio_y_encuentro_con_pares2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('ocio_y_encuentro_con_pares2')[0].verbose_name
+
+        if self.espacios_formativos_y_de_desarrollo is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('espacios_formativos_y_de_desarrollo')[0].verbose_name
+
+        if self.espacios_formativos_y_de_desarrollo2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('espacios_formativos_y_de_desarrollo2')[0].verbose_name
+
+        if self.relaciones_y_cohesion_familiar is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('relaciones_y_cohesion_familiar')[0].verbose_name
+
+        if self.relaciones_y_cohesion_familiar2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('relaciones_y_cohesion_familiar2')[0].verbose_name
+
+        if self.adaptabilidad_y_resistencia_familiar is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('adaptabilidad_y_resistencia_familiar')[0].verbose_name
+
+        if self.adaptabilidad_y_resistencia_familiar2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('adaptabilidad_y_resistencia_familiar2')[0].verbose_name
+
+        if self.competencias_parentales is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('competencias_parentales')[0].verbose_name
+
+        if self.competencias_parentales2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('competencias_parentales2')[0].verbose_name
+
+        if self.proteccion_y_salud_integral is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('proteccion_y_salud_integral')[0].verbose_name
+
+        if self.proteccion_y_salud_integral2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('proteccion_y_salud_integral2')[0].verbose_name
+
+        if self.participacion_protagonica is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('participacion_protagonica')[0].verbose_name
+
+        if self.participacion_protagonica2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('participacion_protagonica2')[0].verbose_name
+
+        if self.recreacion_y_juego_con_pares is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('recreacion_y_juego_con_pares')[0].verbose_name
+
+        if self.recreacion_y_juego_con_pares2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('recreacion_y_juego_con_pares2')[0].verbose_name
+
+        if self.crecimiento_personal is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('crecimiento_personal')[0].verbose_name
+
+        if self.crecimiento_personal2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('crecimiento_personal2')[0].verbose_name
+
+        if self.autonomia is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('autonomia')[0].verbose_name
+
+        if self.autonomia2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('autonomia2')[0].verbose_name
+
+        if self.habilidades_y_valores_sociales is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (I)' no ha sido evaluado</li>" % self._meta.get_field_by_name('habilidades_y_valores_sociales')[0].verbose_name
+
+        if self.habilidades_y_valores_sociales2 is None:
+            valid = False
+            error_msg += "<li>Factor protector '%s (C)' no ha sido evaluado</li>" % self._meta.get_field_by_name('habilidades_y_valores_sociales2')[0].verbose_name
+
+        # --- validacion objetivos ---
+        if self.objetivosevaluacion_set.count() == 0:
+            valid = False
+            error_msg += "<li>Seleccione al menos un objetivo de desarrollo socio-familiar</li>"
+
+        # --- validacion cumplimiento ---
+        count_desarrollo = 0
+        count_cultura = 0
+
+        count_talleres = 0
+        count_eventos = 0
+        count_modulos = 0
+
+        if self.tall_for_ori:
+            count_desarrollo += 1
+            count_talleres += 1
+        if self.enc_familiar:
+            count_desarrollo += 1
+            count_eventos += 1
+        if self.even_recreat:
+            count_desarrollo += 1
+            count_eventos += 1
+        if self.mod_form_fam:
+            count_desarrollo += 1
+            count_modulos += 1
+        if self.acc_inf_difu:
+            count_desarrollo += 1
+            count_modulos += 1
+        if self.aten_ind_fam:
+            count_desarrollo += 1
+            count_modulos += 1
+
+        if self.tall_dep_rec:
+            count_cultura += 1
+            count_talleres += 1
+        if self.tall_fut_cal:
+            count_cultura += 1
+            count_talleres += 1
+        if self.tall_boccias:
+            count_cultura += 1
+            count_talleres += 1
+        if self.tall_art_cul:
+            count_cultura += 1
+            count_talleres += 1
+        if self.tall_ali_sal:
+            count_cultura += 1
+            count_talleres += 1
+        if self.tall_hue_fam:
+            count_cultura += 1
+            count_talleres += 1
+
+        if self.even_enc_cam:
+            count_cultura += 1
+            count_eventos += 1
+        if self.even_dep_fam:
+            count_cultura += 1
+            count_eventos += 1
+        if self.even_cultura:
+            count_cultura += 1
+            count_eventos += 1
+        if self.mues_fam_art:
+            count_cultura += 1
+            count_eventos += 1
+        if self.enc_vida_sal:
+            count_cultura += 1
+            count_eventos += 1
+
+        if self.mod_clin_dep:
+            count_cultura += 1
+            count_modulos += 1
+        if self.acc_pase_vis:
+            count_cultura += 1
+            count_modulos += 1
+        if self.mod_clin_art:
+            count_cultura += 1
+            count_modulos += 1
+        if self.acc_recu_are:
+            count_cultura += 1
+            count_modulos += 1
+        if self.mod_clin_ali:
+            count_cultura += 1
+            count_modulos += 1
+
+        if count_desarrollo == 0 or count_cultura == 0:
+            valid = False
+            error_msg += u"<li>Debe seleccionar de ambos componentes ds intervención (columnas)</li>"
+
+        if count_talleres == 0 or count_eventos == 0 or count_modulos == 0:
+            valid = False
+            error_msg += u"<li>Debe seleccionar al menos uno en cada area de trabajo (filas)</li>"
+
+        # validacion completa: guardar
+        if valid:
+            self.ciclo_cerrado = True
+            self.save()
+            self.persona.familia.actualizar_estado()
+            error_msg = ""
+
+        return error_msg
+
+    def get_objetivos_ind(self):
+        return self.objetivosevaluacion_set.filter(tipo=1)
+
+    def get_objetivos_grup(self):
+        return self.objetivosevaluacion_set.filter(tipo=2)
 
     class Meta:
         ordering = ['anio_aplicacion']

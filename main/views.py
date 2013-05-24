@@ -141,7 +141,7 @@ def home(request):
         page = paginator.num_pages
 
     paginator_links_pref = "/?order_by=%s&order_dir=%s&psize=%s&%s" % (order_by, order_dir, page_size, filtros_params)
-    psize_select_pref =    "/?order_by=%s&order_dir=%s&page=%s&%s" % (order_by, order_dir, page, filtros_params)
+    psize_select_pref = "/?order_by=%s&order_dir=%s&page=%s&%s" % (order_by, order_dir, page, filtros_params)
 
     page_link_lower = page - 5
     page_link_upper = page + 5
@@ -225,7 +225,6 @@ def familia(request, id):
             message = DATOS_GUARDADOS
             message_class = 'success'
             request.session['nueva_familia'] = False
-
 
     return render(request, 'ficha_familia.html', locals())
 
@@ -398,98 +397,122 @@ def ficha(request, id, anio):
         evaluacion = evaluacion_qs[0]
 
     if request.method == "POST":
-        tab = 2
+        action = request.POST.get('action', 'Guardar')
 
-        if evaluacion is not None:
-            # update
-            form = EvaluacionForm(request.POST, instance=evaluacion)
-        else:
-            # new
-            form = EvaluacionForm(request.POST, initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
+        if action == 'Guardar':
 
-        if form.is_valid():
+            tab = 2
 
-            valid = True
+            if evaluacion is not None:
+                # update
+                form = EvaluacionForm(request.POST, instance=evaluacion)
+            else:
+                # new
+                form = EvaluacionForm(request.POST, initial={'persona': persona, 'anio_aplicacion': anio}, instance=evaluacion)
 
-            # si anio es cero y evaluacion ya existe entonces error
+            if form.is_valid():
 
-            if str(anio) == '0':
-                form_anio = form.cleaned_data['anio_aplicacion']
+                valid = True
 
-                if int(form_anio) < 2013:
-                    message = u"Por favor ingrese un año igual o mayor a 2013."
-                    message_class = "error"
-                    valid = False
+                # si anio es cero y evaluacion ya existe entonces error
 
-                elif EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=form_anio).count():
-                    message = "La ficha para esta persona/año ya existe. Por favor vuelva a la página anterior y 1) Seleccione la ficha existente o 2) Cree una nueva ficha para un año diferente."
-                    message_class = "error"
-                    valid = False
+                if str(anio) == '0':
+                    form_anio = form.cleaned_data['anio_aplicacion']
 
-            if valid:
+                    if int(form_anio) < 2013:
+                        message = u"Por favor ingrese un año igual o mayor a 2013."
+                        message_class = "error"
+                        valid = False
 
-                # guarda el registro evaluacion
-                form.save()
-                persona.familia.actualizar_estado()
+                    elif EvaluacionFactoresProtectores.objects.filter(persona=persona, anio_aplicacion=form_anio).count():
+                        message = "La ficha para esta persona/año ya existe. Por favor vuelva a la página anterior y 1) Seleccione la ficha existente o 2) Cree una nueva ficha para un año diferente."
+                        message_class = "error"
+                        valid = False
 
-                # guarda los objetivos por componente
-                comp_ind_list = request.POST.getlist('componente-ind')
-                comp_grup_list = request.POST.getlist('componente-grup')
-                objetivo_ind_list = request.POST.getlist('objetivo-ind')
-                objetivo_grup_list = request.POST.getlist('objetivo-grup')
+                if valid:
 
-                eval_instance = form.instance
+                    # guarda el registro evaluacion
+                    form.save()
+                    persona.familia.actualizar_estado()
 
-                eval_instance.objetivosevaluacion_set.all().delete()
+                    # guarda los objetivos por componente
+                    comp_ind_list = request.POST.getlist('componente-ind')
+                    comp_grup_list = request.POST.getlist('componente-grup')
+                    objetivo_ind_list = request.POST.getlist('objetivo-ind')
+                    objetivo_grup_list = request.POST.getlist('objetivo-grup')
 
-                agregados = []
+                    eval_instance = form.instance
 
-                i = 0
-                for comp_ind in comp_ind_list:
-                    if comp_ind != '':
-                        if len(objetivo_ind_list) > i:
-                            obj_ind = objetivo_ind_list[i]
-                            if obj_ind != '':
-                                if (comp_ind, obj_ind) not in agregados:
-                                    oFactor = FactorProtector.objects.get(pk=obj_ind)
-                                    oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=1)
-                                    oObjetivo.save()
-                                    agregados.append((comp_ind, obj_ind))
-                    i += 1
+                    eval_instance.objetivosevaluacion_set.all().delete()
 
-                agregados = []
-                i = 0
-                for comp_grup in comp_grup_list:
-                    if comp_grup != '':
-                        if len(objetivo_grup_list) > i:
-                            obj_grup = objetivo_grup_list[i]
-                            if obj_grup != '':
-                                if (comp_grup, obj_grup) not in agregados:
-                                    oFactor = FactorProtector.objects.get(pk=obj_grup)
-                                    oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=2)
-                                    oObjetivo.save()
-                                    agregados.append((comp_grup, obj_grup))
-                    i += 1
+                    agregados = []
 
-                if evaluacion is None:
-                    return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
+                    i = 0
+                    for comp_ind in comp_ind_list:
+                        if comp_ind != '':
+                            if len(objetivo_ind_list) > i:
+                                obj_ind = objetivo_ind_list[i]
+                                if obj_ind != '':
+                                    if (comp_ind, obj_ind) not in agregados:
+                                        oFactor = FactorProtector.objects.get(pk=obj_ind)
+                                        oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=1)
+                                        oObjetivo.save()
+                                        agregados.append((comp_ind, obj_ind))
+                        i += 1
 
-                # re-crear el form para q se muestren los cambios
-                form = EvaluacionForm(instance=form.instance)
-                objetivos_ind_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=1)) )
-                objetivos_grup_qs = simplejson.dumps( crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=2)) )
+                    agregados = []
+                    i = 0
+                    for comp_grup in comp_grup_list:
+                        if comp_grup != '':
+                            if len(objetivo_grup_list) > i:
+                                obj_grup = objetivo_grup_list[i]
+                                if obj_grup != '':
+                                    if (comp_grup, obj_grup) not in agregados:
+                                        oFactor = FactorProtector.objects.get(pk=obj_grup)
+                                        oObjetivo = ObjetivosEvaluacion(evaluacion=eval_instance, factor=oFactor, tipo=2)
+                                        oObjetivo.save()
+                                        agregados.append((comp_grup, obj_grup))
+                        i += 1
 
-        else:
-            message_class = "error"
-            message = FORM_INCORRECTO
+                    if evaluacion is None:
+                        return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
+
+                    # re-crear el form para q se muestren los cambios
+                    form = EvaluacionForm(instance=form.instance)
+                    objetivos_ind_qs = simplejson.dumps(crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=1)))
+                    objetivos_grup_qs = simplejson.dumps(crear_listas_objetivos(eval_instance.objetivosevaluacion_set.filter(tipo=2)))
+
+            else:
+                message_class = "error"
+                message = FORM_INCORRECTO
+
+        elif action == 'Cerrar Ciclo':
+            message = evaluacion.cerrar_ciclo()
+            if message == "":  # exito
+                message_class = "success"
+                message = "Se ha cerrado esta ficha correctamente."
+            else:  # error
+                message_class = "error"
+
+            tab = 1
+            form = EvaluacionForm(instance=evaluacion)
+            objetivos_ind_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)))
+            objetivos_grup_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)))
 
     else:
         tab = 1
         if evaluacion is not None:
             # existe
             form = EvaluacionForm(instance=evaluacion)
-            objetivos_ind_qs = simplejson.dumps( crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)) )
-            objetivos_grup_qs = simplejson.dumps( crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)) )
+            objetivos_ind_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)))
+            objetivos_grup_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)))
+
+            if 'message_class_cerrar' in request.session and 'message_cerrar' in request.session:
+                message_class = request.session['message_class_cerrar']
+                message = request.session['message_cerrar']
+                request.session['message_class_cerrar'] = ''
+                request.session['message_cerrar'] = ''
+
         else:
             # nueva
             form = EvaluacionForm(initial={'persona': persona})
@@ -497,6 +520,58 @@ def ficha(request, id, anio):
     return render(request, 'ficha_persona.html', locals())
 
 
+@login_required
+def cerrar_ciclo(request, id, anio):
+    es_admin = request.user.is_superuser
+    user_profile = request.user.get_profile()
+    centro_familiar = None
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
+
+    try:
+        persona = Persona.objects.get(id=id)
+    except:
+        raise Http404
+
+    if not es_admin:
+        if persona.familia.centro_familiar != centro_familiar:
+            raise Http404
+
+    try:
+        evaluacion = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=anio)
+    except:
+        raise Http404
+
+    filters = []
+
+    for name, val in request.GET.items():
+        filters.append("%s=%s" % (name, val))
+
+    back_url = "/ficha/%s/%s/?%s" % (persona.id, anio, "&".join(filters))
+
+    if request.method == 'POST':
+        id = request.POST['id']
+        message = evaluacion.cerrar_ciclo()
+        if message == "":  # exito
+            request.session['message_class_cerrar'] = "success"
+            request.session['message_cerrar'] = "Se ha cerrado esta ficha correctamente."
+        else:  # error
+            request.session['message_class_cerrar'] = "error"
+            request.session['message_cerrar'] = message
+
+        tab = 1
+        form = EvaluacionForm(instance=evaluacion)
+        objetivos_ind_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)))
+        objetivos_grup_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)))
+
+        # /ficha/{{ persona.id }}/{{ eval.anio_aplicacion }}{{ back_url }}
+        return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, evaluacion.anio_aplicacion, "&".join(filters)))
+
+    return render(request, 'cerrar_ciclo.html', locals())
+
+
+
+@login_required
 def eliminar_ficha(request, id, anio):
     es_admin = request.user.is_superuser
     user_profile = request.user.get_profile()
@@ -527,7 +602,7 @@ def eliminar_ficha(request, id, anio):
 
     if request.method == 'POST':
         id = request.POST['id']
-
+        evaluacion.persona.familia.actualizar_estado()
         evaluacion.delete()
         return HttpResponseRedirect("/familia/%s/?%s" % (persona.familia.id, "&".join(filters)))
 

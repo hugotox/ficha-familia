@@ -63,7 +63,7 @@
 
         {% if message %}
             <div class="alert alert-{{ message_class }}">
-                {{ message }}
+                {{ message|safe }}
             </div>
             <br>
         {% endif %}
@@ -135,14 +135,25 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" value="Guardar" class="btn btn-primary">
-                Guardar
-            </button>
+            <input name="action" type="submit" value="Guardar" class="btn btn-primary"
+                {% if evaluacion %}
+                    {% if evaluacion.ciclo_cerrado %}
+                        disabled="disabled" style="display: none"
+                    {% endif %}
+                {% endif %}/>
 
             {% if evaluacion %}
                 <a href="/ficha/{{ persona.id }}/{{ evaluacion.anio_aplicacion }}/del/?{{ str_filters }}" class="btn">
                     Eliminar Ficha
                 </a>
+
+                {% if not evaluacion.ciclo_cerrado %}
+                <span style="margin: 0 20px">|</span>
+
+                <a class="btn" href="/ficha/{{ persona.id }}/{{ evaluacion.anio_aplicacion }}/cerrar/?{{ str_filters }}">
+                    Cerrar Ciclo</a>
+                {% endif %}
+
             {% endif %}
 
             <a href="{{ back_url }}" class="pull-right">
@@ -429,12 +440,14 @@
             }
         }
 
-        bind_fila_objetivos();
-        bind_btn_agregar_obj();
+        {% if not evaluacion.ciclo_cerrado %}
         poblar_objetivos("ind");
         poblar_objetivos("grup");
+        {% endif %}
         check_contador_objetivos();
         bind_btn_eliminar_obj();
+        bind_fila_objetivos();
+        bind_btn_agregar_obj();
 
         $(".ul_opciones_talleres label").click(function(e) {
             e.stopPropagation();  // previene el auto cerrado del menu

@@ -11,6 +11,7 @@
                     <label class="radio">
                         <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
                                {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="ini">
                         {{ value }}
                     </label>
@@ -20,6 +21,7 @@
                     <label class="radio">
                         <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
                                {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="ini" >
                         N/A
                     </label>
@@ -47,6 +49,7 @@
                     <label class="radio">
                         <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
                                {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="cum" >
                         {{ value }}
                     </label>
@@ -56,6 +59,7 @@
                     <label class="radio">
                         <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
                                {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="cum" >
                         N/A
                     </label>

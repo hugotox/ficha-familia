@@ -23,15 +23,26 @@
             </tr>
             </thead>
             <tbody>
+            {% if evaluacion.ciclo_cerrado %}
+                {% for objetivo in evaluacion.get_objetivos_ind %}
+                    <tr style="font-style: italic">
+                        <td>{{ objetivo.factor.componente }}</td>
+                        <td>{{ objetivo.factor.objetivo_personal }}</td>
+                        <td></td>
+                    </tr>            
+                {% endfor %}
+            {% endif %}
             </tbody>
         </table>
 
+        {% if not evaluacion.ciclo_cerrado %}
         <div class="pull-right">
             <button id="btn_agregar_obj_ind" type="button" class="btn btn-small">
                 <i class="icon-plus-sign"></i>
                 Agregar Objetivo
             </button>
         </div>
+        {% endif %}
 
         <div style="clear: both"></div>
         <br>
@@ -49,35 +60,26 @@
             </tr>
             </thead>
             <tbody>
-{#            <tr class="fila_objs">#}
-{#                <td>#}
-{#                    <select name="componente-grup">#}
-{#                        <option value="">--Seleccione--</option>#}
-{#                        {% for componente in componentes %}#}
-{#                            <option value="{{ componente.id }}">{{ componente }}</option>#}
-{#                        {% endfor %}#}
-{#                    </select>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <select name="objetivo-grup" class="input-xlarge">#}
-{##}
-{#                    </select>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <button type="button" class="btn btn-small btn_eliminar_obj">#}
-{#                        <i class="icon-remove"></i>#}
-{#                    </button>#}
-{#                </td>#}
-{#            </tr>#}
+            {% if evaluacion.ciclo_cerrado %}
+                {% for objetivo in evaluacion.get_objetivos_grup %}
+                    <tr style="font-style: italic">
+                        <td>{{ objetivo.factor.componente }}</td>
+                        <td>{{ objetivo.factor.objetivo_grupal }}</td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
             </tbody>
         </table>
 
+        {% if not evaluacion.ciclo_cerrado %}
         <div class="pull-right">
             <button id="btn_agregar_obj_grup" type="button" class="btn btn-small">
                 <i class="icon-plus-sign"></i>
                 Agregar Objetivo
             </button>
         </div>
+        {% endif %}
 
         <div style="clear: both"></div>
         <br>
@@ -87,7 +89,11 @@
 <br>
 
 <label><strong>b. Propuesta de Ciclo de Desarrollo Socio-Familiar:</strong></label>
+{% if not evaluacion.ciclo_cerrado %}
 {{ form.propuesta_ciclo_desarrollo_socio_fam }}
+{% else %}
+<div style="font-style: italic">{{ form.propuesta_ciclo_desarrollo_socio_fam.value }}</div>
+{% endif %}
 
 <br>
 
@@ -112,6 +118,7 @@
             <ul class="seleccion">
                 {% if form.instance.tall_for_ori %}<li>{{ form.tall_for_ori.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -124,6 +131,7 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
         <td>
             <ul class="seleccion">
@@ -134,6 +142,7 @@
                 {% if form.instance.tall_ali_sal %}<li>{{ form.tall_ali_sal.label }}</li>{% endif %}
                 {% if form.instance.tall_hue_fam %}<li>{{ form.tall_hue_fam.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -171,6 +180,7 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
     </tr>
     <tr>
@@ -180,6 +190,7 @@
                 {% if form.instance.enc_familiar %}<li>{{ form.enc_familiar.label }}</li>{% endif %}
                 {% if form.instance.even_recreat %}<li>{{ form.even_recreat.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -197,6 +208,7 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
         <td>
             <ul class="seleccion">
@@ -206,6 +218,7 @@
                 {% if form.instance.mues_fam_art %}<li>{{ form.mues_fam_art.label }}</li>{% endif %}
                 {% if form.instance.enc_vida_sal %}<li>{{ form.enc_vida_sal.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -238,6 +251,7 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
     </tr>
     <tr>
@@ -248,6 +262,7 @@
                 {% if form.instance.acc_inf_difu %}<li>{{ form.acc_inf_difu.label }}</li>{% endif %}
                 {% if form.instance.aten_ind_fam %}<li>{{ form.aten_ind_fam.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -268,6 +283,7 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
         <td>
             <ul class="seleccion">
@@ -277,6 +293,7 @@
                 {% if form.instance.acc_recu_are %}<li>{{ form.acc_recu_are.label }}</li>{% endif %}
                 {% if form.instance.mod_clin_ali %}<li>{{ form.mod_clin_ali.label }}</li>{% endif %}
             </ul>
+            {% if not evaluacion.ciclo_cerrado %}
             <div class="btn-group">
                 <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                     Seleccionar <span class="caret"></span>
@@ -309,13 +326,18 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </td>
     </tr>
     </tbody>
 </table>
 
 <label><strong>b. Comentarios:</strong></label>
+{% if not evaluacion.ciclo_cerrado %}
 {{ form.comentarios }}
+{% else %}
+    <div style="font-style: italic">{{ form.comentarios.value }}</div>
+{% endif %}
 
 <br><br>
 
@@ -367,7 +389,10 @@
 <br>
 
 <label><strong>d. Evaluación cualitativa del proceso y cumplimiento de objetivos</strong></label>
-
+{% if not evaluacion.ciclo_cerrado %}
 {{ form.evaluacion_cualitativa }}
+{% else %}
+<div style="font-style: italic">{{ form.evaluacion_cualitativa.value }}</div>
+{% endif %}
 
 

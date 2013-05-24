@@ -6,7 +6,10 @@ from main.models import *
 from django.db import connection, transaction
 
 # 1. crear columna direccion
-sql = '''ALTER TABLE main_familia ADD COLUMN direccion character varying(250);'''
+sql = '''
+    ALTER TABLE main_familia ADD COLUMN direccion character varying(250);
+    ALTER TABLE main_evaluacionfactoresprotectores ADD COLUMN ciclo_cerrado boolean;
+    '''
 cursor = connection.cursor()
 cursor.execute(sql)
 transaction.commit_unless_managed()
