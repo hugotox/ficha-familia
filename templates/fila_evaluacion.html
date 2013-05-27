@@ -10,7 +10,7 @@
                 <td>
                     <label class="radio">
                         <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
-                               {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               {% ifequal field.value|add:0 value %}checked="checked"{% endifequal %}
                                {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="ini">
                         {{ value }}
@@ -20,7 +20,7 @@
                 <td>
                     <label class="radio">
                         <input id="{{ field.auto_id }}_{{ value }}" type="radio" name="{{ field.name }}" value="{{ value }}"
-                               {% ifequal field.value value %}checked="checked"{% endifequal %}
+                               {% ifequal field.value|add:0 value %}checked="checked"{% endifequal %}
                                {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="ini" >
                         N/A
@@ -48,7 +48,7 @@
                 <td>
                     <label class="radio">
                         <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
-                               {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               {% ifequal field2.value|add:0 value %}checked="checked"{% endifequal %}
                                {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="cum" >
                         {{ value }}
@@ -58,7 +58,7 @@
                 <td>
                     <label class="radio">
                         <input id="{{ field.auto_id }}2_{{ value }}" type="radio" name="{{ field.name }}2" value="{{ value }}"
-                               {% ifequal field2.value value %}checked="checked"{% endifequal %}
+                               {% ifequal field2.value|add:0 value %}checked="checked"{% endifequal %}
                                {% if evaluacion.ciclo_cerrado %}disabled="disabled"{% endif %}
                                class="cum" >
                         N/A

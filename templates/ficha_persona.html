@@ -14,7 +14,7 @@
 {% block content %}
 
 {#    template para la parte III#}
-    <div style="display: none">
+    <div style="display: none" xmlns="http://www.w3.org/1999/html">
         <table>
             <tr id="template_fila-ind">
                 <td>
@@ -148,10 +148,8 @@
                 </a>
 
                 {% if not evaluacion.ciclo_cerrado %}
-                <span style="margin: 0 20px">|</span>
-
-                <a class="btn" href="/ficha/{{ persona.id }}/{{ evaluacion.anio_aplicacion }}/cerrar/?{{ str_filters }}">
-                    Cerrar Ciclo</a>
+                    <span style="margin: 0 20px">|</span>
+                    <input name="action" type="submit" value="{{ cerrar_ciclo_label }}" class="btn" />
                 {% endif %}
 
             {% endif %}

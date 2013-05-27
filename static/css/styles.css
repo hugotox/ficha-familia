@@ -151,3 +151,10 @@ span.prom-cum{
 .ul_opciones_talleres li{
     padding: 5px 10px 0 10px;
 }
+
+.btn-inactivo {
+    color: #aaa;
+}
+.btn-cerrado {
+    font-weight: bold;
+}
