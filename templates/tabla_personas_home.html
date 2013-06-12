@@ -1,0 +1,18 @@
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Parentesco</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for persona in familia.persona_set.all %}
+            <tr>
+                <td>{{ persona }}</td>
+                <td>{{ persona.get_parentesco_display }}</td>
+                <td>{{ persona.get_estado }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -169,6 +169,7 @@ class Familia(models.Model):
         """
         estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
         anio = datetime.now().year
+        personas_con_objs_count = 0
         personas_activas_count = 0
         fichas_cerradas_count = 0
         personas_qs = self.persona_set.all()
@@ -177,12 +178,14 @@ class Familia(models.Model):
             for evaluacion in persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
                 if evaluacion.objetivosevaluacion_set.count() > 0:
                     estado = ESTADO_FAMILIA_CHOICES[1][0]
+                    personas_con_objs_count += 1
                     personas_activas_count += 1
                     if evaluacion.ciclo_cerrado:
                         fichas_cerradas_count += 1
+                        personas_activas_count -= 1
 
-        if personas_activas_count > 0:
-            if personas_activas_count == fichas_cerradas_count:
+        if personas_con_objs_count > 0:
+            if personas_con_objs_count == fichas_cerradas_count:
                 estado = ESTADO_FAMILIA_CHOICES[2][0]  # cerrada
 
         self.estado = estado
@@ -238,7 +241,7 @@ class Persona(models.Model):
         Establece el color del boton "Ficha" en la tabla de personas (ficha familiar)
         Gris: normal
         Verde: Ficha activa
-        Naranjo: Ficha cerrada
+        Negrita: Ficha cerrada
         """
         clase = 'btn-inactivo'
 
@@ -251,6 +254,24 @@ class Persona(models.Model):
                 clase = 'btn-success'
 
         return clase
+
+    def tiene_ficha_activa(self, anio):
+        ficha_activa = False
+        for evaluacion in self.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
+            if evaluacion.objetivosevaluacion_set.count() > 0:
+                ficha_activa = True
+                break
+        return ficha_activa
+
+    def get_estado(self):
+        anio = datetime.now().year
+        estado = ESTADO_FAMILIA_CHOICES[0][0]
+        for evaluacion in self.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
+            if evaluacion.objetivosevaluacion_set.count() > 0:
+                estado = ESTADO_FAMILIA_CHOICES[1][0]
+            if evaluacion.ciclo_cerrado:
+                estado = ESTADO_FAMILIA_CHOICES[2][0]
+        return estado
 
 
 class PersonaForm(forms.ModelForm):

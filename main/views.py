@@ -29,7 +29,7 @@ def home(request):
 
     es_admin = request.user.is_superuser
     familias = Familia.objects.all()
-    centros = CentroFamiliar.objects.all()
+    centros = CentroFamiliar.objects.all().order_by('comuna')
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
 
@@ -65,20 +65,6 @@ def home(request):
         apellidos_no_tilde = apellidos_no_tilde.replace(u"ñ", "n")
 
         the_aps = apellidos_no_tilde.split(' ')
-
-        # filters = None
-        #
-        # if len(the_aps) == 1:
-        #     filters = Q(apellido_materno__icontains=the_aps[0]) | Q(apellido_paterno__icontains=the_aps[0])
-        # else:
-        #     for ap in the_aps:
-        #
-        #         if filters is None:
-        #             filters = Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
-        #         else:
-        #             filters = filters | Q(apellido_materno__icontains=ap) | Q(apellido_paterno__icontains=ap)
-        #
-        # familias = familias.filter(filters)
 
         extra_where = u''
 
@@ -610,3 +596,10 @@ def eliminar_ficha(request, id, anio):
         return HttpResponseRedirect("/familia/%s/?%s" % (persona.familia.id, "&".join(filters)))
 
     return render(request, 'eliminar_ficha.html', locals())
+
+
+@login_required
+def get_detalle_familia(request, id):
+    familia = Familia.objects.get(id=id)
+    html = render_to_string("tabla_personas_home.html", locals())
+    return HttpResponse(html, content_type='text/plain')

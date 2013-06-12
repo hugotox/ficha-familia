@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% load common_tags %}
 
-{% block top_right_content %}
-
-{% endblock %}
 
 {% block extra_brand %}
     {% if not es_admin %}
@@ -35,6 +32,7 @@
                 {% if es_admin %}<th>
                     <a href="{{ link_col_centro }}">Centro</a>
                 </th>{% endif %}
+                <th></th>
                 <th>
                     <a href="{{ link_col_apellidos }}">Apellidos</a>
                 </th>
@@ -59,6 +57,9 @@
                         </select>
                     </td>
                 {% endif %}
+                <td>
+
+                </td>
                 <td>
                     <input id="apellidos" type="text" name="apellidos" value="{{ apellidos }}">
                     <button class="btn btn-small" type="submit">Buscar</button>
@@ -87,6 +88,14 @@
                         {{ familia.centro_familiar }}
                     </td>{% endif %}
                     <td>
+                        <a id="{{ familia.id }}" href="#" class="btn-mostrar-detalle-familia" title="Ver integrantes de la familia">
+                            <i class="icon-plus-sign"></i>
+                        </a>
+                        <a href="#" class="btn-ocultar-detalle-familia" style="display: none" title="Ocultar integrantes de la familia">
+                            <i class="icon-minus-sign"></i>
+                        </a>
+                    </td>
+                    <td>
                         <a href="/familia/{{ familia.id }}/?{{ current_querystring }}">{{ familia }}</a>
                     </td>
                     <td>
@@ -101,6 +110,11 @@
                         <a class="btn btn-mini" title="Eliminar" href="/familia/{{ familia.id }}/del/?{{ current_querystring }}">
                             <i class="icon-remove"></i>
                         </a>
+                    </td>
+                </tr>
+                <tr class="detalle-familia" style="display: none">
+                    {% if es_admin %}<td></td>{% endif %}
+                    <td colspan="5" style="padding: 0 0 10px 40px" class="detalle-familia-content">
                     </td>
                 </tr>
             {% endfor %}
@@ -143,6 +157,37 @@
 
             $("table.tabla-filtrable select").change(function(){
                 $form_search.submit();
+            });
+
+            // detalle de familia
+            $("a.btn-mostrar-detalle-familia").click(function(){
+                var $this = $(this);
+                var $tr = $this.closest("tr").next("tr");
+                var $content = $tr.find("td.detalle-familia-content");
+                if($content.html().trim() == ""){
+                    $.ajax({
+                        url:"/get_detalle_familia/"+$this.attr("id")+"/",
+                        success:function(html){
+                            $content.html(html);
+                            $tr.fadeIn();
+                            $this.hide();
+                            $this.next("a").show();
+                        }
+                    });
+                } else {
+                    $tr.fadeIn();
+                    $this.hide();
+                    $this.next("a").show();
+                }
+
+                return false;
+            });
+            $("a.btn-ocultar-detalle-familia").click(function(){
+                var $this = $(this);
+                $this.closest("tr").next("tr").fadeOut();
+                $this.hide();
+                $this.prev("a").show();
+                return false;
             });
         });
     </script>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block content %}
+    <h1>Reportes</h1>
+
+    <table class="table table-hover table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Centro Familiar</th>
+                <th>Total Familiar</th>
+                <th>Total Personas</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for centro in datos %}
+                <tr>
+                    <td>{{ centro.comuna }}</td>
+                    <td>{{ centro.count_familias }}</td>
+                    <td>{{ centro.count_personas }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
