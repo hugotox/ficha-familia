@@ -68,7 +68,7 @@
                     <select name="tipo" id="tipo">
                         <option value="">--Todos--</option>
                         {% for t in tipos %}
-                            <option value="{{ t.0 }}" {% ifequal tipo t.0 %}selected="selected"{% endifequal %}>{{ t.1 }}</option>
+                            <option value="{{ t.0 }}" {% if tipo|add:0 == t.0 %}selected="selected"{% endif %}>{{ t.1 }}</option>
                         {% endfor %}
                     </select>
                 </td>

@@ -28,7 +28,6 @@ def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params)
 def home(request):
 
     es_admin = request.user.is_superuser
-    familias = Familia.objects.all()
     centros = CentroFamiliar.objects.all().order_by('comuna')
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
@@ -42,48 +41,51 @@ def home(request):
     tipo = request.GET.get('tipo', '')
     estado = request.GET.get('estado', '')
 
+    sql_familias = "select f.* from main_familia f inner join main_persona p on p.familia_id = f.id where true "
+    sql_where_list = []
+
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
         centro_familiar = user_profile.centro_familiar
 
-    if num_ficha != '':
-        num_ficha = int(num_ficha)
-        familias = familias.filter(id=num_ficha)
-
     if centro != '':
         centro = int(centro)
-        familias = familias.filter(centro_familiar=centro)
+        sql_familias += " and f.centro_familiar_id = %s "
+        sql_where_list.append(centro)
 
-    if apellidos != '':
-
-        apellidos_no_tilde = apellidos.lower()
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"á", "a")
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"é", "e")
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"í", "i")
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"ó", "o")
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"ú", "u")
-        apellidos_no_tilde = apellidos_no_tilde.replace(u"ñ", "n")
+    if apellidos != "":
+        apellidos_no_tilde = apellidos.lower()\
+            .replace(u"á", "a")\
+            .replace(u"é", "e")\
+            .replace(u"í", "i")\
+            .replace(u"ó", "o")\
+            .replace(u"ú", "u")\
+            .replace(u"ñ", "n")
 
         the_aps = apellidos_no_tilde.split(' ')
 
-        extra_where = u''
-
-        if len(the_aps) == 1:
-            extra_where = u""" (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (the_aps[0], the_aps[0])
-        else:
-            for ap in the_aps:
-                if extra_where == u'':
-                    extra_where = u""" (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (ap, ap)
-                else:
-                    extra_where = u""" %s and (translate(lower(apellido_paterno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%' or translate(lower(apellido_materno), 'áéíóúñ', 'aeioun') like '%%%%%s%%%%') """ % (extra_where, ap, ap)
-
-        familias = familias.extra(where=[extra_where])
+        for s in the_aps:
+            str_param = s + "%"
+            sql_familias += " and ( "
+            sql_familias += """
+                   translate(lower(f.apellido_paterno), 'áéíóúñ', 'aeioun') like %s
+                or translate(lower(f.apellido_materno), 'áéíóúñ', 'aeioun') like %s
+                or translate(lower(p.apellido_paterno), 'áéíóúñ', 'aeioun') like %s
+                or translate(lower(p.apellido_materno), 'áéíóúñ', 'aeioun') like %s
+                or translate(lower(p.nombres), 'áéíóúñ', 'aeioun') like %s
+            """
+            sql_familias += " ) "
+            sql_where_list += [str_param, str_param, str_param, str_param, str_param]
 
     if tipo != '':
-        familias = familias.filter(tipo_de_familia=tipo)
+        sql_familias += " and f.tipo_de_familia = %s "
+        sql_where_list.append(tipo)
 
     if estado != '':
-        familias = familias.filter(estado=estado)
+        sql_familias += " and f.estado = %s "
+        sql_where_list.append(estado)
+
+    sql_familias += " group by f.id "
 
     filtros_params = 'num_ficha=%s&centro=%s&apellidos=%s&tipo=%s&estado=%s' % (num_ficha, centro, apellidos, tipo, estado)
 
@@ -99,9 +101,11 @@ def home(request):
         od = ''
 
     if order_by == 'apellidos':
-        familias = familias.order_by('%sapellido_paterno' % od, '%sapellido_materno' % od)
+        sql_familias += " order by f.apellido_paterno %s, f.apellido_materno %s" % (order_dir, order_dir)
     else:
-        familias = familias.order_by('%s%s' % (od, order_by))
+        sql_familias += " order by f.%s %s" % (order_by, order_dir)
+
+    familias = Familia.objects.raw(sql_familias, sql_where_list)
 
     # --- Paginacion ---
     page = request.GET.get('page', 1)
@@ -117,7 +121,7 @@ def home(request):
     except:
         page_size = 20
 
-    paginator = Paginator(familias, page_size)
+    paginator = Paginator(list(familias), page_size)
 
     try:
         familias = paginator.page(page)
