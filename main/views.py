@@ -41,7 +41,15 @@ def home(request):
     tipo = request.GET.get('tipo', '')
     estado = request.GET.get('estado', '')
 
-    sql_familias = "select f.* from main_familia f inner join main_persona p on p.familia_id = f.id where true "
+    sql_familias = """select
+        f.id, f.apellido_materno, f.apellido_paterno, f.numero_integrantes, f.ingreso_total_familiar, f.tipo_de_familia,
+        f.cond_precariedad, f.cond_precariedad_coment, f.cond_vulnerabilidad, f.cond_vulnerabilidad_coment,
+        f.cond_hogar_uni_riesgo, f.cond_hogar_uni_riesgo_coment, f.cond_familia_mono_riesgo, f.cond_familia_mono_riesgo_coment,
+        f.cond_alcohol_drogas, f.cond_alcohol_drogas_coment, f.cond_discapacidad, f.cond_discapacidad_coment, f.cond_malos_tratos,
+        f.cond_malos_tratos_coment, f.cond_socializ_delictual, f.cond_socializ_delictual_coment, f.centro_familiar_id, f.estado,
+        f.date_created, f.date_modified, f.direccion
+        from main_familia f inner join main_persona p on p.familia_id = f.id where true
+    """
     sql_where_list = []
 
     if not es_admin:
@@ -85,7 +93,14 @@ def home(request):
         sql_familias += " and f.estado = %s "
         sql_where_list.append(estado)
 
-    sql_familias += " group by f.id "
+    sql_familias += """ group by
+        f.id, f.apellido_materno, f.apellido_paterno, f.numero_integrantes, f.ingreso_total_familiar, f.tipo_de_familia,
+        f.cond_precariedad, f.cond_precariedad_coment, f.cond_vulnerabilidad, f.cond_vulnerabilidad_coment,
+        f.cond_hogar_uni_riesgo, f.cond_hogar_uni_riesgo_coment, f.cond_familia_mono_riesgo, f.cond_familia_mono_riesgo_coment,
+        f.cond_alcohol_drogas, f.cond_alcohol_drogas_coment, f.cond_discapacidad, f.cond_discapacidad_coment, f.cond_malos_tratos,
+        f.cond_malos_tratos_coment, f.cond_socializ_delictual, f.cond_socializ_delictual_coment, f.centro_familiar_id, f.estado,
+        f.date_created, f.date_modified, f.direccion
+    """
 
     filtros_params = 'num_ficha=%s&centro=%s&apellidos=%s&tipo=%s&estado=%s' % (num_ficha, centro, apellidos, tipo, estado)
 
