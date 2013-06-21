@@ -10,7 +10,16 @@
 <br>
 
 <ul>
-    <li>
+    <li
+        {% if evaluacion.ciclo_cerrado %}
+            {% if evaluacion.get_objetivos_ind.count == 0 %}
+                style="display: none"
+            {% else %}
+                style="display: block"
+            {% endif %}
+        {% else %}
+            style="display: block"
+        {% endif %}>
         <strong>Por Individuo</strong>
         <br>
         <br>
@@ -47,7 +56,16 @@
         <div style="clear: both"></div>
         <br>
     </li>
-    <li>
+    <li
+        {% if evaluacion.ciclo_cerrado %}
+            {% if evaluacion.get_objetivos_grup.count == 0 %}
+                style="display: none"
+            {% else %}
+                style="display: block"
+            {% endif %}
+        {% else %}
+            style="display: block"
+        {% endif %}>
         <strong>Por Grupo Familiar</strong>
         <br>
         <br>

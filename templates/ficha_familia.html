@@ -135,42 +135,50 @@
             <tbody>
                 <tr>
                     <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
-                    <td>{{ familia_form.cond_precariedad }}</td>
+                    <td style="position: relative">{{ familia_form.cond_precariedad }}
+                        <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_precariedad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).</td>
-                    <td>{{ familia_form.cond_vulnerabilidad }}</td>
+                    <td style="position: relative">{{ familia_form.cond_vulnerabilidad }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_vulnerabilidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Hogar unipersonal en situación de riesgo.</td>
-                    <td>{{ familia_form.cond_hogar_uni_riesgo }}</td>
+                    <td style="position: relative">{{ familia_form.cond_hogar_uni_riesgo }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_hogar_uni_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Familia monoparental en situación de riesgo.</td>
-                    <td>{{ familia_form.cond_familia_mono_riesgo }}</td>
+                    <td style="position: relative">{{ familia_form.cond_familia_mono_riesgo }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_familia_mono_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Consumo problemático de alcohol y/o drogas.</td>
-                    <td>{{ familia_form.cond_alcohol_drogas }}</td>
+                    <td style="position: relative">{{ familia_form.cond_alcohol_drogas }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_alcohol_drogas_coment }}</td>
                 </tr>
                 <tr>
                     <td>Presencia de discapacidad física y/o mental.</td>
-                    <td>{{ familia_form.cond_discapacidad }}</td>
+                    <td style="position: relative">{{ familia_form.cond_discapacidad }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_discapacidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Experiencias de malos tratos (actual o histórica).</td>
-                    <td>{{ familia_form.cond_malos_tratos }}</td>
+                    <td style="position: relative">{{ familia_form.cond_malos_tratos }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_malos_tratos_coment }}</td>
                 </tr>
                 <tr>
                     <td>Historial de socialización delictual (detenciones, problemas judiciales).</td>
-                    <td>{{ familia_form.cond_socializ_delictual }}</td>
+                    <td style="position: relative">{{ familia_form.cond_socializ_delictual }}
+                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
                     <td>{{ familia_form.cond_socializ_delictual_coment }}</td>
                 </tr>
             </tbody>
@@ -355,6 +363,12 @@
         });
 
         bind_aporta_ingresos();
+
+        // boton limpiar condiciones
+        $("table.ficha-form a.limpiar").click(function(){
+            $(this).parent().find("input[type='radio']:checked").removeAttr("checked");
+            return false;
+        });
     });
 </script>
 {% endblock %}
