@@ -28,6 +28,7 @@ def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params)
 def home(request):
 
     es_admin = request.user.is_superuser
+    familias = Familia.objects.select_related('persona')
     centros = CentroFamiliar.objects.all().order_by('comuna')
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
@@ -41,66 +42,36 @@ def home(request):
     tipo = request.GET.get('tipo', '')
     estado = request.GET.get('estado', '')
 
-    sql_familias = """select
-        f.id, f.apellido_materno, f.apellido_paterno, f.numero_integrantes, f.ingreso_total_familiar, f.tipo_de_familia,
-        f.cond_precariedad, f.cond_precariedad_coment, f.cond_vulnerabilidad, f.cond_vulnerabilidad_coment,
-        f.cond_hogar_uni_riesgo, f.cond_hogar_uni_riesgo_coment, f.cond_familia_mono_riesgo, f.cond_familia_mono_riesgo_coment,
-        f.cond_alcohol_drogas, f.cond_alcohol_drogas_coment, f.cond_discapacidad, f.cond_discapacidad_coment, f.cond_malos_tratos,
-        f.cond_malos_tratos_coment, f.cond_socializ_delictual, f.cond_socializ_delictual_coment, f.centro_familiar_id, f.estado,
-        f.date_created, f.date_modified, f.direccion
-        from main_familia f inner join main_persona p on p.familia_id = f.id where true
-    """
-    sql_where_list = []
-
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
         centro_familiar = user_profile.centro_familiar
 
+    if num_ficha != '':
+        num_ficha = int(num_ficha)
+        familias = familias.filter(id=num_ficha)
+
     if centro != '':
         centro = int(centro)
-        sql_familias += " and f.centro_familiar_id = %s "
-        sql_where_list.append(centro)
+        familias = familias.filter(centro_familiar=centro)
 
-    if apellidos != "":
-        apellidos_no_tilde = apellidos.lower()\
-            .replace(u"á", "a")\
-            .replace(u"é", "e")\
-            .replace(u"í", "i")\
-            .replace(u"ó", "o")\
-            .replace(u"ú", "u")\
-            .replace(u"ñ", "n")
-
-        the_aps = apellidos_no_tilde.split(' ')
-
-        for s in the_aps:
-            str_param = s + "%"
-            sql_familias += " and ( "
-            sql_familias += """
-                   translate(lower(f.apellido_paterno), 'áéíóúñ', 'aeioun') like %s
-                or translate(lower(f.apellido_materno), 'áéíóúñ', 'aeioun') like %s
-                or translate(lower(p.apellido_paterno), 'áéíóúñ', 'aeioun') like %s
-                or translate(lower(p.apellido_materno), 'áéíóúñ', 'aeioun') like %s
-                or translate(lower(p.nombres), 'áéíóúñ', 'aeioun') like %s
-            """
-            sql_familias += " ) "
-            sql_where_list += [str_param, str_param, str_param, str_param, str_param]
+    if apellidos != '':
+        the_aps = apellidos.split(' ')
+        for ap in the_aps:
+            familias = familias.filter(
+                Q(apellido_paterno__icontains=ap) |
+                Q(apellido_materno__icontains=ap) |
+                Q(persona__apellido_paterno__icontains=ap) |
+                Q(persona__apellido_materno__icontains=ap) |
+                Q(persona__nombres__icontains=ap)
+            )
 
     if tipo != '':
-        sql_familias += " and f.tipo_de_familia = %s "
-        sql_where_list.append(tipo)
+        familias = familias.filter(tipo_de_familia=tipo)
 
     if estado != '':
-        sql_familias += " and f.estado = %s "
-        sql_where_list.append(estado)
+        familias = familias.filter(estado=estado)
 
-    sql_familias += """ group by
-        f.id, f.apellido_materno, f.apellido_paterno, f.numero_integrantes, f.ingreso_total_familiar, f.tipo_de_familia,
-        f.cond_precariedad, f.cond_precariedad_coment, f.cond_vulnerabilidad, f.cond_vulnerabilidad_coment,
-        f.cond_hogar_uni_riesgo, f.cond_hogar_uni_riesgo_coment, f.cond_familia_mono_riesgo, f.cond_familia_mono_riesgo_coment,
-        f.cond_alcohol_drogas, f.cond_alcohol_drogas_coment, f.cond_discapacidad, f.cond_discapacidad_coment, f.cond_malos_tratos,
-        f.cond_malos_tratos_coment, f.cond_socializ_delictual, f.cond_socializ_delictual_coment, f.centro_familiar_id, f.estado,
-        f.date_created, f.date_modified, f.direccion
-    """
+    familias = familias.distinct()
 
     filtros_params = 'num_ficha=%s&centro=%s&apellidos=%s&tipo=%s&estado=%s' % (num_ficha, centro, apellidos, tipo, estado)
 
@@ -116,11 +87,9 @@ def home(request):
         od = ''
 
     if order_by == 'apellidos':
-        sql_familias += " order by f.apellido_paterno %s, f.apellido_materno %s" % (order_dir, order_dir)
+        familias = familias.order_by('%sapellido_paterno' % od, '%sapellido_materno' % od)
     else:
-        sql_familias += " order by f.%s %s" % (order_by, order_dir)
-
-    familias = Familia.objects.raw(sql_familias, sql_where_list)
+        familias = familias.order_by('%s%s' % (od, order_by))
 
     # --- Paginacion ---
     page = request.GET.get('page', 1)
@@ -136,7 +105,7 @@ def home(request):
     except:
         page_size = 20
 
-    paginator = Paginator(list(familias), page_size)
+    paginator = Paginator(familias, page_size)
 
     try:
         familias = paginator.page(page)
