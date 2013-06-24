@@ -12,10 +12,10 @@ def dictfetchall(cursor):
     ]
 
 
-def get_dictfetchall_sql(sql):
+def get_dictfetchall_sql(sql, where_params=[]):
     """
     Executes the sql and returns the data as dict.
     """
     cursor = connection.cursor()
-    cursor.execute(sql)
+    cursor.execute(sql, where_params)
     return dictfetchall(cursor)

@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/static/css/styles.css?_={% get_static_version %}">
     {% block extra_header %}{% endblock %}
 </head>
-<body>
+{% block body_tag %}<body>{% endblock %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
@@ -30,9 +30,11 @@
                         Reportes <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="drop-add">
-                        <li>
-                            <a href="/reportes/">R1</a>
-                        </li>
+                        {% for period in PERIODS %}
+                            <li>
+                                <a href="/reportes/{{ period }}/">{{ period }}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </li>
             </ul>

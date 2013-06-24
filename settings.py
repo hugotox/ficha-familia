@@ -166,6 +166,17 @@ NULL_DATE = date(100, 1, 1)
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.contrib.messages.context_processors.messages",
+    'main.context_processor.custom_context'
+)
+
+
 try:
     from settings_local import *
 except:

@@ -2,27 +2,60 @@
 
 {% block title %}Reportes{% endblock %}
 
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/reportes.css"/>
+{% endblock %}
+
+{% block body_tag %}
+<body data-spy="scroll" data-target=".bs-docs-sidebar" data-twttr-rendered="true">
+{% endblock %}
+
 {% block content %}
-    <h1>Reportes</h1>
+<div class="row">
 
-    <table class="table table-hover table-condensed table-bordered">
-        <thead>
-            <tr>
-                <th>Centro Familiar</th>
-                <th>Total Familiar</th>
-                <th>Total Personas</th>
+    <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav affix">
+            <li class=""><a href="#cobertura"><i class="icon-chevron-right"></i> Cobertura</a></li>
+        </ul>
+    </div>
 
-            </tr>
-        </thead>
-        <tbody>
-            {% for centro in datos %}
-                <tr>
-                    <td>{{ centro.comuna }}</td>
-                    <td>{{ centro.count_familias }}</td>
-                    <td>{{ centro.count_personas }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="span9">
 
+        {% include "reportes/cobertura.html" %}
+
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_footer %}
+<script type="text/javascript" src="/static/highcharts/highcharts.js"></script>
+<script type="text/javascript">
+
+var anio = {{ anio }};
+
+$(document).ready(function(){
+
+    $(".btn-grafico").click(function(){
+        var $section = $(this).closest("section");
+        $section.find(".tabla-datos").fadeOut(function(){
+            $section.find(".grafico").fadeIn();
+        });
+    });
+
+    $(".btn-tabla").click(function(){
+        var $section = $(this).closest("section");
+        $section.find(".grafico").fadeOut(function(){
+            $section.find(".tabla-datos").fadeIn();
+        });
+    });
+
+    {% include "reportes/cobertura.js" %}
+
+});
+
+</script>
 {% endblock %}

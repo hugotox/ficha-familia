@@ -69,7 +69,7 @@ def home(request):
         familias = familias.filter(tipo_de_familia=tipo)
 
     if estado != '':
-        familias = familias.filter(estado=estado)
+        familias = familias.filter(estado__iexact=estado)
 
     familias = familias.distinct()
 
@@ -407,7 +407,6 @@ def ficha(request, id, anio):
 
                 # guarda el registro evaluacion
                 form.save()
-                persona.familia.actualizar_estado()
 
                 # guarda los objetivos por componente
                 comp_ind_list = request.POST.getlist('componente-ind')
@@ -447,6 +446,9 @@ def ficha(request, id, anio):
                                     oObjetivo.save()
                                     agregados.append((comp_grup, obj_grup))
                     i += 1
+
+                # actualizar el estado de la familia
+                persona.familia.actualizar_estado()
 
                 if evaluacion is None:
                     return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
