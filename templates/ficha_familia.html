@@ -74,7 +74,7 @@
                 {% for persona in familia.persona_set.all %}
                     <tr class="persona-{{ persona.id }}">
                         <td>
-                            <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona.nombres }} {{ persona.apellido_paterno }}</a>
+                            <a class="link_persona nombre" href="#" id="{{ persona.id }}">{{ persona }}</a>
                         </td>
                         <td class="parentesco">{% if persona.parentesco %}{{ persona.get_parentesco_display }}{% endif %}</td>
                         <td class="fecha_nacimiento">{% if persona.get_fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
@@ -135,50 +135,82 @@
             <tbody>
                 <tr>
                     <td>Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.</td>
-                    <td style="position: relative">{{ familia_form.cond_precariedad }}
-                        <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_precariedad }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_precariedad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).</td>
-                    <td style="position: relative">{{ familia_form.cond_vulnerabilidad }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_vulnerabilidad }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_vulnerabilidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Hogar unipersonal en situación de riesgo.</td>
-                    <td style="position: relative">{{ familia_form.cond_hogar_uni_riesgo }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_hogar_uni_riesgo }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_hogar_uni_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Familia monoparental en situación de riesgo.</td>
-                    <td style="position: relative">{{ familia_form.cond_familia_mono_riesgo }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_familia_mono_riesgo }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_familia_mono_riesgo_coment }}</td>
                 </tr>
                 <tr>
                     <td>Consumo problemático de alcohol y/o drogas.</td>
-                    <td style="position: relative">{{ familia_form.cond_alcohol_drogas }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_alcohol_drogas }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_alcohol_drogas_coment }}</td>
                 </tr>
                 <tr>
                     <td>Presencia de discapacidad física y/o mental.</td>
-                    <td style="position: relative">{{ familia_form.cond_discapacidad }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_discapacidad }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_discapacidad_coment }}</td>
                 </tr>
                 <tr>
                     <td>Experiencias de malos tratos (actual o histórica).</td>
-                    <td style="position: relative">{{ familia_form.cond_malos_tratos }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_malos_tratos }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_malos_tratos_coment }}</td>
                 </tr>
                 <tr>
                     <td>Historial de socialización delictual (detenciones, problemas judiciales).</td>
-                    <td style="position: relative">{{ familia_form.cond_socializ_delictual }}
-                         <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a></td>
+                    <td>
+                        <div style="position: relative">
+                            {{ familia_form.cond_socializ_delictual }}
+                            <a href="#" title="Limpiar" class="limpiar"><i class="icon icon-remove-sign"></i></a>
+                        </div>
+                    </td>
                     <td>{{ familia_form.cond_socializ_delictual_coment }}</td>
                 </tr>
             </tbody>

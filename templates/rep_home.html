@@ -44,6 +44,7 @@ $(document).ready(function(){
         $section.find(".tabla-datos").fadeOut(function(){
             $section.find(".grafico").fadeIn();
         });
+        return false;
     });
 
     $(".btn-tabla").click(function(){
@@ -51,6 +52,7 @@ $(document).ready(function(){
         $section.find(".grafico").fadeOut(function(){
             $section.find(".tabla-datos").fadeIn();
         });
+        return false;
     });
 
     {% include "reportes/cobertura.js" %}

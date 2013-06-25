@@ -5,3 +5,5 @@ setup_environ(settings)
 from main.models import *
 from django.db import connection, transaction
 
+for familia in Familia.objects.all():
+    print familia.get_estado(True)

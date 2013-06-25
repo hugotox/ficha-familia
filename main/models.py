@@ -132,21 +132,21 @@ class Familia(models.Model):
     tipo_de_familia = models.IntegerField(choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
 
-    cond_precariedad = models.NullBooleanField(default=False, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.', blank=True, null=True)
+    cond_precariedad = models.NullBooleanField(default=None, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.', blank=True, null=True)
     cond_precariedad_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_vulnerabilidad = models.NullBooleanField(default=False, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).', blank=True, null=True)
+    cond_vulnerabilidad = models.NullBooleanField(default=None, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).', blank=True, null=True)
     cond_vulnerabilidad_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_hogar_uni_riesgo = models.NullBooleanField(default=False, verbose_name=u'Hogar unipersonal en situación de riesgo.', blank=True, null=True)
+    cond_hogar_uni_riesgo = models.NullBooleanField(default=None, verbose_name=u'Hogar unipersonal en situación de riesgo.', blank=True, null=True)
     cond_hogar_uni_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_familia_mono_riesgo = models.NullBooleanField(default=False, verbose_name=u'Familia monoparental en situación de riesgo.', blank=True, null=True)
+    cond_familia_mono_riesgo = models.NullBooleanField(default=None, verbose_name=u'Familia monoparental en situación de riesgo.', blank=True, null=True)
     cond_familia_mono_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_alcohol_drogas = models.NullBooleanField(default=False, verbose_name=u'Consumo problemático de alcohol y/o drogas.', blank=True, null=True)
+    cond_alcohol_drogas = models.NullBooleanField(default=None, verbose_name=u'Consumo problemático de alcohol y/o drogas.', blank=True, null=True)
     cond_alcohol_drogas_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_discapacidad = models.NullBooleanField(default=False, verbose_name=u'Presencia de discapacidad física y/o mental.', blank=True, null=True)
+    cond_discapacidad = models.NullBooleanField(default=None, verbose_name=u'Presencia de discapacidad física y/o mental.', blank=True, null=True)
     cond_discapacidad_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_malos_tratos = models.NullBooleanField(default=False, verbose_name=u'Experiencias de malos tratos (actual o histórica).', blank=True, null=True)
+    cond_malos_tratos = models.NullBooleanField(default=None, verbose_name=u'Experiencias de malos tratos (actual o histórica).', blank=True, null=True)
     cond_malos_tratos_coment = models.CharField(max_length=250, null=True, blank=True)
-    cond_socializ_delictual = models.NullBooleanField(default=False, verbose_name=u'Historial de socialización delictual (detenciones, problemas judiciales).', blank=True, null=True)
+    cond_socializ_delictual = models.NullBooleanField(default=None, verbose_name=u'Historial de socialización delictual (detenciones, problemas judiciales).', blank=True, null=True)
     cond_socializ_delictual_coment = models.CharField(max_length=250, null=True, blank=True)
 
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
@@ -225,7 +225,7 @@ class Persona(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s %s (Familia %s)' % (self.nombres, self.apellido_paterno, self.familia)
+        return u'%s %s %s' % (self.nombres, self.apellido_paterno, self.apellido_materno)
 
     def get_fecha_nacimiento(self):
         if self.fecha_nacimiento is not None:

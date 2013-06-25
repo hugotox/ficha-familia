@@ -177,7 +177,7 @@ def cobertura(request, anio, tipo):
             },
             'series': [
                 {
-                    'name': 'Total Familias',
+                    'name': 'Total Personas',
                     'data': [x['count_personas'] for x in datos]
                 }
             ]
@@ -242,7 +242,7 @@ def cobertura(request, anio, tipo):
             },
             'series': [
                 {
-                    'name': 'Total Familias',
+                    'name': 'Total Fichas Activas',
                     'data': [x['count_fichas'] for x in fichas_activas]
                 }
             ]
