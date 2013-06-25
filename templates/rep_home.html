@@ -40,7 +40,7 @@ var anio = {{ anio }};
 $(document).ready(function(){
 
     $(".btn-grafico").click(function(){
-        var $section = $(this).closest("section");
+        var $section = $(this).closest(".section");
         $section.find(".tabla-datos").fadeOut(function(){
             $section.find(".grafico").fadeIn();
         });
@@ -48,7 +48,7 @@ $(document).ready(function(){
     });
 
     $(".btn-tabla").click(function(){
-        var $section = $(this).closest("section");
+        var $section = $(this).closest(".section");
         $section.find(".grafico").fadeOut(function(){
             $section.find(".tabla-datos").fadeIn();
         });
