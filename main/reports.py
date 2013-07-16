@@ -1,60 +1,22 @@
-from django.db.models import Count
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.models import *
-from utils.json_utils import JSONEncoderX, json_response
-from utils.sql import get_dictfetchall_sql
-from datetime import date
-from django.utils import simplejson
+from main.reports_helper import get_familias_por_centro, get_personas_por_centro, get_fichas_activas_por_centro
+from utils.json_utils import json_response
 
 
+@login_required
 def home(request, anio):
 
+    active = 'cobertura'
+
     # conteo de familias por centro
-    count_familias = Familia.objects.select_related()\
-        .values('centro_familiar__comuna')\
-        .annotate(count=Count('id'))\
-        .order_by('centro_familiar__comuna')
+    count_familias = get_familias_por_centro()
 
     # conteo de personas por centro
-    sql = """
-        select
-          c.id,
-          c.comuna,
-          count(p.id) as count_personas
-        from main_familia f
-          inner join main_centrofamiliar c on f.centro_familiar_id = c.id
-          inner join main_persona p on p.familia_id = f.id
-        where
-          c.comuna <> 'Casa Central'
-        group by
-          c.id,
-          c.comuna
-        order by c.comuna
-        """
-
-    datos = get_dictfetchall_sql(sql)
+    datos = get_personas_por_centro()
 
     # conteo de fichas activas
-    sql = """
-        select
-          c.id as comuna_id,
-          c.comuna,
-          count(p.id) as count_fichas
-        from main_centrofamiliar c
-          inner join main_familia f on f.centro_familiar_id = c.id
-          inner join main_persona p on p.familia_id = f.id
-          inner join main_evaluacionfactoresprotectores e on e.persona_id = p.id
-          inner join (select o.evaluacion_id from main_objetivosevaluacion o group by o.evaluacion_id) as obj on obj.evaluacion_id = e.id
-        where
-          e.anio_aplicacion = %s
-          and e.ciclo_cerrado = false
-          and c.comuna <> 'Casa Central'
-        group by
-          c.id,
-          c.comuna
-        order by c.comuna
-    """
-    fichas_activas = get_dictfetchall_sql(sql, [anio])
+    fichas_activas = get_fichas_activas_por_centro(anio)
 
     # agregar el conteo de familias y fichas activas
     for c1 in datos:
@@ -80,43 +42,15 @@ def home(request, anio):
         total_personas += c['count_personas']
         total_fichas_activas += c['fichas_activas']
 
-    grafico_cobertura = {
-        'chart': {
-            'type': 'bar'
-        },
-        'title': {
-            'text': 'Cobertura'
-        },
-        'xAxis': {
-            'categories': [x['comuna'] for x in datos]
-        },
-        'yAxis': {
-            'title': {
-                'text': 'Cobertura'
-            }
-        },
-        'series': [
-            {
-                'name': 'Total Familias',
-                'data': [x['count_familias'] for x in datos]
-            }
-        ]
-    }
-
-    grafico_cobertura_json = simplejson.dumps(grafico_cobertura, cls=JSONEncoderX)
-
-    return render(request, 'rep_home.html', locals())
+    return render(request, 'reportes/cobertura.html', locals())
 
 
+@login_required
 def cobertura(request, anio, tipo):
     grafico_cobertura = ''
 
     if tipo == 'familias':
-        count_familias = Familia.objects.select_related()\
-            .exclude(centro_familiar__comuna='Casa Central')\
-            .values('centro_familiar__comuna')\
-            .annotate(count=Count('id'))\
-            .order_by('centro_familiar__comuna')
+        count_familias = get_familias_por_centro()
 
         grafico_cobertura = {
             'chart': {
@@ -142,23 +76,8 @@ def cobertura(request, anio, tipo):
         }
 
     elif tipo == 'personas':
-        sql = """
-            select
-              c.id,
-              c.comuna,
-              count(p.id) as count_personas
-            from main_familia f
-              inner join main_centrofamiliar c on f.centro_familiar_id = c.id
-              inner join main_persona p on p.familia_id = f.id
-            where
-              c.comuna <> 'Casa Central'
-            group by
-              c.id,
-              c.comuna
-            order by c.comuna
-            """
 
-        datos = get_dictfetchall_sql(sql)
+        datos = get_personas_por_centro()
 
         grafico_cobertura = {
             'chart': {
@@ -184,46 +103,8 @@ def cobertura(request, anio, tipo):
         }
 
     elif tipo == 'fichas':
-        sql = """
-            SELECT
-              c.id AS comuna_id,
-              c.comuna,
-              CASE WHEN conteo.count_fichas IS null THEN 0
-              ELSE conteo.count_fichas
-              END
-            FROM main_centrofamiliar c
-              LEFT JOIN (
-                          SELECT
-                            c.id        AS comuna_id,
-                            c.comuna,
-                            count(p.id) AS count_fichas
-                          FROM main_centrofamiliar c
-                            INNER JOIN main_familia f
-                              ON f.centro_familiar_id = c.id
-                            INNER JOIN main_persona p
-                              ON p.familia_id = f.id
-                            INNER JOIN main_evaluacionfactoresprotectores e
-                              ON e.persona_id = p.id
-                            INNER JOIN (SELECT
-                                          o.evaluacion_id
-                                        FROM main_objetivosevaluacion o
-                                        GROUP BY o.evaluacion_id) AS obj
-                              ON obj.evaluacion_id = e.id
-                          WHERE
-                            e.anio_aplicacion = %s
-                            AND e.ciclo_cerrado = FALSE
-                            AND c.comuna <> 'Casa Central'
-                          GROUP BY
-                            c.id,
-                            c.comuna
-                          ORDER BY c.comuna
-                        ) AS conteo
-                ON conteo.comuna_id = c.id
-            WHERE c.comuna <> 'Casa Central'
-            ORDER BY c.comuna;
-        """
 
-        fichas_activas = get_dictfetchall_sql(sql, [anio])
+        fichas_activas = get_fichas_activas_por_centro(anio)
 
         grafico_cobertura = {
             'chart': {
@@ -249,3 +130,9 @@ def cobertura(request, anio, tipo):
         }
 
     return json_response(grafico_cobertura)
+
+
+@login_required
+def tipos_familias(request, anio):
+    active = 'tipos_familias'
+    return render(request, "reportes/tipos_familias.html", locals())

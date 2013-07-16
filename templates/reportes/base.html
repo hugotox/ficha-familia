@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/reportes.css"/>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <div class="span3">
+        <ul class="nav nav-list affix menu-reports">
+            <li {% ifequal active "cobertura" %}class="active"{% endifequal %}>
+                <a href="/reportes/{{ anio }}/cobertura/"><i class="icon-chevron-right"></i> Cobertura</a>
+            </li>
+            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>
+                <a href="/reportes/{{ anio }}/tipos_familias/"><i class="icon-chevron-right"></i> Tipos de Familias</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="span9">
+        {% block report_content %}{% endblock %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_footer %}
+<script type="text/javascript" src="/static/highcharts/highcharts.js"></script>
+<script type="text/javascript">
+    var anio = {{ anio }};
+
+    $(document).ready(function(){
+
+        $(".btn-grafico").click(function(){
+            var $section = $(this).closest(".section");
+            $section.find(".tabla-datos").fadeOut(function(){
+                $section.find(".grafico").fadeIn();
+            });
+            return false;
+        });
+
+        $(".btn-tabla").click(function(){
+            var $section = $(this).closest(".section");
+            $section.find(".grafico").fadeOut(function(){
+                $section.find(".tabla-datos").fadeIn();
+            });
+            return false;
+        });
+
+    });
+</script>
+{% endblock %}

@@ -21,5 +21,8 @@ urlpatterns = patterns('',
 
     #reportes
     url(r'^reportes/(?P<anio>\d+)/$', 'main.reports.home', name='home_reports'),
+    url(r'^reportes/(?P<anio>\d+)/cobertura/$', 'main.reports.home', name='home_reports'),
     url(r'^reportes/(?P<anio>\d+)/cobertura/(?P<tipo>\w+)/$', 'main.reports.cobertura', name='cobertura'),
+
+    url(r'^reportes/(?P<anio>\d+)/tipos_familias/$', 'main.reports.tipos_familias', name='tipos_familias'),
 )

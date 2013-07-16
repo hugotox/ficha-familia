@@ -1,3 +1,6 @@
+{% extends "reportes/base.html" %}
+
+{% block report_content %}
 <div id="cobertura" class="section">
     <h3>Cobertura</h3>
 
@@ -26,7 +29,7 @@
         <thead>
             <tr>
                 <th>Centro Familiar</th>
-                <th>Total Familiar</th>
+                <th>Total Familias</th>
                 <th>Total Personas</th>
                 <th>Fichas Activas</th>
             </tr>
@@ -52,7 +55,31 @@
     </table>
 
     <div id="div-grafico-cobertura" class="grafico" style="display: none; height: 400px">
-        graph goes here
+
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_footer %}
+{{ block.super }}
+<script type="text/javascript">
+
+    function create_cobertura_chart(tipo){
+        $.getJSON("/reportes/"+anio+"/cobertura/"+tipo+"/", function(data){
+            data.chart.renderTo = "div-grafico-cobertura";
+            var chart = new Highcharts.Chart(data);
+        });
+    }
+
+    $(document).ready(function(){
+        create_cobertura_chart("familias");
+
+        $("#select_cobertura_tipo").change(function(){
+            create_cobertura_chart($(this).val());
+        });
+    });
+
+</script>
+{% endblock %}
+
