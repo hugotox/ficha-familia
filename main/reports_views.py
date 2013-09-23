@@ -2,10 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from main.reports_helper import get_familias_por_centro, get_personas_por_centro, get_fichas_activas_por_centro
 from utils.json_utils import json_response
+from datetime import datetime
 
 
 @login_required
-def home(request, anio):
+def home(request, anio=None):
+
+    if anio is None:
+        anio = datetime.now().year
 
     active = 'cobertura'
 
@@ -84,7 +88,7 @@ def cobertura(request, anio, tipo):
                 'type': 'bar'
             },
             'title': {
-                'text': 'Cobertura'
+                'text': 'Personas/Fichas Activas'
             },
             'xAxis': {
                 'categories': [x['comuna'] for x in datos]
@@ -134,5 +138,12 @@ def cobertura(request, anio, tipo):
 
 @login_required
 def tipos_familias(request, anio):
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        centro_familiar = user_profile.centro_familiar
     active = 'tipos_familias'
+
+
+
     return render(request, "reportes/tipos_familias.html", locals())

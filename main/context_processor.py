@@ -1,9 +1,8 @@
-from datetime import date
+from models import EstadoFamiliaAnio
 
 
 def custom_context(request):
-    this_year = date.today().year
-    periods = range(2013, this_year + 1)
+    periods = list(EstadoFamiliaAnio.objects.all().values_list("anio", flat=True).distinct("anio").order_by("anio"))
     return {
         'PERIODS': periods
     }

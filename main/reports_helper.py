@@ -61,7 +61,7 @@ def get_fichas_activas_por_centro(anio):
                               ON obj.evaluacion_id = e.id
                           WHERE
                             e.anio_aplicacion = %s
-                            AND e.ciclo_cerrado = FALSE
+                            and (e.ciclo_cerrado is null or e.ciclo_cerrado is false)
                             AND c.comuna <> 'Casa Central'
                           GROUP BY
                             c.id,
@@ -74,3 +74,16 @@ def get_fichas_activas_por_centro(anio):
     """
     fichas_activas = get_dictfetchall_sql(sql, [anio])
     return fichas_activas
+
+
+def get_conteo_familias_por_tipo(anio, centro, solo_activas):
+
+    familias = Familia.objects.all()
+
+    if centro:
+        familias = familias.filter(centro_familiar=centro)
+
+    if solo_activas:
+        familias = Familia.objects.filter(estado__iexact='activo')
+
+    familias = familias.distinct()

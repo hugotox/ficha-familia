@@ -5,5 +5,12 @@ setup_environ(settings)
 from main.models import *
 from django.db import connection, transaction
 
-for familia in Familia.objects.all():
-    print familia.get_estado(True)
+sql = """
+CREATE TABLE "main_estadofamiliaanio" (
+    "id" serial NOT NULL PRIMARY KEY,
+    "familia_id" integer NOT NULL REFERENCES "main_familia" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "anio" integer NOT NULL
+);
+
+CREATE INDEX "main_estadofamiliaanio_familia_id" ON "main_estadofamiliaanio" ("familia_id");
+"""

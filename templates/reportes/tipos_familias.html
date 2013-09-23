@@ -4,6 +4,73 @@
 <div id="tipos_familias" class="section">
     <h3>Tipos de Familias</h3>
 
+    <form class="form-inline">
+        <div class="btn-group pull-left" data-toggle="buttons-radio">
+            <a class="btn btn-small btn-tabla" title="Ver tabla">
+                <i class="icon icon-list-alt"></i>
+            </a>
+            <a class="btn btn-small btn-grafico" title="Ver gráfico">
+                <i class="icon icon-picture"></i>
+            </a>
+            <label for="chk_fichas_activas" class="checkbox">
+                <input type="checkbox" id="chk_fichas_activas"/>
+                Sólo fichas activas
+            </label>
+        </div>
+    </form>
+
+    <div style="clear: both"></div>
+    <br>
+
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th>Centro Familiar</th>
+                <th>Monoparental Madre</th>
+                <th>Monoparental Padre</th>
+                <th>Monoparental Abuelo/a</th>
+                <th>Monoparental Otro Adulto Responsable</th>
+                <th>Nuclear Simple (sin hijos)</th>
+                <th>Nuclear Biparental (con hijos)</th>
+                <th>Extendida</th>
+                <th>Otras</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for foo in datos %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div id="div-grafico-tipos-familias" class="grafico" style="display: none; height: 400px"></div>
+
 </div>
 {% endblock %}
 

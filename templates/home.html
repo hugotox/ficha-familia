@@ -79,6 +79,16 @@
                             <option value="{{ e.0 }}" {% ifequal estado e.0 %}selected="selected"{% endifequal %}>{{ e.1 }}</option>
                         {% endfor %}
                     </select>
+                    <select name="anio" style="width: auto">
+                    {% for period in PERIODS %}
+                        <option value="{{ period }}"
+                                {% ifequal anio period %}
+                                    selected="selected"
+                                {% endifequal %}>
+                            {{ period }}
+                        </option>
+                    {% endfor %}
+                    </select>
                 </td>
                 <td></td>
             </tr>
@@ -104,7 +114,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ familia.get_estado }}
+                        {% get_estado_familia familia anio %}
                     </td>
                     <td style="text-align: center">
                         <a class="btn btn-mini" title="Eliminar" href="/familia/{{ familia.id }}/del/?{{ current_querystring }}">
@@ -155,7 +165,7 @@
                 window.location.href = url;
             });
 
-            $("table.tabla-filtrable select").change(function(){
+            $("#form_search select").change(function(){
                 $form_search.submit();
             });
 

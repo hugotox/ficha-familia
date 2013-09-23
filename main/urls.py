@@ -20,9 +20,10 @@ urlpatterns = patterns('',
     url(r'^accounts/changepasswd/done/$', 'django.contrib.auth.views.password_change_done', {'template_name': 'changepasswd_done.html'}, name='changepasswd_done'),
 
     #reportes
-    url(r'^reportes/(?P<anio>\d+)/$', 'main.reports.home', name='home_reports'),
-    url(r'^reportes/(?P<anio>\d+)/cobertura/$', 'main.reports.home', name='home_reports'),
-    url(r'^reportes/(?P<anio>\d+)/cobertura/(?P<tipo>\w+)/$', 'main.reports.cobertura', name='cobertura'),
+    url(r'^reportes/$', 'main.reports_views.home', name='home_reports'),
+    url(r'^reportes/(?P<anio>\d+)/$', 'main.reports_views.home', name='home_reports'),
+    url(r'^reportes/(?P<anio>\d+)/cobertura/$', 'main.reports_views.home', name='home_reports'),
+    url(r'^reportes/(?P<anio>\d+)/cobertura/(?P<tipo>\w+)/$', 'main.reports_views.cobertura', name='cobertura'),
 
-    url(r'^reportes/(?P<anio>\d+)/tipos_familias/$', 'main.reports.tipos_familias', name='tipos_familias'),
+    url(r'^reportes/(?P<anio>\d+)/tipos_familias/$', 'main.reports_views.tipos_familias', name='tipos_familias'),
 )

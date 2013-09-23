@@ -151,6 +151,7 @@ class Familia(models.Model):
 
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
 
+    # deprecado NO USAR!!! Ahora el estado se almacena en la tabla estadofamiliaanio
     estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
 
     date_created = models.DateTimeField(default=datetime.now())
@@ -159,16 +160,17 @@ class Familia(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
-    def actualizar_estado(self):
-        self.get_estado(True)
+    def actualizar_estado(self, anio=None):
+        self.get_estado(True, anio)
 
-    def get_estado(self, save_to_db=False):
+    def get_estado(self, save_to_db=False, anio=None):
         """
         Estado es activo cuando: existe al menos una persona con ficha y esta tiene al menos un objetivo.
         Estado es cerrado cuando todas las fichas abiertas de una familia estan cerradas
         """
         estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
-        anio = datetime.now().year
+        if anio is None:
+            anio = datetime.now().year
         personas_con_objs_count = 0
         personas_activas_count = 0
         fichas_cerradas_count = 0
@@ -188,9 +190,11 @@ class Familia(models.Model):
             if personas_con_objs_count == fichas_cerradas_count:
                 estado = ESTADO_FAMILIA_CHOICES[2][0]  # cerrada
 
-        self.estado = estado
+        #self.estado = estado
         if save_to_db:
-            self.save()
+            estado_obj, created = self.estadofamiliaanio_set.get_or_create(anio=anio)
+            estado_obj.estado = estado
+            estado_obj.save()
 
         return "%s (%s/%s)" % (estado, personas_activas_count, personas_qs.count())
 
@@ -236,7 +240,7 @@ class Persona(models.Model):
         else:
             return None
 
-    def get_color_btn_ficha(self):
+    def get_color_btn_ficha(self, anio=None):
         """
         Establece el color del boton "Ficha" en la tabla de personas (ficha familiar)
         Gris: normal
@@ -245,7 +249,8 @@ class Persona(models.Model):
         """
         clase = 'btn-inactivo'
 
-        anio = datetime.now().year
+        if anio is None:
+            anio = datetime.now().year
 
         for evaluacion in self.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
             if evaluacion.ciclo_cerrado:
@@ -650,7 +655,7 @@ class EvaluacionFactoresProtectores(models.Model):
         if valid:
             self.ciclo_cerrado = True
             self.save()
-            self.persona.familia.actualizar_estado()
+            self.persona.familia.actualizar_estado(self.anio_aplicacion)
             error_msg = ""
 
         return error_msg
@@ -691,3 +696,12 @@ class EvaluacionForm(forms.ModelForm):
             'modulos_acciones_cultura_salud': forms.Textarea(attrs={'rows': 3}),
             'evaluacion_cualitativa': forms.Textarea(attrs={'rows': 3, 'class': 'input-xxlarge'}),
         }
+
+
+class EstadoFamiliaAnio(models.Model):
+    familia = models.ForeignKey(Familia)
+    anio = models.IntegerField()
+    estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
+
+    class Meta:
+        unique_together = (("familia", "anio"),)

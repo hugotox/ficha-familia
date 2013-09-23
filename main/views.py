@@ -28,11 +28,10 @@ def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params)
 def home(request):
 
     es_admin = request.user.is_superuser
-    familias = Familia.objects.select_related('persona')
+    familias = Familia.objects.select_related('persona', 'estadofamiliaanio')
     centros = CentroFamiliar.objects.all().order_by('comuna')
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
-
     user_profile = request.user.get_profile()
 
     # --- Filtros ---
@@ -41,6 +40,7 @@ def home(request):
     apellidos = request.GET.get('apellidos', '')
     tipo = request.GET.get('tipo', '')
     estado = request.GET.get('estado', '')
+    anio = int(request.GET.get('anio', datetime.now().year))
 
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
@@ -69,7 +69,8 @@ def home(request):
         familias = familias.filter(tipo_de_familia=tipo)
 
     if estado != '':
-        familias = familias.filter(estado__iexact=estado)
+        # familias = familias.filter(estado__iexact=estado)
+        familias = familias.filter(estadofamiliaanio__anio=anio, estadofamiliaanio__estado__iexact=estado)
 
     familias = familias.distinct()
 
@@ -128,7 +129,7 @@ def home(request):
     link_col_tipo = get_sort_link('tipo_de_familia', order_by, order_dir, page, page_size, filtros_params)
     link_col_estado = get_sort_link('estado', order_by, order_dir, page, page_size, filtros_params)
 
-    current_querystring = "order_by=%s&order_dir=%s&page=%s&psize=%s&%s" % (order_by, order_dir, page, page_size, filtros_params)
+    current_querystring = "order_by=%s&order_dir=%s&page=%s&psize=%s&%s&anio=%s" % (order_by, order_dir, page, page_size, filtros_params, anio)
 
     return render(request, 'home.html', locals())
 
@@ -141,6 +142,7 @@ def familia(request, id):
     user_profile = request.user.get_profile()
     es_admin = request.user.is_superuser
     centro_familiar = None
+    current_year = datetime.now().year
 
     if not es_admin:
         centro = str(user_profile.centro_familiar.id)
@@ -170,7 +172,7 @@ def familia(request, id):
 
         if familia_form.is_valid():
             familia_form.save()
-            familia_form.instance.actualizar_estado()
+            # familia_form.instance.actualizar_estado()
             message = DATOS_GUARDADOS
             message_class = 'success'
 
@@ -448,7 +450,11 @@ def ficha(request, id, anio):
                     i += 1
 
                 # actualizar el estado de la familia
-                persona.familia.actualizar_estado()
+                if str(anio) == '0':
+                    form_anio = int(form.cleaned_data['anio_aplicacion'])
+                else:
+                    form_anio = int(anio)
+                persona.familia.actualizar_estado(form_anio)
 
                 if evaluacion is None:
                     return HttpResponseRedirect("/ficha/%s/%s/?%s" % (persona.id, form.instance.anio_aplicacion, str_filters))
@@ -581,7 +587,7 @@ def eliminar_ficha(request, id, anio):
 
     if request.method == 'POST':
         id = request.POST['id']
-        evaluacion.persona.familia.actualizar_estado()
+        evaluacion.persona.familia.actualizar_estado(anio)
         evaluacion.delete()
         return HttpResponseRedirect("/familia/%s/?%s" % (persona.familia.id, "&".join(filters)))
 
