@@ -112,6 +112,9 @@ PARENTESCO_CHOICES = (
 class CentroFamiliar(models.Model):
     comuna = models.CharField(max_length=250)
 
+    class Meta:
+        ordering = ['comuna']
+
     def __unicode__(self):
         return self.comuna
 

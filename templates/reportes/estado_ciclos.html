@@ -1,8 +1,8 @@
 {% extends "reportes/base.html" %}
 
 {% block report_content %}
-<div id="cobertura" class="section">
-    <h3>Cobertura</h3>
+<div id="estado_ciclos" class="section">
+    <h3>Estado de Ciclos</h3>
 
     <form class="form-inline">
         <div class="btn-group pull-left" data-toggle="buttons-radio">
@@ -13,13 +13,6 @@
                 <i class="icon icon-picture"></i>
             </a>
         </div>
-        <div class="grafico pull-left" style="display: none; width: auto; margin-left: 20px">
-            <select id="select_cobertura_tipo">
-                <option value="familias">Total Familias</option>
-                <option value="personas">Total Personas</option>
-                <option value="fichas">Total Fichas Activas</option>
-            </select>
-        </div>
     </form>
 
     <div style="clear: both"></div>
@@ -29,32 +22,29 @@
         <thead>
             <tr>
                 <th>Centro Familiar</th>
-                <th>Total Familias</th>
-                <th>Total Personas</th>
                 <th>Fichas Activas</th>
+                <th>Fichas Cerradas</th>
             </tr>
         </thead>
         <tbody>
             {% for centro in datos %}
                 <tr>
                     <td>{{ centro.comuna }}</td>
-                    <td>{{ centro.count_familias }}</td>
-                    <td>{{ centro.count_personas }}</td>
                     <td>{{ centro.fichas_activas }}</td>
+                    <td>{{ centro.fichas_cerradas }}</td>
                 </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
                 <th>Totales</th>
-                <th>{{ total_familias }}</th>
-                <th>{{ total_personas }}</th>
                 <th>{{ total_fichas_activas }}</th>
+                <th>{{ total_fichas_cerradas }}</th>
             </tr>
         </tfoot>
     </table>
 
-    <div id="div-grafico-cobertura" class="grafico" style="display: none; height: 400px"></div>
+    <div id="div-grafico-estado-ciclos" class="grafico" style="display: none; height: 400px"></div>
 
 </div>
 {% endblock %}
@@ -63,21 +53,9 @@
 {{ block.super }}
 <script type="text/javascript">
 
-    function create_cobertura_chart(tipo){
-        $.getJSON("/reportes/"+anio+"/cobertura/"+tipo+"/", function(data){
-            data.chart.renderTo = "div-grafico-cobertura";
-            var chart = new Highcharts.Chart(data);
-        });
-    }
-
     $(document).ready(function(){
-        create_cobertura_chart("familias");
-
-        $("#select_cobertura_tipo").change(function(){
-            create_cobertura_chart($(this).val());
-        });
+        var chart = new Highcharts.Chart({{ grafico|safe }});
     });
 
 </script>
 {% endblock %}
-

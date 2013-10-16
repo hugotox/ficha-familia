@@ -22,8 +22,8 @@ urlpatterns = patterns('',
     #reportes
     url(r'^reportes/$', 'main.reports_views.home', name='home_reports'),
     url(r'^reportes/(?P<anio>\d+)/$', 'main.reports_views.home', name='home_reports'),
-    url(r'^reportes/(?P<anio>\d+)/cobertura/$', 'main.reports_views.home', name='home_reports'),
-    url(r'^reportes/(?P<anio>\d+)/cobertura/(?P<tipo>\w+)/$', 'main.reports_views.cobertura', name='cobertura'),
-
+    url(r'^reportes/(?P<anio>\d+)/cantidad_fichas/$', 'main.reports_views.home', name='home_reports'),
+    url(r'^reportes/(?P<anio>\d+)/cantidad_fichas/(?P<tipo>\w+)/$', 'main.reports_views.cantidad_fichas', name='cantidad_fichas'),
     url(r'^reportes/(?P<anio>\d+)/tipos_familias/$', 'main.reports_views.tipos_familias', name='tipos_familias'),
+    url(r'^reportes/(?P<anio>\d+)/estado_ciclos/$', 'main.reports_views.estado_ciclos', name='estado_ciclos'),
 )

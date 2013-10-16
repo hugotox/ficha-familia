@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.reports_helper import get_familias_por_centro, get_personas_por_centro, get_fichas_activas_por_centro
+from django.utils import simplejson
+from main.models import CentroFamiliar
+from main.reports_helper import *
 from utils.json_utils import json_response
 from datetime import datetime
 
@@ -11,7 +13,7 @@ def home(request, anio=None):
     if anio is None:
         anio = datetime.now().year
 
-    active = 'cobertura'
+    active = 'cantidad_fichas'
 
     # conteo de familias por centro
     count_familias = get_familias_por_centro()
@@ -20,7 +22,7 @@ def home(request, anio=None):
     datos = get_personas_por_centro()
 
     # conteo de fichas activas
-    fichas_activas = get_fichas_activas_por_centro(anio)
+    fichas_activas = get_conteo_fichas_por_centro(anio)
 
     # agregar el conteo de familias y fichas activas
     for c1 in datos:
@@ -46,11 +48,11 @@ def home(request, anio=None):
         total_personas += c['count_personas']
         total_fichas_activas += c['fichas_activas']
 
-    return render(request, 'reportes/cobertura.html', locals())
+    return render(request, 'reportes/cantidad_fichas.html', locals())
 
 
 @login_required
-def cobertura(request, anio, tipo):
+def cantidad_fichas(request, anio, tipo):
     grafico_cobertura = ''
 
     if tipo == 'familias':
@@ -108,7 +110,7 @@ def cobertura(request, anio, tipo):
 
     elif tipo == 'fichas':
 
-        fichas_activas = get_fichas_activas_por_centro(anio)
+        fichas_activas = get_conteo_fichas_por_centro(anio)
 
         grafico_cobertura = {
             'chart': {
@@ -138,12 +140,65 @@ def cobertura(request, anio, tipo):
 
 @login_required
 def tipos_familias(request, anio):
+    active = 'tipos_familias'
     user_profile = request.user.get_profile()
     es_admin = request.user.is_superuser
-    if not es_admin:
-        centro_familiar = user_profile.centro_familiar
-    active = 'tipos_familias'
-
-
-
+    mi_centro = user_profile.centro_familiar
+    centros = CentroFamiliar.objects.exclude(comuna="Casa Central")
+    datos = get_conteo_familias_por_tipo(anio, mi_centro.comuna, True)
     return render(request, "reportes/tipos_familias.html", locals())
+
+
+@login_required
+def estado_ciclos(request, anio):
+    active = 'estado_ciclos'
+    datos = []
+    fichas_cerradas = get_conteo_fichas_por_centro(anio, 'cerradas')
+    fichas_activas = get_conteo_fichas_por_centro(anio)
+    total_fichas_activas = 0
+    total_fichas_cerradas = 0
+    for fila_act in fichas_activas:
+        for fila_cerr in fichas_cerradas:
+            if fila_act['comuna_id'] == fila_cerr['comuna_id']:
+                acum = {
+                    'comuna_id': fila_act['comuna_id'],
+                    'comuna': fila_act['comuna'],
+                    'fichas_activas': fila_act['count_fichas'],
+                    'fichas_cerradas': fila_cerr['count_fichas']
+                }
+                datos.append(acum)
+                total_fichas_activas += fila_act['count_fichas']
+                total_fichas_cerradas += fila_cerr['count_fichas']
+                break
+
+    grafico = {
+        'chart': {
+            'type': 'bar',
+            'renderTo': 'div-grafico-estado-ciclos'
+        },
+        'title': {
+            'text': 'Estado de Ciclos'
+        },
+        'xAxis': {
+            'categories': [x['comuna'] for x in datos]
+        },
+        'yAxis': {
+            'title': {
+                'text': 'Cantidad de Fichas'
+            }
+        },
+        'series': [
+            {
+                'name': 'Fichas Activas',
+                'data': [x['fichas_activas'] for x in datos]
+            },
+            {
+                'name': 'Fichas Cerradas',
+                'data': [x['fichas_cerradas'] for x in datos]
+            }
+        ]
+    }
+
+    grafico = simplejson.dumps(grafico)
+
+    return render(request, 'reportes/estado_ciclos.html', locals())

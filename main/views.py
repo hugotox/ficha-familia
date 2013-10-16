@@ -33,6 +33,7 @@ def home(request):
     tipos = TIPOS_FAMILIA_CHOICES
     estados = ESTADO_FAMILIA_CHOICES
     user_profile = request.user.get_profile()
+    tipo_registro = 'Familias'
 
     # --- Filtros ---
     num_ficha = request.GET.get('num_ficha', '')

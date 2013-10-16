@@ -63,4 +63,4 @@ Ver <select id="psize_select" style="width: auto">
         <option value="100" {% ifequal page_size 100 %}selected="selected"{% endifequal %}>100</option>
     </select> familias por página
 <br>
-Total registros: {{ obj_list.paginator.count }}
+Total {{ tipo_registro }}: {{ obj_list.paginator.count }}
