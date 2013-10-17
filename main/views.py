@@ -70,8 +70,13 @@ def home(request):
         familias = familias.filter(tipo_de_familia=tipo)
 
     if estado != '':
-        # familias = familias.filter(estado__iexact=estado)
-        familias = familias.filter(estadofamiliaanio__anio=anio, estadofamiliaanio__estado__iexact=estado)
+
+        if estado == 'Inactivo':
+            familias = familias.filter(estadofamiliaanio__anio=anio, estadofamiliaanio__inactivo=True)
+        elif estado == 'Activo':
+            familias = familias.filter(estadofamiliaanio__anio=anio, estadofamiliaanio__activo=True)
+        elif estado == 'Completo':
+            familias = familias.filter(estadofamiliaanio__anio=anio, estadofamiliaanio__completo=True)
 
     familias = familias.distinct()
 

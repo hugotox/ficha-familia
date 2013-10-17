@@ -168,38 +168,42 @@ class Familia(models.Model):
 
     def get_estado(self, save_to_db=False, anio=None):
         """
-        Estado es activo cuando: existe al menos una persona con ficha y esta tiene al menos un objetivo.
-        Estado es cerrado cuando todas las fichas abiertas de una familia estan cerradas
+        Estado es activo cuando existe al menos una persona con ficha y esta tiene al menos un objetivo.
+        Estado es cerrado cuando existe al menos una ficha cerrada
+        Estado es inactivo cuando existe al menos una persona inactiva
         """
-        estado = ESTADO_FAMILIA_CHOICES[0][0]  # Inactivo
         if anio is None:
             anio = datetime.now().year
-        personas_con_objs_count = 0
-        personas_activas_count = 0
-        fichas_cerradas_count = 0
         personas_qs = self.persona_set.all()
 
+        inactivo = False
+        activo = False
+        cerrado = False
+
         for persona in personas_qs:
-            for evaluacion in persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio):
-                if evaluacion.objetivosevaluacion_set.count() > 0:
-                    estado = ESTADO_FAMILIA_CHOICES[1][0]
-                    personas_con_objs_count += 1
-                    personas_activas_count += 1
-                    if evaluacion.ciclo_cerrado:
-                        fichas_cerradas_count += 1
-                        personas_activas_count -= 1
 
-        if personas_con_objs_count > 0:
-            if personas_con_objs_count == fichas_cerradas_count:
-                estado = ESTADO_FAMILIA_CHOICES[2][0]  # cerrada
+            evaluacion_qs = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio)
 
-        #self.estado = estado
+            if evaluacion_qs.count() == 0:
+                inactivo = True
+            else:
+                for evaluacion in evaluacion_qs:
+                    if evaluacion.objetivosevaluacion_set.count() == 0:
+                        inactivo = True
+                    else:
+                        if evaluacion.ciclo_cerrado:
+                            cerrado = True
+                        else:
+                            activo = True
+
         if save_to_db:
             estado_obj, created = self.estadofamiliaanio_set.get_or_create(anio=anio)
-            estado_obj.estado = estado
+            estado_obj.inactivo = inactivo
+            estado_obj.activo = activo
+            estado_obj.completo = cerrado
             estado_obj.save()
 
-        return "%s (%s/%s)" % (estado, personas_activas_count, personas_qs.count())
+        return ""
 
 
 class Persona(models.Model):
@@ -704,7 +708,9 @@ class EvaluacionForm(forms.ModelForm):
 class EstadoFamiliaAnio(models.Model):
     familia = models.ForeignKey(Familia)
     anio = models.IntegerField()
-    estado = models.CharField(max_length=250, null=True, blank=True, choices=ESTADO_FAMILIA_CHOICES, default=ESTADO_FAMILIA_CHOICES[0][0])
+    inactivo = models.BooleanField(default=True)
+    activo = models.BooleanField(default=False)
+    completo = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (("familia", "anio"),)

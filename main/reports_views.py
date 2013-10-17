@@ -202,3 +202,8 @@ def estado_ciclos(request, anio):
     grafico = simplejson.dumps(grafico)
 
     return render(request, 'reportes/estado_ciclos.html', locals())
+
+
+def estado_datos(request, anio):
+    active = 'estado_datos'
+    return render(request, 'reportes/estado_datos.html', locals())
