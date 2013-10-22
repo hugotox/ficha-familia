@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django import forms
+from django.db.models import Sum
 from django.forms.widgets import DateInput
 from datetime import datetime
 import settings
@@ -126,32 +127,8 @@ class CentroFamiliar(models.Model):
     def get_porcentaje_completo_p2(self, anio):
         familias = self.familia_set.all()
         cant_familias = familias.count()
-        suma = 0.0
-        # for fam in familias:
-        #     for estado in fam.estadofamiliaanio_set.filter(anio=anio):
-        #         if estado.porcentaje_datos_parte2:
-        #             suma += estado.porcentaje_datos_parte2
-        sql = '''
-            select
-              COM.id,
-              COM.comuna,
-              sum(EF.porcentaje_datos_parte2) as suma
-              from
-                main_centrofamiliar COM
-              inner join main_familia F on F.centro_familiar_id = COM.id
-              inner join main_estadofamiliaanio EF on EF.familia_id = F.id
-              where
-                EF.anio = %s
-                and COM.id = %s
-              group by
-                COM.id,
-                COM.comuna
-        '''
-        datos = get_dictfetchall_sql(sql, [anio, self.id])
-        if len(datos):
-            dato = datos[0]
-            suma = dato['suma']
-
+        datos = familias.select_related('estadofamiliaanio').aggregate(Sum("estadofamiliaanio__porcentaje_datos_parte2"))
+        suma = datos['estadofamiliaanio__porcentaje_datos_parte2__sum']
         return suma / cant_familias
 
     def get_porcentaje_completo_p3(self):
