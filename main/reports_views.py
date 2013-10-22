@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from django.shortcuts import render
 from django.utils import simplejson
 from main.models import CentroFamiliar
@@ -204,6 +205,13 @@ def estado_ciclos(request, anio):
     return render(request, 'reportes/estado_ciclos.html', locals())
 
 
+@login_required
 def estado_datos(request, anio):
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
     active = 'estado_datos'
+    centros = CentroFamiliar.objects.exclude(comuna='Casa Central')
     return render(request, 'reportes/estado_datos.html', locals())
+

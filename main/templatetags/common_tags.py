@@ -26,6 +26,12 @@ def get_estado_familia(familia, anio):
     else:
         return ""
 
+
 @register.simple_tag
 def get_color_btn_ficha(persona, anio):
     return persona.get_color_btn_ficha(anio)
+
+
+@register.simple_tag
+def get_porcentaje_completo_p2(centro, anio):
+    return round(centro.get_porcentaje_completo_p2(anio), 2)

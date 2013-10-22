@@ -1,10 +1,8 @@
 # -*- encoding: UTF-8 -*-
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 from django.db import models
 from django import forms
 from django.forms.widgets import DateInput
-from main.fields import JsonField
 from datetime import datetime
 import settings
 from utils.widgets import RutInput, HorizontalRadio
@@ -55,7 +53,7 @@ TIPOS_FAMILIA_CHOICES = (
     (8, 'Otras'),
 )
 
-SEXO_CHOICES = (('Masculino', 'Masculino'), ('Femenino', 'Femenino'))
+SEXO_CHOICES = (('M', 'Masculino'), ('F', 'Femenino'))
 
 ESTADO_CIVIL_CHOICES = (
     (1, 'Soltero (a)'),
@@ -118,6 +116,25 @@ class CentroFamiliar(models.Model):
     def __unicode__(self):
         return self.comuna
 
+    def get_porcentaje_completo(self):
+        familias = self.familia_set.all()
+        cant_familias = familias.count()
+        suma = sum([x.porcentaje_datos_parte1 for x in familias])
+        return suma / cant_familias
+
+    def get_porcentaje_completo_p2(self, anio):
+        familias = self.familia_set.all()
+        cant_familias = familias.count()
+        suma = 0.0
+        for fam in familias:
+            for estado in fam.estadofamiliaanio_set.filter(anio=anio):
+                if estado.porcentaje_datos_parte2:
+                    suma += estado.porcentaje_datos_parte2
+        return suma / cant_familias
+
+    def get_porcentaje_completo_p3(self):
+        return 0.0
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
@@ -160,6 +177,8 @@ class Familia(models.Model):
     date_created = models.DateTimeField(default=datetime.now())
     date_modified = models.DateTimeField(auto_now=True)
 
+    porcentaje_datos_parte1 = models.FloatField(null=True, blank=True)
+
     def __unicode__(self):
         return u'%s %s' % (self.apellido_paterno, self.apellido_materno)
 
@@ -176,34 +195,181 @@ class Familia(models.Model):
             anio = datetime.now().year
         personas_qs = self.persona_set.all()
 
-        inactivo = False
-        activo = False
-        cerrado = False
+        inactivo = 0
+        activo = 0
+        cerrado = 0
 
         for persona in personas_qs:
 
             evaluacion_qs = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio)
 
             if evaluacion_qs.count() == 0:
-                inactivo = True
+                inactivo += 1
             else:
                 for evaluacion in evaluacion_qs:
                     if evaluacion.objetivosevaluacion_set.count() == 0:
-                        inactivo = True
+                        inactivo += 1
                     else:
                         if evaluacion.ciclo_cerrado:
-                            cerrado = True
+                            cerrado += 1
                         else:
-                            activo = True
+                            activo += 1
 
         if save_to_db:
             estado_obj, created = self.estadofamiliaanio_set.get_or_create(anio=anio)
-            estado_obj.inactivo = inactivo
-            estado_obj.activo = activo
-            estado_obj.completo = cerrado
+            estado_obj.inactivo = inactivo != 0
+            estado_obj.activo = activo != 0
+            estado_obj.completo = cerrado != 0
+            if estado_obj.porcentaje_datos_parte2 is None:
+                estado_obj.porcentaje_datos_parte2 = self.get_porcentaje_completo_p2(anio)
             estado_obj.save()
 
-        return ""
+        return "A: %s, I: %s, C: %s" % (activo, inactivo, cerrado)
+
+    def get_porcentaje_completo(self):
+        personas_qs = self.persona_set.all()
+        suma = 0
+        total_posible = 15 + 14 * personas_qs.count()
+        if self.apellido_paterno is not None and self.apellido_paterno != '':
+            suma += 1
+        if self.apellido_materno is not None and self.apellido_materno != '':
+            suma += 1
+        if self.numero_integrantes is not None:
+            suma += 1
+        if self.direccion is not None and self.direccion != '':
+            suma += 1
+        if self.centro_familiar is not None and self.centro_familiar != '':
+            suma += 1
+        if self.ingreso_total_familiar is not None:
+            suma += 1
+        if self.tipo_de_familia is not None and self.tipo_de_familia != '':
+            suma += 1
+        if self.cond_precariedad is not None:
+            suma += 1
+        if self.cond_vulnerabilidad is not None:
+            suma += 1
+        if self.cond_hogar_uni_riesgo is not None:
+            suma += 1
+        if self.cond_familia_mono_riesgo is not None:
+            suma += 1
+        if self.cond_alcohol_drogas is not None:
+            suma += 1
+        if self.cond_discapacidad is not None:
+            suma += 1
+        if self.cond_malos_tratos is not None:
+            suma += 1
+        if self.cond_socializ_delictual is not None:
+            suma += 1
+
+        for per in personas_qs:
+            if per.nombres is not None and per.nombres != '':
+                suma += 1
+            if per.apellido_paterno is not None and per.apellido_paterno != '':
+                suma += 1
+            if per.apellido_materno is not None and per.apellido_materno != '':
+                suma += 1
+            if per.rut is not None and per.rut != '':
+                suma += 1
+            if per.fecha_nacimiento is not None and per.fecha_nacimiento != settings.NULL_DATE:
+                suma += 1
+            if per.sexo is not None and per.sexo != '':
+                suma += 1
+            if per.telefono is not None and per.telefono != '':
+                suma += 1
+            if per.fecha_ingreso is not None and per.fecha_ingreso != settings.NULL_DATE:
+                suma += 1
+            if per.estado_civil is not None and per.estado_civil != '':
+                suma += 1
+            if per.nivel_escolaridad is not None and per.nivel_escolaridad != '':
+                suma += 1
+            if per.ocupacion is not None and per.ocupacion != "":
+                suma += 1
+            if per.prevision_salud is not None and per.prevision_salud != '':
+                suma += 1
+            if per.aporta_ingreso is not None:
+                suma += 1
+            if per.parentesco is not None and per.parentesco != '':
+                suma += 1
+
+        return 100.0 * suma / total_posible
+
+    def get_porcentaje_completo_p2(self, anio):
+        total_posible = 30
+        suma = 0
+        personas_qs = self.persona_set.all()
+        for persona in personas_qs:
+            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio, ciclo_cerrado=False)
+            if evals.count() > 0:
+                ev = evals[0]
+                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa
+
+                    if ev.presencia_red_de_apoyo is not None:
+                        suma += 1
+                    if ev.presencia_red_de_apoyo2 is not None:
+                        suma += 1
+                    if ev.relaciones_con_vecindario is not None:
+                        suma += 1
+                    if ev.relaciones_con_vecindario2 is not None:
+                        suma += 1
+                    if ev.participacion_social is not None:
+                        suma += 1
+                    if ev.participacion_social2 is not None:
+                        suma += 1
+                    if ev.red_de_servicios_y_beneficios_sociales is not None:
+                        suma += 1
+                    if ev.red_de_servicios_y_beneficios_sociales2 is not None:
+                        suma += 1
+                    if ev.ocio_y_encuentro_con_pares is not None:
+                        suma += 1
+                    if ev.ocio_y_encuentro_con_pares2 is not None:
+                        suma += 1
+                    if ev.espacios_formativos_y_de_desarrollo is not None:
+                        suma += 1
+                    if ev.espacios_formativos_y_de_desarrollo2 is not None:
+                        suma += 1
+                    if ev.relaciones_y_cohesion_familiar is not None:
+                        suma += 1
+                    if ev.relaciones_y_cohesion_familiar2 is not None:
+                        suma += 1
+                    if ev.adaptabilidad_y_resistencia_familiar is not None:
+                        suma += 1
+                    if ev.adaptabilidad_y_resistencia_familiar2 is not None:
+                        suma += 1
+                    if ev.competencias_parentales is not None:
+                        suma += 1
+                    if ev.competencias_parentales2 is not None:
+                        suma += 1
+                    if ev.proteccion_y_salud_integral is not None:
+                        suma += 1
+                    if ev.proteccion_y_salud_integral2 is not None:
+                        suma += 1
+                    if ev.participacion_protagonica is not None:
+                        suma += 1
+                    if ev.participacion_protagonica2 is not None:
+                        suma += 1
+                    if ev.recreacion_y_juego_con_pares is not None:
+                        suma += 1
+                    if ev.recreacion_y_juego_con_pares2 is not None:
+                        suma += 1
+                    if ev.crecimiento_personal is not None:
+                        suma += 1
+                    if ev.crecimiento_personal2 is not None:
+                        suma += 1
+                    if ev.autonomia is not None:
+                        suma += 1
+                    if ev.autonomia2 is not None:
+                        suma += 1
+                    if ev.habilidades_y_valores_sociales is not None:
+                        suma += 1
+                    if ev.habilidades_y_valores_sociales2 is not None:
+                        suma += 1
+
+        return 100.0 * suma / total_posible
+
+    def save(self, *args, **kwargs):
+        if self.porcentaje_datos_parte1 is None:
+            self.porcentaje_datos_parte1 = self.get_porcentaje_completo()
+        super(Familia, self).save(*args, **kwargs)
 
 
 class Persona(models.Model):
@@ -241,7 +407,7 @@ class Persona(models.Model):
     def get_fecha_nacimiento(self):
         if self.fecha_nacimiento is not None:
             if self.fecha_nacimiento != settings.NULL_DATE:
-                return self.fecha_nacimiento.strftime("%d/%m/%Y")
+                return str(self.fecha_nacimiento)
             else:
                 return None
         else:
@@ -284,6 +450,10 @@ class Persona(models.Model):
             if evaluacion.ciclo_cerrado:
                 estado = ESTADO_FAMILIA_CHOICES[2][0]
         return estado
+
+    def save(self, *args, **kwargs):
+        self.familia.porcentaje_datos_parte1 = self.familia.get_porcentaje_completo()
+        super(Persona, self).save(*args, **kwargs)
 
 
 class PersonaForm(forms.ModelForm):
@@ -673,6 +843,11 @@ class EvaluacionFactoresProtectores(models.Model):
     def get_objetivos_grup(self):
         return self.objetivosevaluacion_set.filter(tipo=2)
 
+    def save(self, *args, **kwargs):
+        for estado in self.persona.familia.estadofamiliaanio_set.all():
+            estado.porcentaje_datos_parte2 = self.persona.familia.get_porcentaje_completo_p2(estado.anio)
+            estado.save()
+
     class Meta:
         ordering = ['anio_aplicacion']
 
@@ -711,6 +886,8 @@ class EstadoFamiliaAnio(models.Model):
     inactivo = models.BooleanField(default=True)
     activo = models.BooleanField(default=False)
     completo = models.BooleanField(default=False)
+    porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)
+    porcentaje_datos_parte3 = models.FloatField(null=True, blank=True)
 
     class Meta:
         unique_together = (("familia", "anio"),)

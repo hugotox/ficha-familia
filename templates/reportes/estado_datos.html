@@ -1,4 +1,5 @@
 {% extends "reportes/base.html" %}
+{% load common_tags %}
 
 {% block report_content %}
 <div id="compl_datos" class="section">
@@ -10,10 +11,18 @@
                 <th>Centro Familiar</th>
                 <th>Parte I</th>
                 <th>Parte II</th>
-                <th>Parte III</th>
+{#                <th>Parte III</th>#}
             </tr>
         </thead>
         <tbody>
+        {% for centro in centros %}
+            <tr id_centro="{{ centro.id }}" class="tr-datos">
+                <td>{{ centro }}</td>
+                <td>{{ centro.get_porcentaje_completo|floatformat:"2" }}%</td>
+                <td>{% get_porcentaje_completo_p2 centro anio %}%</td>
+{#                <td>{{ centro.get_porcentaje_completo_p3|floatformat:"2" }}%</td>#}
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 
@@ -25,6 +34,8 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+
+
 
     });
 

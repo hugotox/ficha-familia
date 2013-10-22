@@ -158,6 +158,10 @@ DATE_INPUT_FORMATS = (
     '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y',  # '2006-10-25', '10/25/2006', '10/25/06'
 )
 
+DATE_FORMAT = '%d/%m/%Y'
+
+DATETIME_FORMAT = '%d/%m/%Y %H:%M'
+
 AUTH_PROFILE_MODULE = 'main.UserProfile'
 
 STATIC_FILES_VERSION = datetime.now().strftime("%Y%m%d%H%M%S")
