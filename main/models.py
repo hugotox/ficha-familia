@@ -128,7 +128,7 @@ class CentroFamiliar(models.Model):
         familias = self.familia_set.all()
         cant_familias = familias.count()
         datos = familias.select_related('estadofamiliaanio').aggregate(Sum("estadofamiliaanio__porcentaje_datos_parte2"))
-        suma = datos['estadofamiliaanio__porcentaje_datos_parte2__sum']
+        suma = datos['estadofamiliaanio__porcentaje_datos_parte2__sum'] or 0
         return suma / cant_familias
 
     def get_porcentaje_completo_p3(self):
@@ -226,9 +226,17 @@ class Familia(models.Model):
         return "A: %s, I: %s, C: %s" % (activo, inactivo, cerrado)
 
     def get_porcentaje_completo(self):
-        personas_qs = self.persona_set.all()
+        anio = datetime.now().year
+        # obtener solo las personas con ficha activa
+        personas_all = self.persona_set.all()
+        objetivos = ObjetivosEvaluacion.objects.filter(evaluacion__anio_aplicacion=anio,
+                                                       evaluacion__ciclo_cerrado=False,
+                                                       evaluacion__persona__in=personas_all)
+        personas_list = []
+        for obj in objetivos:
+            personas_list.append(obj.evaluacion.persona)
         suma = 0
-        total_posible = 15 + 14 * personas_qs.count()
+        total_posible = 15 + 14 * len(personas_list)
         if self.apellido_paterno is not None and self.apellido_paterno != '':
             suma += 1
         if self.apellido_materno is not None and self.apellido_materno != '':
@@ -260,7 +268,7 @@ class Familia(models.Model):
         if self.cond_socializ_delictual is not None:
             suma += 1
 
-        for per in personas_qs:
+        for per in personas_list:
             if per.nombres is not None and per.nombres != '':
                 suma += 1
             if per.apellido_paterno is not None and per.apellido_paterno != '':
@@ -366,8 +374,7 @@ class Familia(models.Model):
         return 100.0 * suma / total_posible
 
     def save(self, *args, **kwargs):
-        if self.porcentaje_datos_parte1 is None:
-            self.porcentaje_datos_parte1 = self.get_porcentaje_completo()
+        self.porcentaje_datos_parte1 = self.get_porcentaje_completo()
         super(Familia, self).save(*args, **kwargs)
 
 
@@ -451,7 +458,7 @@ class Persona(models.Model):
         return estado
 
     def save(self, *args, **kwargs):
-        self.familia.porcentaje_datos_parte1 = self.familia.get_porcentaje_completo()
+        self.familia.save()
         super(Persona, self).save(*args, **kwargs)
 
 
@@ -846,6 +853,8 @@ class EvaluacionFactoresProtectores(models.Model):
         for estado in self.persona.familia.estadofamiliaanio_set.all():
             estado.porcentaje_datos_parte2 = self.persona.familia.get_porcentaje_completo_p2(estado.anio)
             estado.save()
+        self.persona.save()
+        super(EvaluacionFactoresProtectores, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['anio_aplicacion']
