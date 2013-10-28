@@ -3,7 +3,7 @@
 
 {% block report_content %}
 <div id="compl_datos" class="section">
-    <h3>Estado de Datos</h3>
+    <h3>Estado de Datos <span style="font-size: small; font-weight: normal">(Fichas Activas)</span></h3>
 
     <table class="table table-hover table-condensed table-bordered tabla-datos">
         <thead>
@@ -11,7 +11,7 @@
                 <th>Centro Familiar</th>
                 <th>Parte I</th>
                 <th>Parte II</th>
-{#                <th>Parte III</th>#}
+                <th>Parte III</th>
             </tr>
         </thead>
         <tbody>
@@ -20,7 +20,7 @@
                 <td>{{ centro }}</td>
                 <td>{{ centro.get_porcentaje_completo|floatformat:"2" }}%</td>
                 <td>{% get_porcentaje_completo_p2 centro anio %}%</td>
-{#                <td>{{ centro.get_porcentaje_completo_p3|floatformat:"2" }}%</td>#}
+                <td>{{ centro.get_porcentaje_completo_p3|floatformat:"2" }}%</td>
             </tr>
         {% endfor %}
         </tbody>

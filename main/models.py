@@ -6,7 +6,6 @@ from django.db.models import Sum
 from django.forms.widgets import DateInput
 from datetime import datetime
 import settings
-from utils.sql import get_dictfetchall_sql
 from utils.widgets import RutInput, HorizontalRadio
 
 PRESENTE_CHOICES = (
@@ -132,7 +131,11 @@ class CentroFamiliar(models.Model):
         return suma / cant_familias
 
     def get_porcentaje_completo_p3(self):
-        return 0.0
+        familias = self.familia_set.all()
+        cant_familias = familias.count()
+        datos = familias.select_related('estadofamiliaanio').aggregate(Sum("estadofamiliaanio__porcentaje_datos_parte3"))
+        suma = datos['estadofamiliaanio__porcentaje_datos_parte3__sum'] or 0
+        return suma / cant_familias
 
 
 class UserProfile(models.Model):
@@ -221,6 +224,8 @@ class Familia(models.Model):
             estado_obj.completo = cerrado != 0
             if estado_obj.porcentaje_datos_parte2 is None:
                 estado_obj.porcentaje_datos_parte2 = self.get_porcentaje_completo_p2(anio)
+            if estado_obj.porcentaje_datos_parte3 is None:
+                estado_obj.porcentaje_datos_parte3 = self.get_porcentaje_completo_p3(anio)
             estado_obj.save()
 
         return "A: %s, I: %s, C: %s" % (activo, inactivo, cerrado)
@@ -373,6 +378,44 @@ class Familia(models.Model):
 
         return 100.0 * suma / total_posible
 
+    def get_porcentaje_completo_p3(self, anio):
+        total_posible = 4
+        suma = 0
+        personas_qs = self.persona_set.all()
+        for persona in personas_qs:
+            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio, ciclo_cerrado=False)
+            if evals.count() > 0:
+                ev = evals[0]
+                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa
+                    suma += 1  # objetivos
+                    if ev.propuesta_ciclo_desarrollo_socio_fam is not None and ev.propuesta_ciclo_desarrollo_socio_fam != "":
+                        suma += 1
+
+                    act_fila1 = ev.tall_for_ori or ev.tall_dep_rec or ev.tall_fut_cal or ev.tall_boccias \
+                        or ev.tall_art_cul or ev.tall_ali_sal or ev.tall_hue_fam
+
+                    act_fila2 = ev.enc_familiar or ev.even_recreat or ev.even_enc_cam or ev.even_dep_fam \
+                        or ev.even_cultura or ev.mues_fam_art or ev.enc_vida_sal
+
+                    act_fila3 = ev.mod_form_fam or ev.acc_inf_difu or ev.aten_ind_fam or ev.mod_clin_dep \
+                        or ev.acc_pase_vis or ev.mod_clin_art or ev.acc_recu_are or ev.mod_clin_ali
+
+                    act_col1 = ev.tall_for_ori or ev.enc_familiar or ev.even_recreat or ev.mod_form_fam \
+                        or ev.acc_inf_difu or ev.aten_ind_fam
+
+                    act_col2 = ev.tall_dep_rec or ev.tall_fut_cal or ev.tall_boccias or ev.tall_art_cul \
+                        or ev.tall_ali_sal or ev.tall_hue_fam or ev.even_enc_cam or ev.even_dep_fam \
+                        or ev.even_cultura or ev.mues_fam_art or ev.enc_vida_sal or ev.mod_clin_dep \
+                        or ev.acc_pase_vis or ev.mod_clin_art or ev.acc_recu_are or ev.mod_clin_ali
+
+                    if act_fila1 and act_fila2 and act_fila3 and act_col1 and act_col2:
+                        suma += 1
+
+                    if ev.evaluacion_cualitativa is not None and ev.evaluacion_cualitativa != '':
+                        suma += 1
+
+        return 100.0 * suma / total_posible
+
     def save(self, *args, **kwargs):
         self.porcentaje_datos_parte1 = self.get_porcentaje_completo()
         super(Familia, self).save(*args, **kwargs)
@@ -458,8 +501,8 @@ class Persona(models.Model):
         return estado
 
     def save(self, *args, **kwargs):
-        self.familia.save()
         super(Persona, self).save(*args, **kwargs)
+        self.familia.save()
 
 
 class PersonaForm(forms.ModelForm):
@@ -850,11 +893,13 @@ class EvaluacionFactoresProtectores(models.Model):
         return self.objetivosevaluacion_set.filter(tipo=2)
 
     def save(self, *args, **kwargs):
+        super(EvaluacionFactoresProtectores, self).save(*args, **kwargs)
         for estado in self.persona.familia.estadofamiliaanio_set.all():
             estado.porcentaje_datos_parte2 = self.persona.familia.get_porcentaje_completo_p2(estado.anio)
+            estado.porcentaje_datos_parte3 = self.persona.familia.get_porcentaje_completo_p3(estado.anio)
             estado.save()
         self.persona.save()
-        super(EvaluacionFactoresProtectores, self).save(*args, **kwargs)
+
 
     class Meta:
         ordering = ['anio_aplicacion']
