@@ -14,13 +14,6 @@
             <li {% ifequal active "cantidad_fichas" %}class="active"{% endifequal %}>
                 <a href="/reportes/{{ anio }}/cantidad_fichas/"><i class="icon-chevron-right"></i> Cantidad de Fichas</a>
             </li>
-{#            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>#}
-{#                <a href="/reportes/{{ anio }}/tipos_familias/"><i class="icon-chevron-right"></i> Tipos de Familias</a>#}
-{#            </li>#}
-{#            <li {% ifequal active "nivel_ingresos" %}class="active"{% endifequal %}>#}
-{#                <a href="/reportes/{{ anio }}/nivel_ingresos/"><i class="icon-chevron-right"></i> Nivel de Ingresos</a>#}
-{#            </li>#}
-
             <li {% ifequal active "estado_ciclos" %}class="active"{% endifequal %}>
                 <a href="/reportes/{{ anio }}/estado_ciclos/">
                     <i class="icon-chevron-right"></i>
@@ -35,7 +28,21 @@
                     Estado de Datos
                 </a>
             </li>
+            <li {% ifequal active "rel_fam_per" %}class="active"{% endifequal %}>
+                <a href="/reportes/{{ anio }}/rel_familia_persona/">
+                    <i class="icon-chevron-right"></i>
+                    Relación familia-ficha
+                </a>
+            </li>
             {% endif %}
+
+
+{#            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>#}
+{#                <a href="/reportes/{{ anio }}/tipos_familias/"><i class="icon-chevron-right"></i> Tipos de Familias</a>#}
+{#            </li>#}
+{#            <li {% ifequal active "nivel_ingresos" %}class="active"{% endifequal %}>#}
+{#                <a href="/reportes/{{ anio }}/nivel_ingresos/"><i class="icon-chevron-right"></i> Nivel de Ingresos</a>#}
+{#            </li>#}
 
         </ul>
     </div>

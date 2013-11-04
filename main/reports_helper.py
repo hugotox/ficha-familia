@@ -128,3 +128,71 @@ def get_conteo_familias_por_tipo(anio, centro, solo_activas):
 
     return get_dictfetchall_sql(sql_select + sql_where + sql_group_by, sql_params)
 
+
+def get_relacion_familia_ficha(anio):
+    sql = '''
+    select
+      tabla_per.cid,
+      C.comuna,
+      tabla_per.cant_personas,
+      --tabla_act.actividad
+      round(tabla_act.actividad * 100 / tabla_per.cant_personas, 2) as porcentaje
+      from (
+        select
+          T.cid,
+          round( avg(T.count_persona), 2 ) as actividad
+        from(
+          select
+            F.centro_familiar_id as cid,
+            F.id as fid,
+            count(P.id) as count_persona
+          from main_familia F
+            inner join main_persona P on P.familia_id = F.id
+            inner join main_evaluacionfactoresprotectores E on E.persona_id = P.id
+            INNER JOIN (SELECT
+                          o.evaluacion_id
+                        FROM main_objetivosevaluacion o
+                        GROUP BY o.evaluacion_id) AS obj
+              ON obj.evaluacion_id = E.id
+          where
+            E.anio_aplicacion=%s
+          group by
+            cid,
+            fid
+          order by
+            cid
+           ) as T
+        group by
+          cid
+      ) as tabla_act
+
+      inner join (
+         select
+          T.cid,
+          round( avg(T.count_persona), 2 ) as cant_personas
+        from(
+          select
+            F.centro_familiar_id as cid,
+            F.id as fid,
+            count(P.id) as count_persona
+          from main_familia F
+            inner join main_persona P on P.familia_id = F.id
+          where
+            true
+          group by
+            cid,
+            fid
+          order by
+            cid) as T
+        group by
+          cid
+        ) as tabla_per
+
+      on tabla_per.cid = tabla_act.cid
+
+      inner join main_centrofamiliar as C on tabla_per.cid = C.id
+
+      order by C.comuna
+        '''
+
+    return get_dictfetchall_sql(sql, [anio,])

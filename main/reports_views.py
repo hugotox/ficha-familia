@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
+from django.shortcuts import render_to_response
 from django.utils import simplejson
 from main.models import CentroFamiliar
 from main.reports_helper import *
@@ -215,3 +216,13 @@ def estado_datos(request, anio):
     centros = CentroFamiliar.objects.exclude(comuna='Casa Central')
     return render(request, 'reportes/estado_datos.html', locals())
 
+
+@login_required
+def rel_familia_persona(request, anio):
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'rel_fam_per'
+    datos = get_relacion_familia_ficha(anio)
+    return render(request, 'reportes/rel_familia_persona.html', locals())

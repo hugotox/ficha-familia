@@ -100,7 +100,7 @@
                                 <button data-toggle="dropdown" class="btn btn-small dropdown-toggle {% get_color_btn_ficha persona current_year %}">
                                     Ficha<span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu" style="min-width: 50px">
                                     {% for eval in persona.evaluacionfactoresprotectores_set.all %}
                                         <li><a href="/ficha/{{ persona.id }}/{{ eval.anio_aplicacion }}{{ back_url }}">{{ eval.anio_aplicacion }}</a></li>
                                     {% endfor %}
