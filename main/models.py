@@ -130,6 +130,13 @@ class CentroFamiliar(models.Model):
         suma = datos['estadofamiliaanio__porcentaje_datos_parte2__sum'] or 0
         return suma / cant_familias
 
+    def get_porcentaje_completo_p2_c(self, anio):
+        familias = self.familia_set.all()
+        cant_familias = familias.count()
+        datos = familias.select_related('estadofamiliaanio').aggregate(Sum("estadofamiliaanio__porcentaje_datos_parte2_c"))
+        suma = datos['estadofamiliaanio__porcentaje_datos_parte2_c__sum'] or 0
+        return suma / cant_familias
+
     def get_porcentaje_completo_p3(self):
         familias = self.familia_set.all()
         cant_familias = familias.count()
@@ -224,6 +231,8 @@ class Familia(models.Model):
             estado_obj.completo = cerrado != 0
             if estado_obj.porcentaje_datos_parte2 is None:
                 estado_obj.porcentaje_datos_parte2 = self.get_porcentaje_completo_p2(anio)
+            if estado_obj.porcentaje_datos_parte2_c is None:
+                estado_obj.porcentaje_datos_parte2_c = self.get_porcentaje_completo_p2_c(anio)
             if estado_obj.porcentaje_datos_parte3 is None:
                 estado_obj.porcentaje_datos_parte3 = self.get_porcentaje_completo_p3(anio)
             estado_obj.save()
@@ -231,17 +240,9 @@ class Familia(models.Model):
         return "A: %s, I: %s, C: %s" % (activo, inactivo, cerrado)
 
     def get_porcentaje_completo(self):
-        anio = datetime.now().year
-        # obtener solo las personas con ficha activa
         personas_all = self.persona_set.all()
-        objetivos = ObjetivosEvaluacion.objects.filter(evaluacion__anio_aplicacion=anio,
-                                                       evaluacion__ciclo_cerrado=False,
-                                                       evaluacion__persona__in=personas_all)
-        personas_list = []
-        for obj in objetivos:
-            personas_list.append(obj.evaluacion.persona)
         suma = 0
-        total_posible = 15 + 14 * len(personas_list)
+        total_posible = 15 + 14 * personas_all.count()
         if self.apellido_paterno is not None and self.apellido_paterno != '':
             suma += 1
         if self.apellido_materno is not None and self.apellido_materno != '':
@@ -273,7 +274,7 @@ class Familia(models.Model):
         if self.cond_socializ_delictual is not None:
             suma += 1
 
-        for per in personas_list:
+        for per in personas_all:
             if per.nombres is not None and per.nombres != '':
                 suma += 1
             if per.apellido_paterno is not None and per.apellido_paterno != '':
@@ -306,73 +307,146 @@ class Familia(models.Model):
         return 100.0 * suma / total_posible
 
     def get_porcentaje_completo_p2(self, anio):
-        total_posible = 30
+        total_posible = 15
         suma = 0
         personas_qs = self.persona_set.all()
         for persona in personas_qs:
-            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio, ciclo_cerrado=False)
+            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio)
             if evals.count() > 0:
                 ev = evals[0]
-                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa
+                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa o cerrada
 
                     if ev.presencia_red_de_apoyo is not None:
                         suma += 1
                     if ev.presencia_red_de_apoyo2 is not None:
-                        suma += 1
+                        pass
                     if ev.relaciones_con_vecindario is not None:
                         suma += 1
                     if ev.relaciones_con_vecindario2 is not None:
-                        suma += 1
+                        pass
                     if ev.participacion_social is not None:
                         suma += 1
                     if ev.participacion_social2 is not None:
-                        suma += 1
+                        pass
                     if ev.red_de_servicios_y_beneficios_sociales is not None:
                         suma += 1
                     if ev.red_de_servicios_y_beneficios_sociales2 is not None:
-                        suma += 1
+                        pass
                     if ev.ocio_y_encuentro_con_pares is not None:
                         suma += 1
                     if ev.ocio_y_encuentro_con_pares2 is not None:
-                        suma += 1
+                        pass
                     if ev.espacios_formativos_y_de_desarrollo is not None:
                         suma += 1
                     if ev.espacios_formativos_y_de_desarrollo2 is not None:
-                        suma += 1
+                        pass
                     if ev.relaciones_y_cohesion_familiar is not None:
                         suma += 1
                     if ev.relaciones_y_cohesion_familiar2 is not None:
-                        suma += 1
+                        pass
                     if ev.adaptabilidad_y_resistencia_familiar is not None:
                         suma += 1
                     if ev.adaptabilidad_y_resistencia_familiar2 is not None:
-                        suma += 1
+                        pass
                     if ev.competencias_parentales is not None:
                         suma += 1
                     if ev.competencias_parentales2 is not None:
-                        suma += 1
+                        pass
                     if ev.proteccion_y_salud_integral is not None:
                         suma += 1
                     if ev.proteccion_y_salud_integral2 is not None:
-                        suma += 1
+                        pass
                     if ev.participacion_protagonica is not None:
                         suma += 1
                     if ev.participacion_protagonica2 is not None:
-                        suma += 1
+                        pass
                     if ev.recreacion_y_juego_con_pares is not None:
                         suma += 1
                     if ev.recreacion_y_juego_con_pares2 is not None:
-                        suma += 1
+                        pass
                     if ev.crecimiento_personal is not None:
                         suma += 1
                     if ev.crecimiento_personal2 is not None:
-                        suma += 1
+                        pass
                     if ev.autonomia is not None:
                         suma += 1
                     if ev.autonomia2 is not None:
-                        suma += 1
+                        pass
                     if ev.habilidades_y_valores_sociales is not None:
                         suma += 1
+                    if ev.habilidades_y_valores_sociales2 is not None:
+                        pass
+
+        return 100.0 * suma / total_posible
+
+    def get_porcentaje_completo_p2_c(self, anio):
+        total_posible = 15
+        suma = 0
+        personas_qs = self.persona_set.all()
+        for persona in personas_qs:
+            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio)
+            if evals.count() > 0:
+                ev = evals[0]
+                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa o cerrada
+
+                    if ev.presencia_red_de_apoyo is not None:
+                        pass
+                    if ev.presencia_red_de_apoyo2 is not None:
+                        suma += 1
+                    if ev.relaciones_con_vecindario is not None:
+                        pass
+                    if ev.relaciones_con_vecindario2 is not None:
+                        suma += 1
+                    if ev.participacion_social is not None:
+                        pass
+                    if ev.participacion_social2 is not None:
+                        suma += 1
+                    if ev.red_de_servicios_y_beneficios_sociales is not None:
+                        pass
+                    if ev.red_de_servicios_y_beneficios_sociales2 is not None:
+                        suma += 1
+                    if ev.ocio_y_encuentro_con_pares is not None:
+                        pass
+                    if ev.ocio_y_encuentro_con_pares2 is not None:
+                        suma += 1
+                    if ev.espacios_formativos_y_de_desarrollo is not None:
+                        pass
+                    if ev.espacios_formativos_y_de_desarrollo2 is not None:
+                        suma += 1
+                    if ev.relaciones_y_cohesion_familiar is not None:
+                        pass
+                    if ev.relaciones_y_cohesion_familiar2 is not None:
+                        suma += 1
+                    if ev.adaptabilidad_y_resistencia_familiar is not None:
+                        pass
+                    if ev.adaptabilidad_y_resistencia_familiar2 is not None:
+                        suma += 1
+                    if ev.competencias_parentales is not None:
+                        pass
+                    if ev.competencias_parentales2 is not None:
+                        suma += 1
+                    if ev.proteccion_y_salud_integral is not None:
+                        pass
+                    if ev.proteccion_y_salud_integral2 is not None:
+                        suma += 1
+                    if ev.participacion_protagonica is not None:
+                        pass
+                    if ev.participacion_protagonica2 is not None:
+                        suma += 1
+                    if ev.recreacion_y_juego_con_pares is not None:
+                        pass
+                    if ev.recreacion_y_juego_con_pares2 is not None:
+                        suma += 1
+                    if ev.crecimiento_personal is not None:
+                        pass
+                    if ev.crecimiento_personal2 is not None:
+                        suma += 1
+                    if ev.autonomia is not None:
+                        pass
+                    if ev.autonomia2 is not None:
+                        suma += 1
+                    if ev.habilidades_y_valores_sociales is not None:
+                        pass
                     if ev.habilidades_y_valores_sociales2 is not None:
                         suma += 1
 
@@ -383,10 +457,10 @@ class Familia(models.Model):
         suma = 0
         personas_qs = self.persona_set.all()
         for persona in personas_qs:
-            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio, ciclo_cerrado=False)
+            evals = persona.evaluacionfactoresprotectores_set.filter(anio_aplicacion=anio)
             if evals.count() > 0:
                 ev = evals[0]
-                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa
+                if ev.objetivosevaluacion_set.all().count():  # evaluacion activa o cerrada
                     suma += 1  # objetivos
                     if ev.propuesta_ciclo_desarrollo_socio_fam is not None and ev.propuesta_ciclo_desarrollo_socio_fam != "":
                         suma += 1
@@ -896,10 +970,10 @@ class EvaluacionFactoresProtectores(models.Model):
         super(EvaluacionFactoresProtectores, self).save(*args, **kwargs)
         for estado in self.persona.familia.estadofamiliaanio_set.all():
             estado.porcentaje_datos_parte2 = self.persona.familia.get_porcentaje_completo_p2(estado.anio)
+            estado.porcentaje_datos_parte2_c = self.persona.familia.get_porcentaje_completo_p2_c(estado.anio)
             estado.porcentaje_datos_parte3 = self.persona.familia.get_porcentaje_completo_p3(estado.anio)
             estado.save()
         self.persona.save()
-
 
     class Meta:
         ordering = ['anio_aplicacion']
@@ -939,7 +1013,8 @@ class EstadoFamiliaAnio(models.Model):
     inactivo = models.BooleanField(default=True)
     activo = models.BooleanField(default=False)
     completo = models.BooleanField(default=False)
-    porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)
+    porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)  # inicio
+    porcentaje_datos_parte2_c = models.FloatField(null=True, blank=True)  # cumplimiento
     porcentaje_datos_parte3 = models.FloatField(null=True, blank=True)
 
     class Meta:

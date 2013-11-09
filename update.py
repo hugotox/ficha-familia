@@ -5,25 +5,17 @@ setup_environ(settings)
 from main.models import *
 from django.db import connection, transaction
 
-# cursor = connection.cursor()
-# sql = '''
-#    update main_familia set porcentaje_datos_parte1=null;
-# '''
-# cursor.execute(sql)
-# transaction.commit_unless_managed()
+cursor = connection.cursor()
+sql = '''
+   ALTER TABLE public.main_estadofamiliaanio ADD porcentaje_datos_parte2_c float NULL;
+'''
+cursor.execute(sql)
+transaction.commit_unless_managed()
 
-print "Actualizando familias..."
+for fam in Familia.objects.all():
+    fam.save()
 
-familia_qs = Familia.objects.all()
-
-for familia in familia_qs:
-    familia.save()  # actualiza datos parte 1
-
-print "Actualizando evaluaciones..."
-
-evals_qs = EvaluacionFactoresProtectores.objects.all()
-
-for ev in evals_qs:
-    ev.save()
+for estado in EvaluacionFactoresProtectores.objects.all():
+    estado.save()
 
 print "All done"
