@@ -1,0 +1,101 @@
+{% extends "reportes/base.html" %}
+{% load common_tags %}
+
+{% block report_content %}
+<div class="section">
+    <h3>Fichas por objetivos</h3>
+
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Objetivo</th>
+                <th>Fichas Activas</th>
+                <th>Fichas Completas</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos %}
+            <tr class="tr-datos">
+                <td>
+                    <a class="button-drilldown" href="/reportes/{{ anio }}/fichas_por_objetivo_comuna/{{ dato.factor_id }}/">
+                        <i class="icon-plus-sign"></i>
+                    </a>
+                </td>
+                <td>{{ dato.nombre }} - {{ dato.objetivo_personal }}</td>
+                <td>
+                    {% if dato.count_eval_activas %}
+                        {{ dato.count_eval_activas }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </td>
+                <td>
+                    {% if dato.count_eval_completas %}
+                        {{ dato.count_eval_completas }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </td>
+                <td>
+                    {% if dato.count_eval %}
+                        {{ dato.count_eval }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </td>
+            </tr>
+            <tr style="display: none" class="vacio">
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block extra_footer %}
+{{ block.super }}
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $("a.button-drilldown").click(function(){
+            var $this = $(this);
+            var $icon = $this.find("i");
+            var $fila_detalle = $this.closest("tr").next();
+            if($icon.hasClass('icon-plus-sign')) {
+                $icon.removeClass('icon-plus-sign');
+                $icon.addClass('icon-minus-sign');
+                if($fila_detalle.hasClass('vacio')) {
+                    //solicitar datos
+                    $.getJSON($this.attr('href'), function(datos){
+                        var td1 = "";
+                        var td2 = "";
+                        var td3 = "";
+                        var td4 = "";
+                        for(var i=0; i<datos.length; i++) {
+                            td1 += datos[i]['comuna'] + '<br/>';
+                            td2 += (datos[i]['count_eval_activas'] ? datos[i]['count_eval_activas'] : 0 )+ '<br/>';
+                            td3 += (datos[i]['count_eval_completas'] ? datos[i]['count_eval_completas'] : 0) + '<br/>';
+                            td4 += (datos[i]['count_eval'] ? datos[i]['count_eval'] : 0) + '<br/>';
+                        }
+                        $fila_detalle.html('<td></td><td>'+td1+'</td><td>'+td2+'</td><td>'+td3+'</td><td>'+td4+'</td>');
+                        $fila_detalle.removeClass('vacio');
+                    });
+                }
+                $fila_detalle.show();
+            } else {
+                $icon.addClass('icon-plus-sign');
+                $icon.removeClass('icon-minus-sign');
+                $fila_detalle.hide();
+            }
+            return false;
+        });
+
+    });
+
+</script>
+{% endblock %}

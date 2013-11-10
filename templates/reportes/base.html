@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="container">
 
     <div class="navbar">
         <div class="navbar-inner">
@@ -32,6 +32,11 @@
                 <li {% ifequal active "rel_fam_per" %}class="active"{% endifequal %}>
                     <a href="/reportes/{{ anio }}/rel_familia_persona/">
                         Relación familia-ficha
+                    </a>
+                </li>
+                <li {% ifequal active "fichas_obj" %}class="active"{% endifequal %}>
+                    <a href="/reportes/{{ anio }}/fichas_por_objetivo/">
+                        Fichas por Objetivo
                     </a>
                 </li>
                 {% endif %}

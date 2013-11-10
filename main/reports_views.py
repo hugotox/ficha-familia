@@ -3,7 +3,7 @@ from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.utils import simplejson
-from main.models import CentroFamiliar
+from main.models import CentroFamiliar, FactorProtector
 from main.reports_helper import *
 from utils.json_utils import json_response
 from datetime import datetime
@@ -226,3 +226,24 @@ def rel_familia_persona(request, anio):
     active = 'rel_fam_per'
     datos = get_relacion_familia_ficha(anio)
     return render(request, 'reportes/rel_familia_persona.html', locals())
+
+
+@login_required
+def fichas_por_objetivo(request, anio):
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'fichas_obj'
+    datos = get_fichas_por_objetivo(anio)
+    return render(request, 'reportes/fichas_objetivo.html', locals())
+
+
+@login_required
+def fichas_por_objetivo_comuna(request, anio, factor_id):
+    user_profile = request.user.get_profile()
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    datos = get_fichas_por_objetivo_comuna(anio, factor_id)
+    return json_response(datos)

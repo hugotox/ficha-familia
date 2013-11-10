@@ -196,3 +196,192 @@ def get_relacion_familia_ficha(anio):
         '''
 
     return get_dictfetchall_sql(sql, [anio,])
+
+
+def get_fichas_por_objetivo(anio):
+    sql = '''
+        select
+          F.id as factor_id,
+          count(E.id) as count_eval,
+          C.nombre,
+          F.objetivo_personal
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+          inner join main_componentes C on F.componente_id = C.id
+        WHERE
+          E.anio_aplicacion = %s
+        group by
+          C.id,
+          F.id
+        order by
+          C.id,
+          F.id;
+      '''
+    datos = get_dictfetchall_sql(sql, [anio,])
+
+    # fichas activas
+    sql = '''
+        select
+          F.id as factor_id,
+          count(E.id) as count_eval
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+        WHERE
+          E.anio_aplicacion = %s
+          and (E.ciclo_cerrado = false or E.ciclo_cerrado is null)
+        group by
+          F.id
+        order by
+          F.id;
+      '''
+    fichas_activas = get_dictfetchall_sql(sql, [anio, ])
+
+    # fichas completas
+    sql = '''
+        select
+          F.id as factor_id,
+          count(E.id) as count_eval
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+        WHERE
+          E.anio_aplicacion = %s
+          and E.ciclo_cerrado = true
+        group by
+          F.id
+        order by
+          F.id;
+        '''
+    fichas_completas = get_dictfetchall_sql(sql, [anio, ])
+
+    for dato in fichas_activas:
+        dato_factor_id = dato['factor_id']
+        count_eval = dato['count_eval']
+
+        for datomain in datos:
+            if datomain['factor_id'] == dato_factor_id:
+                datomain['count_eval_activas'] = count_eval
+                break
+
+    for dato in fichas_completas:
+        dato_factor_id = dato['factor_id']
+        count_eval = dato['count_eval']
+
+        for datomain in datos:
+            if datomain['factor_id'] == dato_factor_id:
+                datomain['count_eval_completas'] = count_eval
+                break
+
+    return datos
+
+
+def get_fichas_por_objetivo_comuna(anio, factor_id):
+    sql = '''
+        select
+          CF.comuna,
+          F.id as factor_id,
+          count(E.id) as count_eval
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+          inner join main_componentes C on F.componente_id = C.id
+          inner join main_persona P on E.persona_id = P.id
+          inner join main_familia FA on P.familia_id = FA.id
+          inner join main_centrofamiliar CF on FA.centro_familiar_id = CF.id
+        WHERE
+          E.anio_aplicacion = %s
+          and F.id = %s
+        group by
+          CF.id,
+          C.id,
+          F.id
+        order by
+          CF.comuna,
+          C.id,
+          F.id;
+      '''
+    datos = get_dictfetchall_sql(sql, [anio, factor_id])
+
+    # fichas activas
+    sql = '''
+        select
+          CF.comuna,
+          F.id as factor_id,
+          count(E.id) as count_eval
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+          inner join main_componentes C on F.componente_id = C.id
+          inner join main_persona P on E.persona_id = P.id
+          inner join main_familia FA on P.familia_id = FA.id
+          inner join main_centrofamiliar CF on FA.centro_familiar_id = CF.id
+        WHERE
+          E.anio_aplicacion = %s
+          and (E.ciclo_cerrado = false or E.ciclo_cerrado is null)
+          and F.id = %s
+        group by
+          CF.id,
+          C.id,
+          F.id
+        order by
+          CF.comuna,
+          C.id,
+          F.id
+      '''
+    fichas_activas = get_dictfetchall_sql(sql, [anio, factor_id])
+
+    # fichas completas
+    sql = '''
+        select
+          CF.comuna,
+          F.id as factor_id,
+          count(E.id) as count_eval
+        from
+          main_evaluacionfactoresprotectores E
+          inner join main_objetivosevaluacion O on O.evaluacion_id = E.id
+          inner join main_factorprotector F on O.factor_id = F.id
+          inner join main_componentes C on F.componente_id = C.id
+          inner join main_persona P on E.persona_id = P.id
+          inner join main_familia FA on P.familia_id = FA.id
+          inner join main_centrofamiliar CF on FA.centro_familiar_id = CF.id
+        WHERE
+          E.anio_aplicacion = %s
+          and E.ciclo_cerrado = true
+          and F.id = %s
+        group by
+          CF.id,
+          C.id,
+          F.id
+        order by
+          CF.comuna,
+          C.id,
+          F.id
+        '''
+    fichas_completas = get_dictfetchall_sql(sql, [anio, factor_id])
+
+    for dato in fichas_activas:
+        comuna = dato['comuna']
+        count_eval = dato['count_eval']
+
+        for datomain in datos:
+            if datomain['comuna'] == comuna:
+                datomain['count_eval_activas'] = count_eval
+                break
+
+    for dato in fichas_completas:
+        comuna = dato['comuna']
+        count_eval = dato['count_eval']
+
+        for datomain in datos:
+            if datomain['comuna'] == comuna:
+                datomain['count_eval_completas'] = count_eval
+                break
+
+    return datos
