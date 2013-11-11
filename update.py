@@ -5,17 +5,13 @@ setup_environ(settings)
 from main.models import *
 from django.db import connection, transaction
 
-cursor = connection.cursor()
-sql = '''
-   ALTER TABLE public.main_estadofamiliaanio ADD porcentaje_datos_parte2_c float NULL;
-'''
-cursor.execute(sql)
-transaction.commit_unless_managed()
+# cursor = connection.cursor()
+# sql = '''
+#    ALTER TABLE public.main_estadofamiliaanio ADD porcentaje_datos_parte2_c float NULL;
+# '''
+# cursor.execute(sql)
+# transaction.commit_unless_managed()
 
-for fam in Familia.objects.all():
-    fam.save()
 
-for estado in EvaluacionFactoresProtectores.objects.all():
-    estado.save()
 
 print "All done"

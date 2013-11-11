@@ -214,6 +214,7 @@ def get_fichas_por_objetivo(anio):
           E.anio_aplicacion = %s
         group by
           C.id,
+          C.nombre,
           F.id
         order by
           C.id,
@@ -299,6 +300,7 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
           and F.id = %s
         group by
           CF.id,
+          CF.comuna,
           C.id,
           F.id
         order by
@@ -328,6 +330,7 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
           and F.id = %s
         group by
           CF.id,
+          CF.comuna,
           C.id,
           F.id
         order by
@@ -357,6 +360,7 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
           and F.id = %s
         group by
           CF.id,
+          CF.comuna,
           C.id,
           F.id
         order by
