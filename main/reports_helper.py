@@ -215,7 +215,8 @@ def get_fichas_por_objetivo(anio):
         group by
           C.id,
           C.nombre,
-          F.id
+          F.id,
+          F.objetivo_personal
         order by
           C.id,
           F.id;
