@@ -9,6 +9,7 @@ from mensajes import DATOS_GUARDADOS, FORM_INCORRECTO, CERRAR_CICLO
 from main.models import *
 from django.utils import simplejson
 from django.core import serializers
+from utils.json_utils import json_response
 
 
 def get_sort_link(columna, order_by, order_dir, page, page_size, filtros_params):
@@ -605,3 +606,23 @@ def get_detalle_familia(request, id):
     familia = Familia.objects.get(id=id)
     html = render_to_string("tabla_personas_home.html", locals())
     return HttpResponse(html, content_type='text/plain')
+
+
+@login_required
+def update_aporta(request):
+    success = False
+    if request.method == "POST":
+        persona_id = request.POST.get('persona_id', None)
+        value = request.POST.get('value', 'No')
+        try:
+            persona = Persona.objects.get(id=persona_id)
+            persona.aporta_ingreso = value == u'Sí'
+            persona.save()
+            success = True
+        except:
+            pass
+
+    if success:
+        return json_response({'success': True, 'msg': 'Saved'})
+    else:
+        return json_response({'success': False, 'msg': 'Operation not allowed'})

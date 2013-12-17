@@ -81,7 +81,7 @@
                         <td class="fecha_nacimiento">{% if persona.get_fecha_nacimiento %} {{ persona.fecha_nacimiento|date:"d/m/Y" }} {% endif %}</td>
                         <td class="estado_civil">{% if persona.estado_civil %}{{ persona.get_estado_civil_display }}{% endif %}</td>
                         <td class="nivel_escolaridad">{% if persona.nivel_escolaridad %}{{ persona.get_nivel_escolaridad_display }}{% endif %}</td>
-                        <td class="ocupacion">{% if persona.ocupacion %}{{ persona.get_ocupacion_display }}{% endif %}</td>
+                        <td class="ocupacion">{% if persona.ocupacion %}{{ persona.ocupacion }}{% endif %}</td>
                         <td class="aporta_ingreso">
                             <div class="btn-group">
                                 <button data-toggle="dropdown" class="btn btn-small dropdown-toggle">
@@ -91,7 +91,7 @@
                                 <ul class="dropdown-menu aporta_ingresos">
                                     <li><a href="#" value='Sí'>Sí</a></li>
                                     <li><a href="#" value='No'>No</a></li>
-                                    <input type="hidden" name="aporta-{{ persona.id }}" value="{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}"/>
+                                    <input type="hidden" class="input_aporta" name="aporta-{{ persona.id }}" value="{% if persona.aporta_ingreso %}Sí{% else %}No{% endif %}"/>
                                 </ul>
                             </div>
                         </td>
@@ -330,9 +330,25 @@
             var $a = $(this);
             var $ul_aporta_ingresos = $a.closest("ul.aporta_ingresos");
             var $button = $ul_aporta_ingresos.parent().find("button.dropdown-toggle");
-            $ul_aporta_ingresos.find("input[type='hidden']").val($a.attr("value"));
+            var $input = $ul_aporta_ingresos.find("input[type='hidden']");
+            $input.val($a.attr("value"));
             $button.html($a.attr("value")+" <span class='caret'></span>");
             $button.parent().removeClass("open");
+            // save to the DB
+            $.ajax({
+                type: 'post',
+                url: '/persona/update_aporta/',
+                data: {
+                    'persona_id': $input.attr('name').split("-")[1],
+                    'value': $input.val(),
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function(resp) {
+                    console.log(resp)
+                },
+                error: function(e) {
+                }
+            });
             return false;
         });
     }
@@ -383,7 +399,7 @@
                         $fila.find('.fecha_nacimiento').html($form_persona.find("input[name='fecha_nacimiento']").val());
                         $fila.find('.estado_civil').html($form_persona.find("select[name='estado_civil'] option:selected").html());
                         $fila.find('.nivel_escolaridad').html($form_persona.find("select[name='nivel_escolaridad'] option:selected").html());
-                        $fila.find('.ocupacion').html($form_persona.find("select[name='ocupacion'] option:selected").html());
+                        $fila.find('.ocupacion').html($form_persona.find("input[name='ocupacion']").val());
                         var aporta = "No <span class='caret'></span>";
                         if($form_persona.find("input[name='aporta_ingreso']").is(":checked")){
                             aporta = "Sí <span class='caret'></span>";
@@ -404,6 +420,7 @@
             $(this).parent().find("input[type='radio']:checked").removeAttr("checked");
             return false;
         });
+
     });
 </script>
 {% endblock %}
