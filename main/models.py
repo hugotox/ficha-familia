@@ -1,8 +1,7 @@
 # -*- encoding: UTF-8 -*-
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, connection
 from django import forms
-from django.db.models import Sum
 from django.forms.widgets import DateInput
 from datetime import datetime
 from main.choices import *
@@ -26,25 +25,162 @@ class CentroFamiliar(models.Model):
         return suma / cant_familias
 
     def get_porcentaje_completo_p2(self, anio):
-        familias = self.familia_set.all()
-        cant_familias = familias.count()
-        datos = EstadoFamiliaAnio.objects.filter(familia__centro_familiar=self, anio=anio).aggregate(Sum('porcentaje_datos_parte2'))
-        suma = datos['porcentaje_datos_parte2__sum'] or 0
-        return suma / cant_familias
+        eca, created = EstadoCentroAnio.objects.get_or_create(centro=self, anio=anio)
+        return eca.porc_completo_parteII_ini
 
     def get_porcentaje_completo_p2_c(self, anio):
-        familias = self.familia_set.all()
-        cant_familias = familias.count()
-        datos = EstadoFamiliaAnio.objects.filter(familia__centro_familiar=self, anio=anio).aggregate(Sum('porcentaje_datos_parte2_c'))
-        suma = datos['porcentaje_datos_parte2_c__sum'] or 0
-        return suma / cant_familias
+        eca, created = EstadoCentroAnio.objects.get_or_create(centro=self, anio=anio)
+        return eca.porc_completo_parteII_cum
 
     def get_porcentaje_completo_p3(self, anio):
-        familias = self.familia_set.all()
-        cant_familias = familias.count()
-        datos = EstadoFamiliaAnio.objects.filter(familia__centro_familiar=self, anio=anio).aggregate(Sum("porcentaje_datos_parte3"))
-        suma = datos['porcentaje_datos_parte3__sum'] or 0
-        return suma / cant_familias
+        eca, created = EstadoCentroAnio.objects.get_or_create(centro=self, anio=anio)
+        return eca.porc_completo_parteIII
+
+    def get_id_personas_con_ficha(self, anio):
+        sql = '''
+            select distinct(per.id) from main_persona per
+            inner join main_familia fam on per.familia_id=fam.id
+            inner join main_evaluacionfactoresprotectores eva on eva.persona_id=per.id and eva.anio_aplicacion=%s
+            inner join main_objetivosevaluacion obj on obj.evaluacion_id=eva.id
+            where fam.centro_familiar_id=%s
+        '''
+        cursor = connection.cursor()
+        cursor.execute(sql, [anio, self.id])
+        res = cursor.fetchall()
+        if len(res):
+            return list(res[0])
+        else:
+            return []
+
+    def save(self, *args, **kwargs):
+        """
+        Si se pasa el anio como parametro, entonces se guarda automaticamente el estadoCentroAnio (datos ficha parte II y III, la parte I esta en el modelo Familia)
+        """
+        if 'anio' in kwargs:
+            anio = kwargs.pop('anio')
+        else:
+            anio = None
+
+        super(CentroFamiliar, self).save(*args, **kwargs)
+
+        # actualizar estadoCentroAnio
+        if anio is not None:
+            centro = self
+            id_personas = centro.get_id_personas_con_ficha(anio)
+            total_posible_p2 = 15 * len(id_personas)  # en realidad son 30, 15 de inicio y 15 de cumplimiento
+            total_posible_p3 = 4 * len(id_personas)
+            if total_posible_p2 > 0:
+                suma_ini = 0
+                suma_cum = 0
+                suma_p3 = 0
+                evaluacion_qs = EvaluacionFactoresProtectores.objects.filter(anio_aplicacion=anio, persona__id__in=id_personas)
+                for ev in evaluacion_qs:
+
+                    # parte II inicio
+                    if ev.presencia_red_de_apoyo is not None:
+                        suma_ini += 1
+                    if ev.relaciones_con_vecindario is not None:
+                        suma_ini += 1
+                    if ev.participacion_social is not None:
+                        suma_ini += 1
+                    if ev.red_de_servicios_y_beneficios_sociales is not None:
+                        suma_ini += 1
+                    if ev.ocio_y_encuentro_con_pares is not None:
+                        suma_ini += 1
+                    if ev.espacios_formativos_y_de_desarrollo is not None:
+                        suma_ini += 1
+                    if ev.relaciones_y_cohesion_familiar is not None:
+                        suma_ini += 1
+                    if ev.adaptabilidad_y_resistencia_familiar is not None:
+                        suma_ini += 1
+                    if ev.competencias_parentales is not None:
+                        suma_ini += 1
+                    if ev.proteccion_y_salud_integral is not None:
+                        suma_ini += 1
+                    if ev.participacion_protagonica is not None:
+                        suma_ini += 1
+                    if ev.recreacion_y_juego_con_pares is not None:
+                        suma_ini += 1
+                    if ev.crecimiento_personal is not None:
+                        suma_ini += 1
+                    if ev.autonomia is not None:
+                        suma_ini += 1
+                    if ev.habilidades_y_valores_sociales is not None:
+                        suma_ini += 1
+
+                    # parte II cumplimiento
+                    if ev.presencia_red_de_apoyo2 is not None:
+                        suma_cum += 1
+                    if ev.relaciones_con_vecindario2 is not None:
+                        suma_cum += 1
+                    if ev.participacion_social2 is not None:
+                        suma_cum += 1
+                    if ev.red_de_servicios_y_beneficios_sociales2 is not None:
+                        suma_cum += 1
+                    if ev.ocio_y_encuentro_con_pares2 is not None:
+                        suma_cum += 1
+                    if ev.espacios_formativos_y_de_desarrollo2 is not None:
+                        suma_cum += 1
+                    if ev.relaciones_y_cohesion_familiar2 is not None:
+                        suma_cum += 1
+                    if ev.adaptabilidad_y_resistencia_familiar2 is not None:
+                        suma_cum += 1
+                    if ev.competencias_parentales2 is not None:
+                        suma_cum += 1
+                    if ev.proteccion_y_salud_integral2 is not None:
+                        suma_cum += 1
+                    if ev.participacion_protagonica2 is not None:
+                        suma_cum += 1
+                    if ev.recreacion_y_juego_con_pares2 is not None:
+                        suma_cum += 1
+                    if ev.crecimiento_personal2 is not None:
+                        suma_cum += 1
+                    if ev.autonomia2 is not None:
+                        suma_cum += 1
+                    if ev.habilidades_y_valores_sociales2 is not None:
+                        suma_cum += 1
+
+                    # parte 3
+                    suma_p3 += 1  # objetivos
+                    if ev.propuesta_ciclo_desarrollo_socio_fam is not None and ev.propuesta_ciclo_desarrollo_socio_fam != "":
+                        suma_p3 += 1
+
+                    act_fila1 = ev.tall_for_ori or ev.tall_dep_rec or ev.tall_fut_cal or ev.tall_boccias \
+                        or ev.tall_art_cul or ev.tall_ali_sal or ev.tall_hue_fam
+
+                    act_fila2 = ev.enc_familiar or ev.even_recreat or ev.even_enc_cam or ev.even_dep_fam \
+                        or ev.even_cultura or ev.mues_fam_art or ev.enc_vida_sal
+
+                    act_fila3 = ev.mod_form_fam or ev.acc_inf_difu or ev.aten_ind_fam or ev.mod_clin_dep \
+                        or ev.acc_pase_vis or ev.mod_clin_art or ev.acc_recu_are or ev.mod_clin_ali
+
+                    act_col1 = ev.tall_for_ori or ev.enc_familiar or ev.even_recreat or ev.mod_form_fam \
+                        or ev.acc_inf_difu or ev.aten_ind_fam
+
+                    act_col2 = ev.tall_dep_rec or ev.tall_fut_cal or ev.tall_boccias or ev.tall_art_cul \
+                        or ev.tall_ali_sal or ev.tall_hue_fam or ev.even_enc_cam or ev.even_dep_fam \
+                        or ev.even_cultura or ev.mues_fam_art or ev.enc_vida_sal or ev.mod_clin_dep \
+                        or ev.acc_pase_vis or ev.mod_clin_art or ev.acc_recu_are or ev.mod_clin_ali
+
+                    if act_fila1 and act_fila2 and act_fila3 and act_col1 and act_col2:
+                        suma_p3 += 1
+
+                    if ev.evaluacion_cualitativa is not None and ev.evaluacion_cualitativa != '':
+                        suma_p3 += 1
+
+                porcentaje_p2_ini = suma_ini * 100.0 / total_posible_p2
+                porcentaje_p2_cum = suma_cum * 100.0 / total_posible_p2
+                porcentaje_p3 = suma_p3 * 100.0 / total_posible_p3
+            else:
+                porcentaje_p2_ini = 0.0
+                porcentaje_p2_cum = 0.0
+                porcentaje_p3 = 0.0
+
+            eca, created = EstadoCentroAnio.objects.get_or_create(centro=centro, anio=2013)
+            eca.porc_completo_parteII_ini = porcentaje_p2_ini
+            eca.porc_completo_parteII_cum = porcentaje_p2_cum
+            eca.porc_completo_parteIII = porcentaje_p3
+            eca.save()
 
 
 class UserProfile(models.Model):
@@ -253,7 +389,7 @@ class Familia(models.Model):
                         suma += 1
 
         if personas_con_eval_count != 0:
-            return 100.0 * suma / ( total_posible * personas_con_eval_count )
+            return 100.0 * suma / (total_posible * personas_con_eval_count)
         else:
             return 0.0
 
@@ -378,8 +514,16 @@ class Familia(models.Model):
             return 0.0
 
     def save(self, *args, **kwargs):
-        self.porcentaje_datos_parte1 = self.get_porcentaje_completo()
+        if 'anio' in kwargs:
+            anio = kwargs.pop('anio')
+        else:
+            anio = None
+        self.porcentaje_datos_parte1 = self.get_porcentaje_completo()  # se guarda simpre ya q no es dependiente del anio
         super(Familia, self).save(*args, **kwargs)
+        if anio is not None:
+            self.centro_familiar.save(anio=anio)
+        else:
+            self.centro_familiar.save()
 
 
 class Persona(models.Model):
@@ -462,8 +606,15 @@ class Persona(models.Model):
         return estado
 
     def save(self, *args, **kwargs):
+        if 'anio' in kwargs:
+            anio = kwargs.pop('anio')
+        else:
+            anio = None
         super(Persona, self).save(*args, **kwargs)
-        self.familia.save()
+        if anio is not None:
+            self.familia.save(anio=anio)
+        else:
+            self.familia.save()
 
 
 class PersonaForm(forms.ModelForm):
@@ -853,7 +1004,7 @@ class EvaluacionFactoresProtectores(models.Model):
             estado.porcentaje_datos_parte2_c = self.persona.familia.get_porcentaje_completo_p2_c(estado.anio)
             estado.porcentaje_datos_parte3 = self.persona.familia.get_porcentaje_completo_p3(estado.anio)
             estado.save()
-        self.persona.save()
+        self.persona.save(anio=self.anio_aplicacion)
 
     def get_familia(self):
         return self.persona.familia
@@ -899,9 +1050,20 @@ class EstadoFamiliaAnio(models.Model):
     inactivo = models.BooleanField(default=True)
     activo = models.BooleanField(default=False)
     completo = models.BooleanField(default=False)
-    porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)  # inicio
-    porcentaje_datos_parte2_c = models.FloatField(null=True, blank=True)  # cumplimiento
-    porcentaje_datos_parte3 = models.FloatField(null=True, blank=True)
+    porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)  # DEPRECADO
+    porcentaje_datos_parte2_c = models.FloatField(null=True, blank=True)  # DEPRECADO
+    porcentaje_datos_parte3 = models.FloatField(null=True, blank=True)  # DEPRECADO
 
     class Meta:
         unique_together = (("familia", "anio"),)
+
+
+class EstadoCentroAnio(models.Model):
+    centro = models.ForeignKey(CentroFamiliar)
+    anio = models.IntegerField()
+    porc_completo_parteII_ini = models.FloatField(default=0.0)
+    porc_completo_parteII_cum = models.FloatField(default=0.0)
+    porc_completo_parteIII = models.FloatField(default=0.0)
+
+    class Meta:
+        unique_together = (("centro", "anio"),)

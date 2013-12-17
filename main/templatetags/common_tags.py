@@ -33,6 +33,11 @@ def get_color_btn_ficha(persona, anio):
 
 
 @register.simple_tag
+def get_porcentaje_completo(centro):
+    return round(centro.get_porcentaje_completo(), 2)
+
+
+@register.simple_tag
 def get_porcentaje_completo_p2(centro, anio):
     return round(centro.get_porcentaje_completo_p2(anio), 2)
 
