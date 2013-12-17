@@ -40,3 +40,8 @@ def get_porcentaje_completo_p2(centro, anio):
 @register.simple_tag
 def get_porcentaje_completo_p2_c(centro, anio):
     return round(centro.get_porcentaje_completo_p2_c(anio), 2)
+
+
+@register.simple_tag
+def get_porcentaje_completo_p3(centro, anio):
+    return round(centro.get_porcentaje_completo_p3(anio), 2)

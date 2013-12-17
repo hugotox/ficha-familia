@@ -22,7 +22,7 @@
                 <td>{{ centro.get_porcentaje_completo|floatformat:"2" }}%</td>
                 <td>{% get_porcentaje_completo_p2 centro anio %}%</td>
                 <td>{% get_porcentaje_completo_p2_c centro anio %}%</td>
-                <td>{{ centro.get_porcentaje_completo_p3|floatformat:"2" }}%</td>
+                <td>{% get_porcentaje_completo_p3 centro anio %}%</td>
             </tr>
         {% endfor %}
         </tbody>
