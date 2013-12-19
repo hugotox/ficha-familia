@@ -39,6 +39,11 @@
                         Fichas por Objetivo
                     </a>
                 </li>
+                <li {% ifequal active "condiciones" %}class="active"{% endifequal %}>
+                    <a href="/reportes/{{ anio }}/condiciones_vulnerabilidad/">
+                        Condiciones de Vulnerabilidad
+                    </a>
+                </li>
                 {% endif %}
 
     {#            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>#}

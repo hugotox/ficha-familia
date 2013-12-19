@@ -1,0 +1,41 @@
+{% extends "reportes/base.html" %}
+{% load common_tags %}
+
+{% block report_content %}
+<div id="compl_datos" class="section">
+    <h3>Condiciones de Vulnerabilidad (Todos los centros)</h3>
+
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th>Condición de Vulnerabilidad</th>
+                <th>Presente</th>
+                <th>No presente</th>
+                <th>Sin información</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in totales %}
+            <tr>
+                <td>{{ dato.condicion }}</td>
+                <td>{{ dato.presente }}</td>
+                <td>{{ dato.no_presente }}</td>
+                <td>{{ dato.sin_info }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block extra_footer %}
+{{ block.super }}
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+    });
+
+</script>
+{% endblock %}

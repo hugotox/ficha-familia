@@ -1,3 +1,4 @@
+# -*- encoding: UTF-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
@@ -247,3 +248,38 @@ def fichas_por_objetivo_comuna(request, anio, factor_id):
         raise Http404
     datos = get_fichas_por_objetivo_comuna(anio, factor_id)
     return json_response(datos)
+
+
+@login_required
+def condiciones_vulnerabilidad(request, anio):
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+
+    active = 'condiciones'
+
+    condiciones = [
+        ('cond_precariedad', u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.'),
+        ('cond_vulnerabilidad', u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).'),
+        ('cond_hogar_uni_riesgo', u'Hogar unipersonal en situación de riesgo.'),
+        ('cond_familia_mono_riesgo', u'Familia monoparental en situación de riesgo.'),
+        ('cond_alcohol_drogas', u'Consumo problemático de alcohol y/o drogas.'),
+        ('cond_discapacidad', u'Presencia de discapacidad física y/o mental.'),
+        ('cond_malos_tratos', u'Experiencias de malos tratos (actual o histórica).'),
+        ('cond_socializ_delictual', u'Historial de socialización delictual (detenciones, problemas judiciales).'),
+    ]
+
+    totales = []
+
+    for condicion in condiciones:
+
+        dato = {
+            'condicion': condicion[1],
+            'presente': get_count_condiciones_vulnerabilidad(condicion[0], 'true', False)[0]['count'],
+            'no_presente': get_count_condiciones_vulnerabilidad(condicion[0], 'false', False)[0]['count'],
+            'sin_info': get_count_condiciones_vulnerabilidad(condicion[0], 'null', False)[0]['count'],
+        }
+
+        totales.append(dato)
+
+    return render(request, 'reportes/condiciones.html', locals())

@@ -390,3 +390,35 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
                 break
 
     return datos
+
+
+def get_count_condiciones_vulnerabilidad(condicion, valor, agrupar_por_centro=True):
+    """
+    condicion: nombre de la columna de la condicion de vulnerabilidad
+    valor: debe ser "true|false|null"
+    agrupar_por_centro: booleano
+    """
+    if agrupar_por_centro:
+        sql = """
+            select
+              c.comuna,
+              count(f.id)
+            from main_familia f
+              inner join main_centrofamiliar c on f.centro_familiar_id = c.id
+            where
+              f.%s is %s
+            group by
+              c.comuna
+            order by
+              c.comuna;
+        """ % (condicion, valor)
+    else:
+        sql = """
+            select
+              count(f.id)
+            from main_familia f
+            where
+              f.%s is %s;
+        """ % (condicion, valor)
+
+    return get_dictfetchall_sql(sql)
