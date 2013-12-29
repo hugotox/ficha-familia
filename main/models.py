@@ -717,7 +717,7 @@ class EvaluacionFactoresProtectores(models.Model):
     # I.b
     propuesta_ciclo_desarrollo_socio_fam = models.TextField(verbose_name='Propuesta de Ciclo de Desarrollo Socio-Familiar', null=True, blank=True)
 
-    # II.a
+    # II.a  (ACTIVIDADES)
     tall_for_ori = models.BooleanField(verbose_name='Talleres de Formación y Orientación Familiar')
 
     tall_dep_rec = models.BooleanField(verbose_name='Talleres Deportivos Recreativos')

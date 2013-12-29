@@ -1,0 +1,70 @@
+{% extends "reportes/base.html" %}
+{% load common_tags %}
+
+{% block report_content %}
+
+<div  class="section">
+    <h3>Participación en Actividades</h3>
+
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th>Centro</th>
+                <th>Talleres de Formación y Orientación Familiar</th>
+                <th>Talleres Deportivos Recreativos</th>
+                <th>Talleres Fútbol Calle</th>
+                <th>Talleres Boccias</th>
+                <th>Talleres Artísticos y Culturales</th>
+                <th>Talleres de Alimentación Saludable</th>
+                <th>Talleres de Huertos Familiares</th>
+                <th>Encuentros Familiares</th>
+                <th>Eventos Recreativos</th>
+                <th>Eventos, Encuentros y Campeonatos Deportivos</th>
+                <th>Eventos Deportivos Familiares</th>
+                <th>Eventos Culturales</th>
+                <th>Muestras Familiares Artísticos-Culturales</th>
+                <th>Encuentros de Vida Saludable</th>
+                <th>Módulos de Formación Familiar</th>
+                <th>Acciones de Información y Difusión</th>
+                <th>Atención Individual y Familiar</th>
+                <th>Módulos y Clínicas Deportivas</th>
+                <th>Acceso, Paseos, Visitas y Salidas Culturales</th>
+                <th>Módulos y Clínicas Artístico-Culturales</th>
+                <th>Acciones de Recuperación de Áreas Verdes</th>
+                <th>Módulos y Clínicas de Alimentación Saludable, Huertos y Medioambiente</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos %}
+            <tr>
+                <td>{{ dato.comuna }}</td>
+                <td>{{ dato.tall_for_ori }}</td>
+                <td>{{ dato.tall_dep_rec }}</td>
+                <td>{{ dato.tall_fut_cal }}</td>
+                <td>{{ dato.tall_boccias }}</td>
+                <td>{{ dato.tall_art_cul }}</td>
+                <td>{{ dato.tall_ali_sal }}</td>
+                <td>{{ dato.tall_hue_fam }}</td>
+                <td>{{ dato.enc_familiar }}</td>
+                <td>{{ dato.even_recreat }}</td>
+                <td>{{ dato.even_enc_cam }}</td>
+                <td>{{ dato.even_dep_fam }}</td>
+                <td>{{ dato.even_cultura }}</td>
+                <td>{{ dato.mues_fam_art }}</td>
+                <td>{{ dato.enc_vida_sal }}</td>
+                <td>{{ dato.mod_form_fam }}</td>
+                <td>{{ dato.acc_inf_difu }}</td>
+                <td>{{ dato.aten_ind_fam }}</td>
+                <td>{{ dato.mod_clin_dep }}</td>
+                <td>{{ dato.acc_pase_vis }}</td>
+                <td>{{ dato.mod_clin_art }}</td>
+                <td>{{ dato.acc_recu_are }}</td>
+                <td>{{ dato.mod_clin_ali }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+    
+{% endblock %}

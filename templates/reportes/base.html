@@ -44,6 +44,16 @@
                         Condiciones de Vulnerabilidad
                     </a>
                 </li>
+                <li {% ifequal active "particip_activ" %}class="active"{% endifequal %}>
+                    <a href="/reportes/{{ anio }}/participacion_actividades/">
+                        Participación en Actividades
+                    </a>
+                </li>
+                <li {% ifequal active "actividades_objetivo" %}class="active"{% endifequal %}>
+                    <a href="/reportes/{{ anio }}/actividades_objetivo/">
+                        Actividades por Objetivos
+                    </a>
+                </li>
                 {% endif %}
 
     {#            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>#}

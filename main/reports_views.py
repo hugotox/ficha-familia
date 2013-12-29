@@ -273,13 +273,75 @@ def condiciones_vulnerabilidad(request, anio):
 
     for condicion in condiciones:
 
+        presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true')
+        no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false')
+        sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null')
+
+        presente = presente[0]['count'] if len(presente) else 0
+        no_presente = no_presente[0]['count'] if len(no_presente) else 0
+        sin_info = sin_info[0]['count'] if len(sin_info) else 0
+        total = presente + no_presente + sin_info
+
         dato = {
             'condicion': condicion[1],
-            'presente': get_count_condiciones_vulnerabilidad(condicion[0], 'true', False)[0]['count'],
-            'no_presente': get_count_condiciones_vulnerabilidad(condicion[0], 'false', False)[0]['count'],
-            'sin_info': get_count_condiciones_vulnerabilidad(condicion[0], 'null', False)[0]['count'],
+            'presente': "%s (%s%%)" % (presente, round(presente * 100.0 / total)),
+            'no_presente': "%s (%s%%)" % (no_presente, round(no_presente * 100.0 / total)),
+            'sin_info': "%s (%s%%)" % (sin_info, round(sin_info * 100.0 / total)),
         }
 
         totales.append(dato)
 
+
+    # --- por centro ---
+
+    datos_centros = []
+
+    centros = CentroFamiliar.objects.exclude(comuna='Casa Central')
+
+    for centro in centros:
+
+        datos = []
+
+        for condicion in condiciones:
+
+            presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true', centro.id)
+            no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false', centro.id)
+            sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null', centro.id)
+
+            presente = presente[0]['count'] if len(presente) else 0
+            no_presente = no_presente[0]['count'] if len(no_presente) else 0
+            sin_info = sin_info[0]['count'] if len(sin_info) else 0
+            total = presente + no_presente + sin_info
+
+            dato = {
+                'condicion': condicion[1],
+                'presente': "%s (%s%%)" % (presente, round(presente * 100.0 / total)),
+                'no_presente': "%s (%s%%)" % (no_presente, round(no_presente * 100.0 / total)),
+                'sin_info': "%s (%s%%)" % (sin_info, round(sin_info * 100.0 / total)),
+            }
+
+            datos.append(dato)
+
+        datos_centros.append({'centro': centro.comuna, 'datos': datos})
+
     return render(request, 'reportes/condiciones.html', locals())
+
+
+@login_required
+def participacion_actividades(request, anio):
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'particip_activ'
+    datos = get_participacion_actividades(anio)
+    return render(request, 'reportes/particip_activ.html', locals())
+
+
+@login_required
+def actividades_objetivo(request, anio):
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'actividades_objetivo'
+    datos = get_participacion_actividades_por_objetivo(anio)
+    return render(request, 'reportes/actividades_objetivo.html', locals())

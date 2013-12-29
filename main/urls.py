@@ -32,4 +32,6 @@ urlpatterns = patterns('',
     url(r'^reportes/(?P<anio>\d+)/fichas_por_objetivo/$', 'main.reports_views.fichas_por_objetivo', name='fichas_por_objetivo'),
     url(r'^reportes/(?P<anio>\d+)/fichas_por_objetivo_comuna/((?P<factor_id>\d+))/$', 'main.reports_views.fichas_por_objetivo_comuna', name='fichas_por_objetivo_comuna'),
     url(r'^reportes/(?P<anio>\d+)/condiciones_vulnerabilidad/$', 'main.reports_views.condiciones_vulnerabilidad', name='condiciones_vulnerabilidad'),
+    url(r'^reportes/(?P<anio>\d+)/participacion_actividades/$', 'main.reports_views.participacion_actividades', name='participacion_actividades'),
+    url(r'^reportes/(?P<anio>\d+)/actividades_objetivo/$', 'main.reports_views.actividades_objetivo', name='actividades_objetivo'),
 )

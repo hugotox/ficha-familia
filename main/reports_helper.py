@@ -1,5 +1,6 @@
 # -*- encoding: UTF-8 -*-
 from django.db.models import Count
+from django.utils.datastructures import SortedDict
 from main.models import Familia
 from utils.sql import get_dictfetchall_sql
 
@@ -392,26 +393,29 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
     return datos
 
 
-def get_count_condiciones_vulnerabilidad(condicion, valor, agrupar_por_centro=True):
+def get_count_condiciones_vulnerabilidad(condicion, valor, id_centro=None):
     """
     condicion: nombre de la columna de la condicion de vulnerabilidad
     valor: debe ser "true|false|null"
     agrupar_por_centro: booleano
     """
-    if agrupar_por_centro:
+    if id_centro:
         sql = """
             select
+              c.id,
               c.comuna,
               count(f.id)
             from main_familia f
               inner join main_centrofamiliar c on f.centro_familiar_id = c.id
             where
               f.%s is %s
+              and c.id = %s
             group by
+              c.id,
               c.comuna
             order by
               c.comuna;
-        """ % (condicion, valor)
+        """ % (condicion, valor, id_centro)
     else:
         sql = """
             select
@@ -422,3 +426,132 @@ def get_count_condiciones_vulnerabilidad(condicion, valor, agrupar_por_centro=Tr
         """ % (condicion, valor)
 
     return get_dictfetchall_sql(sql)
+
+
+def get_participacion_actividades(anio):
+    actividades = [
+        'tall_for_ori',
+        'tall_dep_rec',
+        'tall_fut_cal',
+        'tall_boccias',
+        'tall_art_cul',
+        'tall_ali_sal',
+        'tall_hue_fam',
+        'enc_familiar',
+        'even_recreat',
+        'even_enc_cam',
+        'even_dep_fam',
+        'even_cultura',
+        'mues_fam_art',
+        'enc_vida_sal',
+        'mod_form_fam',
+        'acc_inf_difu',
+        'aten_ind_fam',
+        'mod_clin_dep',
+        'acc_pase_vis',
+        'mod_clin_art',
+        'acc_recu_are',
+        'mod_clin_ali',
+    ]
+
+    datos_reporte = get_dictfetchall_sql("select comuna from main_centrofamiliar where comuna <> 'Casa Central' order by comuna;")
+
+    for actividad in actividades:
+        sql = '''
+            select
+              C.comuna,
+              count(%s)
+            from
+              main_evaluacionfactoresprotectores EV
+              INNER JOIN (SELECT
+                          o.evaluacion_id
+                        FROM main_objetivosevaluacion o
+                        GROUP BY o.evaluacion_id) AS obj
+              ON obj.evaluacion_id = EV.id
+              inner join main_persona P on EV.persona_id = P.id
+              inner join main_familia F on P.familia_id = F.id
+              inner join main_centrofamiliar C on F.centro_familiar_id = C.id
+            where
+              EV.anio_aplicacion = %s
+              and %s = true
+              and C.comuna <> 'Casa Central'
+            group by
+              C.comuna
+            order by
+              C.comuna
+        ''' % (actividad, anio, actividad)
+        datos = get_dictfetchall_sql(sql)
+
+        for dato in datos:
+
+            comuna = dato['comuna']
+            count = dato['count']
+
+            for dato_rep in datos_reporte:
+                if dato_rep['comuna'] == comuna:
+                    dato_rep.update({actividad: count})
+                    break
+
+    return datos_reporte
+
+
+def get_participacion_actividades_por_objetivo(anio):
+    actividades = [
+        'tall_for_ori',
+        'tall_dep_rec',
+        'tall_fut_cal',
+        'tall_boccias',
+        'tall_art_cul',
+        'tall_ali_sal',
+        'tall_hue_fam',
+        'enc_familiar',
+        'even_recreat',
+        'even_enc_cam',
+        'even_dep_fam',
+        'even_cultura',
+        'mues_fam_art',
+        'enc_vida_sal',
+        'mod_form_fam',
+        'acc_inf_difu',
+        'aten_ind_fam',
+        'mod_clin_dep',
+        'acc_pase_vis',
+        'mod_clin_art',
+        'acc_recu_are',
+        'mod_clin_ali',
+    ]
+
+    datos_reporte = get_dictfetchall_sql("select objetivo_personal from main_factorprotector order by componente_id, id;")
+
+    for actividad in actividades:
+        sql = '''
+            SELECT
+              f.objetivo_personal,
+              count(e.%s)
+            FROM main_objetivosevaluacion o
+              inner join main_factorprotector f on o.factor_id = f.id
+              inner join main_evaluacionfactoresprotectores e on o.evaluacion_id = e.id
+            where
+              e.anio_aplicacion = %s
+              and e.%s = true
+            GROUP BY
+              f.objetivo_personal,
+              f.componente_id,
+              f.id
+            order by
+              f.componente_id, f.id;
+        ''' % (actividad, anio, actividad)
+
+        datos = get_dictfetchall_sql(sql)
+
+        for dato in datos:
+
+            obj = dato['objetivo_personal']
+            count = dato['count']
+
+            for dato_rep in datos_reporte:
+                if dato_rep['objetivo_personal'] == obj:
+                    dato_rep.update({actividad: count})
+                    break
+
+    return datos_reporte

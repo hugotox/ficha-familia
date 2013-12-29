@@ -26,6 +26,30 @@
         </tbody>
     </table>
 
+    {% for dato_centro in datos_centros %}
+        <h3>{{ dato_centro.centro }}</h3>
+        <table class="table table-hover table-condensed table-bordered tabla-datos">
+            <thead>
+                <tr>
+                    <th>Condición de Vulnerabilidad</th>
+                    <th>Presente</th>
+                    <th>No presente</th>
+                    <th>Sin información</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dato in dato_centro.datos %}
+                <tr>
+                    <td>{{ dato.condicion }}</td>
+                    <td>{{ dato.presente }}</td>
+                    <td>{{ dato.no_presente }}</td>
+                    <td>{{ dato.sin_info }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+
 </div>
 {% endblock %}
 
