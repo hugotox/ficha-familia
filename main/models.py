@@ -48,7 +48,7 @@ class CentroFamiliar(models.Model):
         cursor.execute(sql, [anio, self.id])
         res = cursor.fetchall()
         if len(res):
-            return list(res[0])
+            return [x[0] for x in res]
         else:
             return []
 

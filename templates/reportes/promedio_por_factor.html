@@ -1,0 +1,27 @@
+{% extends "reportes/base.html" %}
+
+{% block report_content %}
+<div id="rel_fam_per" class="section">
+    <h3>Promedio por factor</h3>
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th>Factor protector</th>
+                <th>Promedio Inicio</th>
+                <th>Promedio Cumplimiento</th>
+                <th>Promedio Variación</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos %}
+            <tr>
+                <td>{{ dato.factor }}</td>
+                <td>{{ dato.prom_ini }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

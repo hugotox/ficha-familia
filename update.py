@@ -16,4 +16,5 @@ for centro in CentroFamiliar.objects.all():
 
     centro.save(anio=anio)
 
+
 print "All done"

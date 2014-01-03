@@ -1,6 +1,5 @@
 # -*- encoding: UTF-8 -*-
 from django.db.models import Count
-from django.utils.datastructures import SortedDict
 from main.models import Familia
 from utils.sql import get_dictfetchall_sql
 
@@ -555,3 +554,63 @@ def get_participacion_actividades_por_objetivo(anio):
                     break
 
     return datos_reporte
+
+
+def resultados_por_factor(anio):
+
+    factores = [
+        # relaciones comunitarias
+        "presencia_red_de_apoyo",
+        "presencia_red_de_apoyo2",
+        "relaciones_con_vecindario",
+        "relaciones_con_vecindario2",
+        "participacion_social",
+        "participacion_social2",
+        # acceso
+        "red_de_servicios_y_beneficios_sociales",
+        "red_de_servicios_y_beneficios_sociales2",
+        "ocio_y_encuentro_con_pares",
+        "ocio_y_encuentro_con_pares2",
+        "espacios_formativos_y_de_desarrollo",
+        "espacios_formativos_y_de_desarrollo2",
+        # vinculos familiares
+        "relaciones_y_cohesion_familiar",
+        "relaciones_y_cohesion_familiar2",
+        "adaptabilidad_y_resistencia_familiar",
+        "adaptabilidad_y_resistencia_familiar2",
+        "competencias_parentales",
+        "competencias_parentales2",
+        # derechos infantiles
+        "proteccion_y_salud_integral",
+        "proteccion_y_salud_integral2",
+        "participacion_protagonica",
+        "participacion_protagonica2",
+        "recreacion_y_juego_con_pares",
+        "recreacion_y_juego_con_pares2",
+        # desarrollo personal
+        "crecimiento_personal",
+        "crecimiento_personal2",
+        "autonomia",
+        "autonomia2",
+        "habilidades_y_valores_sociales",
+        "habilidades_y_valores_sociales2",
+    ]
+
+    datos = []
+
+    for factor in factores:
+        sql = '''
+            select
+              avg(e.%s)
+            from main_evaluacionfactoresprotectores e
+            where e.ciclo_cerrado = true
+              and e.anio_aplicacion = %s
+              and e.%s <> -100''' % (factor, anio, factor)
+
+        result = get_dictfetchall_sql(sql)
+        datos.append({
+            "factor": factor,
+            "prom_ini": result[0]['avg']
+        })
+
+    return datos

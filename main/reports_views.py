@@ -345,3 +345,12 @@ def actividades_objetivo(request, anio):
     active = 'actividades_objetivo'
     datos = get_participacion_actividades_por_objetivo(anio)
     return render(request, 'reportes/actividades_objetivo.html', locals())
+
+@login_required
+def prom_por_factor(request, anio):
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'prom_por_factor'
+    datos = resultados_por_factor(anio)
+    return render(request, 'reportes/promedio_por_factor.html', locals())
