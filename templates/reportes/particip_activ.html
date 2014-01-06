@@ -62,6 +62,12 @@
                 <td>{{ dato.mod_clin_ali }}</td>
             </tr>
         {% endfor %}
+            <tr>
+                <td><strong>Total</strong></td>
+                {% for total in totales %}
+                    <td>{{ total.total }}</td>
+                {% endfor %}
+            </tr>
         </tbody>
     </table>
 

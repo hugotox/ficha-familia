@@ -333,7 +333,7 @@ def participacion_actividades(request, anio):
     if not es_admin:
         raise Http404
     active = 'particip_activ'
-    datos = get_participacion_actividades(anio)
+    datos, totales = get_participacion_actividades(anio)
     return render(request, 'reportes/particip_activ.html', locals())
 
 
@@ -352,5 +352,20 @@ def prom_por_factor(request, anio):
     if not es_admin:
         raise Http404
     active = 'prom_por_factor'
-    datos = resultados_por_factor(anio)
+    datos, datos_com = resultados_por_factor(anio)
+
+    centros = CentroFamiliar.objects.exclude(comuna='Casa Central')
+
+    datos_centros = []
+
+    for centro in centros:
+        dato, dato_com = resultados_por_factor(anio, centro.id)
+        datos_centros.append({
+            'centro': centro.comuna,
+            'dato': dato,
+            'dato_com': simplejson.dumps(dato_com)
+        })
+
+    datos_com = simplejson.dumps(datos_com)
+
     return render(request, 'reportes/promedio_por_factor.html', locals())

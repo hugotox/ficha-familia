@@ -454,6 +454,7 @@ def get_participacion_actividades(anio):
     ]
 
     datos_reporte = get_dictfetchall_sql("select comuna from main_centrofamiliar where comuna <> 'Casa Central' order by comuna;")
+    totales = []
 
     for actividad in actividades:
         sql = '''
@@ -481,17 +482,25 @@ def get_participacion_actividades(anio):
         ''' % (actividad, anio, actividad)
         datos = get_dictfetchall_sql(sql)
 
+        total_act = 0
+
         for dato in datos:
 
             comuna = dato['comuna']
             count = dato['count']
+            total_act += count
 
             for dato_rep in datos_reporte:
                 if dato_rep['comuna'] == comuna:
                     dato_rep.update({actividad: count})
                     break
 
-    return datos_reporte
+        totales.append({
+            "actividad": actividad,
+            "total": total_act
+        })
+
+    return datos_reporte, totales
 
 
 def get_participacion_actividades_por_objetivo(anio):
@@ -556,61 +565,107 @@ def get_participacion_actividades_por_objetivo(anio):
     return datos_reporte
 
 
-def resultados_por_factor(anio):
+def resultados_por_factor(anio, id_centro=None):
 
     factores = [
         # relaciones comunitarias
-        "presencia_red_de_apoyo",
-        "presencia_red_de_apoyo2",
-        "relaciones_con_vecindario",
-        "relaciones_con_vecindario2",
-        "participacion_social",
-        "participacion_social2",
+        ("presencia_red_de_apoyo", "Presencia red de apoyo"),
+        ("relaciones_con_vecindario", "Relaciones con vecindario"),
+        ("participacion_social", "Participación social"),
         # acceso
-        "red_de_servicios_y_beneficios_sociales",
-        "red_de_servicios_y_beneficios_sociales2",
-        "ocio_y_encuentro_con_pares",
-        "ocio_y_encuentro_con_pares2",
-        "espacios_formativos_y_de_desarrollo",
-        "espacios_formativos_y_de_desarrollo2",
+        ("red_de_servicios_y_beneficios_sociales", "Red de servicios y beneficios sociales"),
+        ("ocio_y_encuentro_con_pares", "Ocio y encuentro con pares"),
+        ("espacios_formativos_y_de_desarrollo", "Espacios formativos y de desarrollo"),
         # vinculos familiares
-        "relaciones_y_cohesion_familiar",
-        "relaciones_y_cohesion_familiar2",
-        "adaptabilidad_y_resistencia_familiar",
-        "adaptabilidad_y_resistencia_familiar2",
-        "competencias_parentales",
-        "competencias_parentales2",
+        ("relaciones_y_cohesion_familiar", "Relaciones y cohesión familiar"),
+        ("adaptabilidad_y_resistencia_familiar", "Adaptabilidad y resiliencia familiar"),
+        ("competencias_parentales", "Competencias parentales"),
         # derechos infantiles
-        "proteccion_y_salud_integral",
-        "proteccion_y_salud_integral2",
-        "participacion_protagonica",
-        "participacion_protagonica2",
-        "recreacion_y_juego_con_pares",
-        "recreacion_y_juego_con_pares2",
+        ("proteccion_y_salud_integral", "Protección y salud integral"),
+        ("participacion_protagonica", "Participación protagónica"),
+        ("recreacion_y_juego_con_pares", "Recreación y juego con pares"),
         # desarrollo personal
-        "crecimiento_personal",
-        "crecimiento_personal2",
-        "autonomia",
-        "autonomia2",
-        "habilidades_y_valores_sociales",
-        "habilidades_y_valores_sociales2",
+        ("crecimiento_personal", "Crecimiento personal"),
+        ("autonomia", "Autonomía"),
+        ("habilidades_y_valores_sociales", "Habilidades y valores sociales"),
+    ]
+
+    componentes = [
+        'Desarrollo Personal',
+        'Derechos Infantiles',
+        u'Vínculos Familiares',
+        'Acceso',
+        'Relaciones Comunitarias',
     ]
 
     datos = []
+    datos_com = []
+    x = 1
+    suma_ini = 0.0
+    suma_cum = 0.0
 
     for factor in factores:
-        sql = '''
+        # --- 1. Acceso a la DB
+        sql_ini = '''
             select
               avg(e.%s)
             from main_evaluacionfactoresprotectores e
+              inner join main_persona p on e.persona_id = p.id
+              inner join main_familia f on p.familia_id = f.id
             where e.ciclo_cerrado = true
               and e.anio_aplicacion = %s
-              and e.%s <> -100''' % (factor, anio, factor)
+              and e.%s <> -100 ''' % (factor[0], anio, factor[0])
 
-        result = get_dictfetchall_sql(sql)
+        if id_centro is not None:
+            sql_ini += " and f.centro_familiar_id = %s" % id_centro
+
+        result_ini = get_dictfetchall_sql(sql_ini)
+
+        factor_cum = factor[0] + "2"
+
+        sql_cum = '''
+            select
+              avg(e.%s)
+            from main_evaluacionfactoresprotectores e
+              inner join main_persona p on e.persona_id = p.id
+              inner join main_familia f on p.familia_id = f.id
+            where e.ciclo_cerrado = true
+              and e.anio_aplicacion = %s
+              and e.%s <> -100 ''' % (factor_cum, anio, factor_cum)
+
+        if id_centro is not None:
+            sql_cum += " and f.centro_familiar_id = %s" % id_centro
+
+        result_cum = get_dictfetchall_sql(sql_cum)
+
+        # ---
+
+        # --- 2. Calculos
+
+        prom_ini = round(result_ini[0]['avg'] or 0, 4)
+        prom_cum = round(result_cum[0]['avg'] or 0, 4)
+
+        suma_ini += float( result_ini[0]['avg'] or 0.0 )
+        suma_cum += float( result_cum[0]['avg'] or 0.0 )
+
+        if x % 3 == 0:
+
+            datos_com.append({
+                'componente': componentes.pop(),
+                "ini": round(suma_ini / 3.0, 4),
+                "cum": round(suma_cum / 3.0, 4),
+                "var": round((suma_cum / 3.0) - (suma_ini / 3.0), 4)
+            })
+            suma_ini = 0.0
+            suma_cum = 0.0
+
+        x += 1
+
         datos.append({
-            "factor": factor,
-            "prom_ini": result[0]['avg']
+            "factor": factor[1],
+            "prom_ini": prom_ini,
+            "prom_cum": prom_cum,
+            "var": round(prom_cum - prom_ini, 4)
         })
 
-    return datos
+    return datos, datos_com

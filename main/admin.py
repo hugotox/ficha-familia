@@ -21,7 +21,7 @@ class EvalAdmin(admin.ModelAdmin):
     search_fields = ('persona__apellido_paterno', 'persona__apellido_materno',
                      'persona__familia__apellido_paterno', 'persona__familia__apellido_materno',
                      'persona__familia__centro_familiar__comuna')
-    list_display = ('persona', 'get_familia', 'get_centrofamiliar')
+    list_display = ('anio_aplicacion', 'persona', 'get_familia', 'get_centrofamiliar')
 
 
 class FamiliasAdmin(admin.ModelAdmin):
