@@ -35,4 +35,5 @@ urlpatterns = patterns('',
     url(r'^reportes/(?P<anio>\d+)/participacion_actividades/$', 'main.reports_views.participacion_actividades', name='participacion_actividades'),
     url(r'^reportes/(?P<anio>\d+)/actividades_objetivo/$', 'main.reports_views.actividades_objetivo', name='actividades_objetivo'),
     url(r'^reportes/(?P<anio>\d+)/var_por_factor/$', 'main.reports_views.prom_por_factor', name='prom_por_factor'),
+    url(r'^reportes/(?P<anio>\d+)/var_por_obj/$', 'main.reports_views.var_por_obj', name='var_por_obj'),
 )

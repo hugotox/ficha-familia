@@ -59,6 +59,11 @@
                         Variación por factor
                     </a>
                 </li>
+                <li {% ifequal active "var_por_obj" %}class="active"{% endifequal %}>
+                    <a href="/reportes/{{ anio }}/var_por_obj/">
+                        Variación por objetivo
+                    </a>
+                </li>
                 {% endif %}
 
     {#            <li {% ifequal active "tipos_familias" %}class="active"{% endifequal %}>#}

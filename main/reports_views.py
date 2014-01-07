@@ -369,3 +369,13 @@ def prom_por_factor(request, anio):
     datos_com = simplejson.dumps(datos_com)
 
     return render(request, 'reportes/promedio_por_factor.html', locals())
+
+
+@login_required
+def var_por_obj(request, anio):
+    es_admin = request.user.is_superuser
+    if not es_admin:
+        raise Http404
+    active = 'var_por_obj'
+    datos = resultados_por_objetivo(anio)
+    return render(request, 'reportes/var_por_obj.html', locals())

@@ -1,0 +1,32 @@
+{% extends "reportes/base.html" %}
+
+{% block report_content %}
+
+<div class="section">
+    <h3>Variación por objetivo (Todos los centros)</h3>
+
+    <table class="table table-hover table-condensed table-bordered tabla-datos">
+        <thead>
+            <tr>
+                <th>Objetivo</th>
+                <th>Cantidad seleccionado</th>
+                <th>Promedio Inicio</th>
+                <th>Promedio Cumplimiento</th>
+                <th>Variación</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos %}
+            <tr>
+                <td>{{ dato.objetivo }}</td>
+                <td>{{ dato.count }}</td>
+                <td>{{ dato.ini }}</td>
+                <td>{{ dato.cum }}</td>
+                <td>{{ dato.var }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

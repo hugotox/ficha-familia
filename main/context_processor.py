@@ -1,8 +1,8 @@
-from main.models import EstadoFamiliaAnio
+from main.models import EvaluacionFactoresProtectores
 
 
 def custom_context(request):
-    periods = list(EstadoFamiliaAnio.objects.all().values_list("anio", flat=True).distinct("anio").order_by("anio"))
+    periods = list(EvaluacionFactoresProtectores.objects.all().values_list("anio_aplicacion", flat=True).distinct("anio_aplicacion").order_by("anio_aplicacion"))
     if request.user:
         es_admin = request.user.is_superuser
     else:

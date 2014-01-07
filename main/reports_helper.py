@@ -669,3 +669,90 @@ def resultados_por_factor(anio, id_centro=None):
         })
 
     return datos, datos_com
+
+
+def resultados_por_objetivo(anio, centro_id=None):
+
+    mapeo = (
+        (u'Promover la presencia de red de apoyo', 'presencia_red_de_apoyo'),
+        (u'Promover las relaciones con el vecindario', 'relaciones_con_vecindario'),
+        (u'Fomentar la participación social', 'participacion_social'),
+        (u'Promover el acceso a la red de servicios y beneficios sociales', 'red_de_servicios_y_beneficios_sociales'),
+        (u'Facilitar el acceso a espacios de canalización de ocio y encuentro con pares', 'ocio_y_encuentro_con_pares'),
+        (u'Promover el acceso a espacios formativos y de desarrollo', 'espacios_formativos_y_de_desarrollo'),
+        (u'Promover las relaciones y cohesión familiar', 'relaciones_y_cohesion_familiar'),
+        (u'Facilitar procesos de adaptabilidad y resiliencia familiar', 'adaptabilidad_y_resistencia_familiar'),
+        (u'Promover el desarrollo de competencias parentales', 'competencias_parentales'),
+        (u'Activar instancias de protección y salud integral', 'proteccion_y_salud_integral'),
+        (u'Fomentar la participación protagónica', 'participacion_protagonica'),
+        (u'Promover instancias de recreación y juego con pares', 'recreacion_y_juego_con_pares'),
+        (u'Promover el crecimiento personal', 'crecimiento_personal'),
+        (u'Facilitar el desarrollo de autonomía', 'autonomia'),
+        (u'Promover el desarrollo de habilidades y valores sociales', 'habilidades_y_valores_sociales'),
+    )
+
+    datos = []
+
+    for m in mapeo:
+        sql = '''
+            select
+              f.id as factor_id,
+              avg(e.%s) as ini
+            from main_evaluacionfactoresprotectores e
+            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = E.id
+            inner join main_factorprotector f on obj.factor_id = f.id
+            where e.ciclo_cerrado = true
+              and e.anio_aplicacion = %s
+              and e.%s <> -100
+              and f.objetivo_personal = '%s'
+            group by
+              f.id;
+        ''' % (m[1], anio, m[1], m[0])
+
+        res = get_dictfetchall_sql(sql)
+
+        col_cum = m[1] + '2'
+
+        sql_cum = '''
+            select
+              f.id as factor_id,
+              avg(e.%s) as cum
+            from main_evaluacionfactoresprotectores e
+            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = E.id
+            inner join main_factorprotector f on obj.factor_id = f.id
+            where e.ciclo_cerrado = true
+              and e.anio_aplicacion = %s
+              and e.%s <> -100
+              and f.objetivo_personal = '%s'
+            group by
+              f.id;
+        ''' % (col_cum, anio, col_cum, m[0])
+
+        res_cum = get_dictfetchall_sql(sql_cum)
+
+        sql_count = '''
+            select
+              f.objetivo_personal,
+              count(o.id)
+            from  main_objetivosevaluacion o
+              inner join main_factorprotector f on o.factor_id = f.id
+              inner join main_evaluacionfactoresprotectores e on o.evaluacion_id = e.id
+            where
+              e.anio_aplicacion = %s
+              and e.ciclo_cerrado = true
+              and f.objetivo_personal = '%s'
+            group by
+              f.objetivo_personal
+        ''' % (anio, m[0])
+
+        res_count = get_dictfetchall_sql(sql_count)
+
+        datos.append({
+            'objetivo': m[0],
+            'count': res_count[0]['count'],
+            'ini': round(res[0]['ini'], 4),
+            'cum': round(res_cum[0]['cum'], 4),
+            'var': round(res_cum[0]['cum'] - res[0]['ini'], 4)
+        })
+
+    return datos

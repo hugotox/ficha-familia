@@ -6,15 +6,13 @@ from main.models import *
 from django.db import connection, transaction
 
 cursor = connection.cursor()
-sql = ""
+sql = "ALTER TABLE public.main_factorprotector ADD columna_evaluacion varchar (250) NULL;"
 # cursor.execute(sql)
 # transaction.commit_unless_managed()
 
 anio = 2013
 
-for centro in CentroFamiliar.objects.all():
 
-    centro.save(anio=anio)
 
 
 print "All done"
