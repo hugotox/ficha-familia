@@ -696,18 +696,20 @@ def resultados_por_objetivo(anio, centro_id=None):
     for m in mapeo:
         sql = '''
             select
-              f.id as factor_id,
-              avg(e.%s) as ini
-            from main_evaluacionfactoresprotectores e
-            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = E.id
-            inner join main_factorprotector f on obj.factor_id = f.id
-            where e.ciclo_cerrado = true
-              and e.anio_aplicacion = %s
-              and e.%s <> -100
-              and f.objetivo_personal = '%s'
-            group by
-              f.id;
+              avg(eva.%s) as ini
+            from main_evaluacionfactoresprotectores eva
+            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = eva.id
+            inner join main_factorprotector fac on obj.factor_id = fac.id
+            inner join main_persona per on eva.persona_id = per.id
+            inner join main_familia fam on per.familia_id = fam.id
+            where eva.ciclo_cerrado = true
+              and eva.anio_aplicacion = %s
+              and eva.%s <> -100
+              and fac.objetivo_personal = '%s'
         ''' % (m[1], anio, m[1], m[0])
+
+        if centro_id is not None:
+            sql += ' and fam.centro_familiar_id = %s ' % centro_id
 
         res = get_dictfetchall_sql(sql)
 
@@ -715,18 +717,20 @@ def resultados_por_objetivo(anio, centro_id=None):
 
         sql_cum = '''
             select
-              f.id as factor_id,
-              avg(e.%s) as cum
-            from main_evaluacionfactoresprotectores e
-            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = E.id
-            inner join main_factorprotector f on obj.factor_id = f.id
-            where e.ciclo_cerrado = true
-              and e.anio_aplicacion = %s
-              and e.%s <> -100
-              and f.objetivo_personal = '%s'
-            group by
-              f.id;
+              avg(eva.%s) as cum
+            from main_evaluacionfactoresprotectores eva
+            INNER JOIN main_objetivosevaluacion obj ON obj.evaluacion_id = eva.id
+            inner join main_factorprotector fac on obj.factor_id = fac.id
+            inner join main_persona per on eva.persona_id = per.id
+            inner join main_familia fam on per.familia_id = fam.id
+            where eva.ciclo_cerrado = true
+              and eva.anio_aplicacion = %s
+              and eva.%s <> -100
+              and fac.objetivo_personal = '%s'
         ''' % (col_cum, anio, col_cum, m[0])
+
+        if centro_id is not None:
+            sql_cum += ' and fam.centro_familiar_id = %s ' % centro_id
 
         res_cum = get_dictfetchall_sql(sql_cum)
 
@@ -737,22 +741,27 @@ def resultados_por_objetivo(anio, centro_id=None):
             from  main_objetivosevaluacion o
               inner join main_factorprotector f on o.factor_id = f.id
               inner join main_evaluacionfactoresprotectores e on o.evaluacion_id = e.id
+              inner join main_persona p on e.persona_id = p.id
+              inner join main_familia fam on p.familia_id = fam.id
             where
               e.anio_aplicacion = %s
               and e.ciclo_cerrado = true
               and f.objetivo_personal = '%s'
-            group by
-              f.objetivo_personal
         ''' % (anio, m[0])
+
+        if centro_id is not None:
+            sql_count += ' and fam.centro_familiar_id = %s ' % centro_id
+
+        sql_count += ' group by f.objetivo_personal '
 
         res_count = get_dictfetchall_sql(sql_count)
 
         datos.append({
             'objetivo': m[0],
-            'count': res_count[0]['count'],
-            'ini': round(res[0]['ini'], 4),
-            'cum': round(res_cum[0]['cum'], 4),
-            'var': round(res_cum[0]['cum'] - res[0]['ini'], 4)
+            'count': res_count[0]['count'] if len(res_count) else 0,
+            'ini': round(float(res[0]['ini'] or 0.0), 4),
+            'cum': round(float(res_cum[0]['cum'] or 0.0), 4),
+            'var': round(float(res_cum[0]['cum'] or 0.0) - float(res[0]['ini'] or 0.0), 4)
         })
 
     return datos

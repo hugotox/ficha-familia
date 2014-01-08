@@ -27,6 +27,33 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% for datos_centro in datos_centros %}
+        <h3>{{ datos_centro.centro }}</h3>
+        <table class="table table-hover table-condensed table-bordered tabla-datos tabla-centro">
+            <thead>
+                <tr>
+                    <th>Objetivo</th>
+                    <th>Fichas con este obj.</th>
+                    <th>Promedio Inicio</th>
+                    <th>Promedio Cumplimiento</th>
+                    <th>Variación</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dato in datos_centro.dato %}
+                <tr>
+                    <td>{{ dato.objetivo }}</td>
+                    <td>{{ dato.count }}</td>
+                    <td>{{ dato.ini }}</td>
+                    <td>{{ dato.cum }}</td>
+                    <td>{{ dato.var }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+
 </div>
 
 {% endblock %}

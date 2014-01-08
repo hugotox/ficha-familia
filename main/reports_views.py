@@ -378,4 +378,12 @@ def var_por_obj(request, anio):
         raise Http404
     active = 'var_por_obj'
     datos = resultados_por_objetivo(anio)
+    centros = CentroFamiliar.objects.exclude(comuna='Casa Central')
+    datos_centros = []
+    for centro in centros:
+        dato = resultados_por_objetivo(anio, centro.id)
+        datos_centros.append({
+            'centro': centro.comuna,
+            'dato': dato
+        })
     return render(request, 'reportes/var_por_obj.html', locals())
