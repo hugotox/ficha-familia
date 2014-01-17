@@ -672,7 +672,7 @@ class FactorProtector(models.Model):
     objetivo_personal = models.TextField(null=True, blank=True)
     objetivo_grupal = models.TextField(null=True, blank=True)
 
-    columna_evaluacion = models.CharField(max_length=250, null=True, blank=True)  # parche. Ej: 'presencia_red_de_apoyo', 'relaciones_con_vecindario', etc
+    #columna_evaluacion = models.CharField(max_length=250, null=True, blank=True)  # parche. Ej: 'presencia_red_de_apoyo', 'relaciones_con_vecindario', etc
 
     def __unicode__(self):
         return self.factor_protector

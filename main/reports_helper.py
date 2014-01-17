@@ -392,7 +392,7 @@ def get_fichas_por_objetivo_comuna(anio, factor_id):
     return datos
 
 
-def get_count_condiciones_vulnerabilidad(condicion, valor, id_centro=None):
+def get_count_condiciones_vulnerabilidad(condicion, valor, anio, id_centro=None):
     """
     condicion: nombre de la columna de la condicion de vulnerabilidad
     valor: debe ser "true|false|null"

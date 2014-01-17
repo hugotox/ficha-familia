@@ -273,9 +273,9 @@ def condiciones_vulnerabilidad(request, anio):
 
     for condicion in condiciones:
 
-        presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true')
-        no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false')
-        sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null')
+        presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true', anio)
+        no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false', anio)
+        sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null', anio)
 
         presente = presente[0]['count'] if len(presente) else 0
         no_presente = no_presente[0]['count'] if len(no_presente) else 0
@@ -304,9 +304,9 @@ def condiciones_vulnerabilidad(request, anio):
 
         for condicion in condiciones:
 
-            presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true', centro.id)
-            no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false', centro.id)
-            sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null', centro.id)
+            presente = get_count_condiciones_vulnerabilidad(condicion[0], 'true', anio, centro.id)
+            no_presente = get_count_condiciones_vulnerabilidad(condicion[0], 'false', anio, centro.id)
+            sin_info = get_count_condiciones_vulnerabilidad(condicion[0], 'null', anio, centro.id)
 
             presente = presente[0]['count'] if len(presente) else 0
             no_presente = no_presente[0]['count'] if len(no_presente) else 0
