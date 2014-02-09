@@ -14,7 +14,7 @@
 {% block content %}
 
 {#    template para la parte III#}
-    <div style="display: none" xmlns="http://www.w3.org/1999/html">
+    <div style="display: none" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
         <table>
             <tr id="template_fila-ind">
                 <td>
@@ -113,7 +113,12 @@
                     <b>{{ anio }}</b>
                     {{ form.anio_aplicacion }}
                 {% else %}
-                    <input type="text" name="{{ form.anio_aplicacion.name }}">
+                    <input type="text" name="{{ form.anio_aplicacion.name }}" value="{{ form.anio_aplicacion.value }}">
+                {% endif %}
+                {% if show_previous_ev_btn %}
+                    <a href="#" id="btnReusarDatos">
+                        Usar datos de cumplimiento de la ficha anterior como inicio en esta ficha
+                    </a>
                 {% endif %}
             </div>
         </div>
@@ -465,6 +470,26 @@
 
 
         });
+
+        var $btnReusarDatos = $("#btnReusarDatos");
+        if($btnReusarDatos.length == 1) {
+            $btnReusarDatos.click(function(){
+                $.ajax({
+                    url: "/ficha/{{ persona.id }}/copiar/",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (data) {
+                        if(data.success) {
+                            data = data.data;
+                            for (var item in data) {
+                                if(data.hasOwnProperty(item))
+                                    $('#id_' + item + '_' + data[item]).attr('checked', 'checked');
+                            }
+                        }
+                    }
+                });
+            });
+        }
     });
 </script>
 {% endblock %}

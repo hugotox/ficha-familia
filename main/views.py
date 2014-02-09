@@ -381,6 +381,11 @@ def ficha(request, id, anio):
     if evaluacion_qs.count():
         evaluacion = evaluacion_qs[0]
 
+    # existe la evaluacion anio anterior?
+    show_previous_ev_btn = EvaluacionFactoresProtectores.objects.filter(
+        persona=persona, anio_aplicacion=datetime.now().year - 1, ciclo_cerrado=True)\
+        .count() == 1
+
     if request.method == "POST":
         action = request.POST.get('action', 'Guardar')
 
@@ -491,7 +496,7 @@ def ficha(request, id, anio):
         #     objetivos_ind_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=1)))
         #     objetivos_grup_qs = simplejson.dumps(crear_listas_objetivos(evaluacion.objetivosevaluacion_set.filter(tipo=2)))
 
-    else:
+    else:  # GET handler
         tab = 1
         if evaluacion is not None:
             # existe
@@ -507,7 +512,7 @@ def ficha(request, id, anio):
 
         else:
             # nueva
-            form = EvaluacionForm(initial={'persona': persona})
+            form = EvaluacionForm(initial={'persona': persona, 'anio_aplicacion': datetime.now().year})
 
     return render(request, 'ficha_persona.html', locals())
 
@@ -626,3 +631,30 @@ def update_aporta(request):
         return json_response({'success': True, 'msg': 'Saved'})
     else:
         return json_response({'success': False, 'msg': 'Operation not allowed'})
+
+
+@login_required
+def copiar_datos_anterior(request, id_persona):
+    try:
+        persona = Persona.objects.get(id=id_persona)
+        eva_anterior = EvaluacionFactoresProtectores.objects.get(persona=persona, anio_aplicacion=datetime.now().year - 1, ciclo_cerrado=True)
+    except:
+        return json_response({'success': False})
+
+    return json_response({'success': True, 'data': {
+        'presencia_red_de_apoyo': eva_anterior.presencia_red_de_apoyo2,
+        'relaciones_con_vecindario': eva_anterior.relaciones_con_vecindario2,
+        'participacion_social': eva_anterior.participacion_social2,
+        'red_de_servicios_y_beneficios_sociales': eva_anterior.red_de_servicios_y_beneficios_sociales2,
+        'ocio_y_encuentro_con_pares': eva_anterior.ocio_y_encuentro_con_pares2,
+        'espacios_formativos_y_de_desarrollo': eva_anterior.espacios_formativos_y_de_desarrollo2,
+        'relaciones_y_cohesion_familiar': eva_anterior.relaciones_y_cohesion_familiar2,
+        'adaptabilidad_y_resistencia_familiar': eva_anterior.adaptabilidad_y_resistencia_familiar2,
+        'competencias_parentales': eva_anterior.competencias_parentales2,
+        'proteccion_y_salud_integral': eva_anterior.proteccion_y_salud_integral2,
+        'participacion_protagonica': eva_anterior.participacion_protagonica2,
+        'recreacion_y_juego_con_pares': eva_anterior.recreacion_y_juego_con_pares2,
+        'crecimiento_personal': eva_anterior.crecimiento_personal2,
+        'autonomia': eva_anterior.autonomia2,
+        'habilidades_y_valores_sociales': eva_anterior.habilidades_y_valores_sociales2
+    }})
