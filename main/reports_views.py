@@ -313,12 +313,20 @@ def condiciones_vulnerabilidad(request, anio):
             sin_info = sin_info[0]['count'] if len(sin_info) else 0
             total = presente + no_presente + sin_info
 
-            dato = {
-                'condicion': condicion[1],
-                'presente': "%s (%s%%)" % (presente, round(presente * 100.0 / total)),
-                'no_presente': "%s (%s%%)" % (no_presente, round(no_presente * 100.0 / total)),
-                'sin_info': "%s (%s%%)" % (sin_info, round(sin_info * 100.0 / total)),
-            }
+            if total > 0:
+                dato = {
+                    'condicion': condicion[1],
+                    'presente': "%s (%s%%)" % (presente, round(presente * 100.0 / total)),
+                    'no_presente': "%s (%s%%)" % (no_presente, round(no_presente * 100.0 / total)),
+                    'sin_info': "%s (%s%%)" % (sin_info, round(sin_info * 100.0 / total)),
+                }
+            else:
+                dato = {
+                    'condicion': condicion[1],
+                    'presente': "%s (%s%%)" % (0, 0),
+                    'no_presente': "%s (%s%%)" % (0, 0),
+                    'sin_info': "%s (%s%%)" % (0, 0),
+                }
 
             datos.append(dato)
 

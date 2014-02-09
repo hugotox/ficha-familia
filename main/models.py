@@ -199,6 +199,7 @@ class Familia(models.Model):
     tipo_de_familia = models.IntegerField(choices=TIPOS_FAMILIA_CHOICES, null=True, blank=True)
     direccion = models.CharField(max_length=250, verbose_name=u'Dirección', null=True, blank=True)
 
+    # --- OBSOLETO: estos datos se movieron a EstadoFamiliaAnio para permitir medir el avance a traves de los anos ---
     cond_precariedad = models.NullBooleanField(default=None, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.', blank=True, null=True)
     cond_precariedad_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_vulnerabilidad = models.NullBooleanField(default=None, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).', blank=True, null=True)
@@ -215,6 +216,7 @@ class Familia(models.Model):
     cond_malos_tratos_coment = models.CharField(max_length=250, null=True, blank=True)
     cond_socializ_delictual = models.NullBooleanField(default=None, verbose_name=u'Historial de socialización delictual (detenciones, problemas judiciales).', blank=True, null=True)
     cond_socializ_delictual_coment = models.CharField(max_length=250, null=True, blank=True)
+    # --- ---
 
     centro_familiar = models.ForeignKey(CentroFamiliar, null=True, blank=True)
 
@@ -635,9 +637,38 @@ class PersonaForm(forms.ModelForm):
 
 
 class FamiliaForm(forms.ModelForm):
+    anio = forms.IntegerField(initial=datetime.now().year, widget=forms.HiddenInput())
+
+    def save(self, *args, **kwargs):
+        super(FamiliaForm, self).save(*args, **kwargs)
+
+        # guardar estado:
+        familia = self.instance
+        estado, created = EstadoFamiliaAnio.objects.get_or_create(familia=familia, anio=self.cleaned_data['anio'])
+        estado.cond_precariedad = familia.cond_precariedad
+        estado.cond_precariedad_coment = familia.cond_precariedad_coment
+        estado.cond_vulnerabilidad = familia.cond_vulnerabilidad
+        estado.cond_vulnerabilidad_coment = familia.cond_vulnerabilidad_coment
+        estado.cond_hogar_uni_riesgo = familia.cond_hogar_uni_riesgo
+        estado.cond_hogar_uni_riesgo_coment = familia.cond_hogar_uni_riesgo_coment
+        estado.cond_familia_mono_riesgo = familia.cond_familia_mono_riesgo
+        estado.cond_familia_mono_riesgo_coment = familia.cond_familia_mono_riesgo_coment
+        estado.cond_alcohol_drogas = familia.cond_alcohol_drogas
+        estado.cond_alcohol_drogas_coment = familia.cond_alcohol_drogas_coment
+        estado.cond_discapacidad = familia.cond_discapacidad
+        estado.cond_discapacidad_coment = familia.cond_discapacidad_coment
+        estado.cond_malos_tratos = familia.cond_malos_tratos
+        estado.cond_malos_tratos_coment = familia.cond_malos_tratos_coment
+        estado.cond_socializ_delictual = familia.cond_socializ_delictual
+        estado.cond_socializ_delictual_coment = familia.cond_socializ_delictual_coment
+        estado.save()
+
+
     class Meta:
         model = Familia
-        exclude = ('date_created', 'date_modified', 'estado')
+        exclude = (
+            'date_created', 'date_modified', 'estado',
+        )
 
         widgets = {
             'cond_precariedad': forms.RadioSelect(choices=PRESENTE_CHOICES, renderer=HorizontalRadio),
@@ -1055,6 +1086,24 @@ class EstadoFamiliaAnio(models.Model):
     porcentaje_datos_parte2 = models.FloatField(null=True, blank=True)  # DEPRECADO
     porcentaje_datos_parte2_c = models.FloatField(null=True, blank=True)  # DEPRECADO
     porcentaje_datos_parte3 = models.FloatField(null=True, blank=True)  # DEPRECADO
+
+    # Nuevo: condiciones de vulnerabilidad:
+    cond_precariedad = models.NullBooleanField(default=None, verbose_name=u'Condiciones de precariedad: vivienda, trabajo, situación sanitaria, otras.', blank=True, null=True)
+    cond_precariedad_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_vulnerabilidad = models.NullBooleanField(default=None, verbose_name=u'Vulnerabilidad barrial (inseguridad, violencia, estigma, pocos accesos).', blank=True, null=True)
+    cond_vulnerabilidad_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_hogar_uni_riesgo = models.NullBooleanField(default=None, verbose_name=u'Hogar unipersonal en situación de riesgo.', blank=True, null=True)
+    cond_hogar_uni_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_familia_mono_riesgo = models.NullBooleanField(default=None, verbose_name=u'Familia monoparental en situación de riesgo.', blank=True, null=True)
+    cond_familia_mono_riesgo_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_alcohol_drogas = models.NullBooleanField(default=None, verbose_name=u'Consumo problemático de alcohol y/o drogas.', blank=True, null=True)
+    cond_alcohol_drogas_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_discapacidad = models.NullBooleanField(default=None, verbose_name=u'Presencia de discapacidad física y/o mental.', blank=True, null=True)
+    cond_discapacidad_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_malos_tratos = models.NullBooleanField(default=None, verbose_name=u'Experiencias de malos tratos (actual o histórica).', blank=True, null=True)
+    cond_malos_tratos_coment = models.CharField(max_length=250, null=True, blank=True)
+    cond_socializ_delictual = models.NullBooleanField(default=None, verbose_name=u'Historial de socialización delictual (detenciones, problemas judiciales).', blank=True, null=True)
+    cond_socializ_delictual_coment = models.CharField(max_length=250, null=True, blank=True)
 
     class Meta:
         unique_together = (("familia", "anio"),)

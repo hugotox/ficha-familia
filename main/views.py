@@ -172,6 +172,8 @@ def familia(request, id):
             raise Http404
 
     if request.method == "POST":
+        anio = request.POST.get('anio', current_year)
+
         if familia is not None:
             familia_form = FamiliaForm(request.POST, instance=familia)
         else:
@@ -197,8 +199,27 @@ def familia(request, id):
             message_class = "error"
             message = FORM_INCORRECTO
     else:
+        anio = current_year
         if familia is not None:
-            familia_form = FamiliaForm(instance=familia)
+            estado, c = EstadoFamiliaAnio.objects.get_or_create(familia=familia, anio=anio)
+            familia_form = FamiliaForm(instance=familia, initial={
+                'cond_precariedad': estado.cond_precariedad,
+                'cond_precariedad_coment': estado.cond_precariedad_coment,
+                'cond_vulnerabilidad': estado.cond_vulnerabilidad,
+                'cond_vulnerabilidad_coment': estado.cond_vulnerabilidad_coment,
+                'cond_hogar_uni_riesgo': estado.cond_hogar_uni_riesgo,
+                'cond_hogar_uni_riesgo_coment': estado.cond_hogar_uni_riesgo_coment,
+                'cond_familia_mono_riesgo': estado.cond_familia_mono_riesgo,
+                'cond_familia_mono_riesgo_coment': estado.cond_familia_mono_riesgo_coment,
+                'cond_alcohol_drogas': estado.cond_alcohol_drogas,
+                'cond_alcohol_drogas_coment': estado.cond_alcohol_drogas_coment,
+                'cond_discapacidad': estado.cond_discapacidad,
+                'cond_discapacidad_coment': estado.cond_discapacidad_coment,
+                'cond_malos_tratos': estado.cond_malos_tratos,
+                'cond_malos_tratos_coment': estado.cond_malos_tratos_coment,
+                'cond_socializ_delictual': estado.cond_socializ_delictual,
+                'cond_socializ_delictual_coment': estado.cond_socializ_delictual_coment,
+            })
         else:
             # agregar nuevo registro
             centro = user_profile.centro_familiar.id if user_profile.centro_familiar is not None else None
@@ -208,6 +229,8 @@ def familia(request, id):
             message = DATOS_GUARDADOS
             message_class = 'success'
             request.session['nueva_familia'] = False
+
+    anios = range(2013, datetime.now().year+1)
 
     return render(request, 'ficha_familia.html', locals())
 
@@ -658,3 +681,34 @@ def copiar_datos_anterior(request, id_persona):
         'autonomia': eva_anterior.autonomia2,
         'habilidades_y_valores_sociales': eva_anterior.habilidades_y_valores_sociales2
     }})
+
+
+@login_required
+def get_condiciones_familia(request, id, anio):
+    try:
+        familia = Familia.objects.get(id=id)
+        estado = EstadoFamiliaAnio.objects.get(familia=familia, anio=anio)
+    except:
+        return json_response({'success': False})
+
+    return json_response({
+        'success': True,
+        'data': {
+            'cond_precariedad': estado.cond_precariedad,
+            'cond_precariedad_coment': estado.cond_precariedad_coment,
+            'cond_vulnerabilidad': estado.cond_vulnerabilidad,
+            'cond_vulnerabilidad_coment': estado.cond_vulnerabilidad_coment,
+            'cond_hogar_uni_riesgo': estado.cond_hogar_uni_riesgo,
+            'cond_hogar_uni_riesgo_coment': estado.cond_hogar_uni_riesgo_coment,
+            'cond_familia_mono_riesgo': estado.cond_familia_mono_riesgo,
+            'cond_familia_mono_riesgo_coment': estado.cond_familia_mono_riesgo_coment,
+            'cond_alcohol_drogas': estado.cond_alcohol_drogas,
+            'cond_alcohol_drogas_coment': estado.cond_alcohol_drogas_coment,
+            'cond_discapacidad': estado.cond_discapacidad,
+            'cond_discapacidad_coment': estado.cond_discapacidad_coment,
+            'cond_malos_tratos': estado.cond_malos_tratos,
+            'cond_malos_tratos_coment': estado.cond_malos_tratos_coment,
+            'cond_socializ_delictual': estado.cond_socializ_delictual,
+            'cond_socializ_delictual_coment': estado.cond_socializ_delictual_coment,
+        }
+    })

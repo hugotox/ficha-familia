@@ -403,26 +403,28 @@ def get_count_condiciones_vulnerabilidad(condicion, valor, anio, id_centro=None)
             select
               c.id,
               c.comuna,
-              count(f.id)
+              count(e.id)
             from main_familia f
               inner join main_centrofamiliar c on f.centro_familiar_id = c.id
+              inner join main_estadofamiliaanio e on e.familia_id=f.id and e.anio=%s
             where
-              f.%s is %s
+              e.%s is %s
               and c.id = %s
             group by
               c.id,
               c.comuna
             order by
               c.comuna;
-        """ % (condicion, valor, id_centro)
+        """ % (anio, condicion, valor, id_centro)
     else:
         sql = """
             select
-              count(f.id)
-            from main_familia f
+              count(e.id)
+            from main_estadofamiliaanio e
             where
-              f.%s is %s;
-        """ % (condicion, valor)
+              e.%s is %s
+              and e.anio = %s;
+        """ % (condicion, valor, anio)
 
     return get_dictfetchall_sql(sql)
 

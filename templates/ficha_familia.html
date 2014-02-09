@@ -125,9 +125,19 @@
 
         <fieldset>
             <legend>Principales Condiciones de Vulnerabilidad Social en el Grupo Familiar</legend>
+            <span>Año</span>
+            <select id="select_anio" class="input-small">
+                {% for a in anios %}
+                    <option {% ifequal a anio %}selected="selected"{% endifequal %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+            {# hidden input: id_anio #}
+            {{ familia_form.anio }}
         </fieldset>
 
-        <table class="table table-hover table-condensed table-bordered ficha-form">
+        <br>
+
+        <table id="tabla_condiciones" class="table table-hover table-condensed table-bordered ficha-form">
             <thead>
                 <tr>
                     <th></th>
@@ -419,6 +429,54 @@
         $("table.ficha-form a.limpiar").click(function(){
             $(this).parent().find("input[type='radio']:checked").removeAttr("checked");
             return false;
+        });
+
+        // select anio
+        $('#select_anio').change(function(){
+            var anio = $(this).val();
+            $('#id_anio').val(anio);
+            $.ajax({
+                url: "/get_condiciones_familia/" + {{ familia.id }} + "/" + anio + "/",
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    if(data.success) {
+                        // actualizar form
+                        data = data.data;
+                        for (var item in data) {
+                            if(data.hasOwnProperty(item)) {
+                                if(item.search('coment') != -1) {
+                                    //comentario
+                                    $('#id_' + item).val(data[item]);
+                                } else {
+                                    //boleano
+                                    if(data[item] == null) {
+                                        $('#id_' + item + '_0').removeAttr('checked');
+                                        $('#id_' + item + '_1').removeAttr('checked');
+                                    } else if(data[item] == true) {
+                                        //presente
+                                        $('#id_' + item + '_0').attr('checked', 'checked');
+                                    } else {
+                                        //no presente
+                                        $('#id_' + item + '_1').attr('checked', 'checked');
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // limpiar form
+                        $('#tabla_condiciones a.limpiar').each(function(){
+                            $(this).click();
+                        });
+
+                        $('#tabla_condiciones input[type="text"]').each(function(){
+                            $(this).val('');
+                        });
+
+
+                    }
+                }
+            });
         });
 
     });
